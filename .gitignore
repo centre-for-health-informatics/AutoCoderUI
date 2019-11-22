@@ -6,6 +6,7 @@ env/
 *.sqlite3
 secrets/
 .vscode/
+.DS_Store
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
