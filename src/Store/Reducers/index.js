@@ -1,7 +1,12 @@
 import { combineReducers } from "redux";
-
-import example from "./example.js";
+import alert from "./alert";
+import authentication from "./authentication";
+import fileViewer from "./fileViewer";
+import tagManagement from "./tagManagement";
 
 export default combineReducers({
-  example
+  alert,
+  authentication,
+  fileViewer,
+  tagManagement
 });

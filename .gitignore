@@ -1,10 +1,10 @@
 run.bat
 node_modules/
-frontend/package-lock.json
 *.elasticbeanstalk/
 env/
 *.sqlite3
 secrets/
+data/
 .vscode/
 .DS_Store
 
