@@ -4,7 +4,6 @@ import * as actions from "../../Store/Actions/index";
 import LoadingIndicator from "../../Components/LoadingIndicator/LoadingIndicator";
 import { TextAnnotator } from "react-text-annotate";
 import CustomAnnotator from "../../Components/CustomAnnotator/CustomAnnotator";
-import "./DocumentDisplay.css";
 
 const annoteStyle = {
   // fontFamily: "IBM Plex Sans",
@@ -171,18 +170,30 @@ class DocumentDisplay extends Component {
   };
 
   render() {
+    let color1 = "red";
+    let color2 = "blue";
+    let color3 = "green";
+    let percent1 = 33;
+    let percent2 = 66;
+    let percent3 = 100;
     return (
       <div>
-        {/* <div>
-          <h1 qwerty="some random text">some random text</h1>
-        </div> */}
+        <div>
+          <h1
+            style={{
+              backgroundImage: `linear-gradient(${color1} ${percent1}%, ${color3} ${percent1}%, ${color3} ${percent2}%, ${color2} ${percent2}%, ${color2} ${percent3}%)`
+            }}
+          >
+            some random text
+          </h1>
+        </div>
         <div>
           {this.displayTypeDropDown()}
           {this.entityTagDropDown()}
           {this.sectionTagDropDown()}
         </div>
-        {/* <div id="whiteSpace">{this.renderAnnotator()}</div> */}
-        <div id="whiteSpace">{this.renderCustomAnnotator()}</div>
+        {/* <div>{this.renderAnnotator()}</div> */}
+        <div style={{ whiteSpace: "pre-wrap" }}>{this.renderCustomAnnotator()}</div>
       </div>
     );
   }
