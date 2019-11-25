@@ -57,7 +57,6 @@ const TagSelector = props => {
 
   const handleTypeChange = event => {
     let newSelection = event.target.value;
-    console.log(newSelection);
     if (newSelection === props.annotationFocus) {
       // unselecting the currently selected value
       newSelection = "";
@@ -147,6 +146,10 @@ const TagSelector = props => {
     }
   };
 
+  const searchboxSelectionChange = (event, selections) => {
+    props.setAddingTags(selections);
+  };
+
   return (
     <div className={classes.root}>
       <div className={classes.radioButtonForm}>
@@ -186,14 +189,13 @@ const TagSelector = props => {
           disabled={shouldDisableAutoComplete()}
           filterSelectedOptions
           options={getCurrentTagOptions()}
-          //   onChange={}
+          onChange={searchboxSelectionChange}
           getOptionLabel={getOptionLabelFunc()}
           renderInput={params => (
             <TextField
               {...params}
               variant="standard"
               label={getTextLabel()}
-              placeholder="Select an annotation type to start"
               margin="normal"
               fullWidth
               className={classes.searchBoxText}
@@ -208,7 +210,7 @@ const TagSelector = props => {
 const mapStateToProps = state => {
   return {
     annotationFocus: state.fileViewer.annotationFocus, // the currently active type
-    tag: state.fileViewer.tag, // the currently active tag
+    addingTags: state.fileViewer.tag, // the currently active tag
     sections: state.fileViewer.sections,
     sentences: state.fileViewer.sentences,
     tokens: state.fileViewer.tokens,
@@ -220,7 +222,7 @@ const mapStateToProps = state => {
 
 const mapDispatchToProps = dispatch => {
   return {
-    setTag: tag => dispatch(actions.setTag(tag)),
+    setAddingTags: tags => dispatch(actions.setAddingTags(tags)),
     setAnnotationFocus: annotationFocus => dispatch(actions.setAnnotationFocus(annotationFocus)),
     setAnnotations: annotations => dispatch(actions.setAnnotations(annotations))
   };

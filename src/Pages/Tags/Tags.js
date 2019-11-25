@@ -55,13 +55,13 @@ const Tags = props => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [props.alertMessage]);
 
-  // if (isLoading) {
-  //   return <Loading />;
-  // }
+  if (isLoading) {
+    return <Loading />;
+  }
 
-  // if (props.isServerDown) {
-  //   return <Redirect to="/server-down" />;
-  // }
+  if (props.isServerDown) {
+    return <Redirect to="/server-down" />;
+  }
 
   // if (!props.isAuthorized) {
   //   return <Redirect to="/sign-in" />;
@@ -73,6 +73,7 @@ const Tags = props => {
         <MenuBar
           title="Manage Tags"
           annotateLink
+          sandboxLink
           handleLayoutConfirm={() => handleLayoutModifierButton()}
           handleResetLayout={resetLayout}
           inModifyMode={isLayoutModifiable}

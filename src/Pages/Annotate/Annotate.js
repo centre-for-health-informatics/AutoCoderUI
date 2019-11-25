@@ -39,9 +39,9 @@ const Annotate = props => {
   const highlightEditDiv = isLayoutModifiable ? "grid-border edit-border" : "grid-border";
 
   // Verify token
-  useEffect(() => {
-    APIUtility.API.verifyLSToken(() => setIsLoading(false));
-  }, []);
+  // useEffect(() => {
+  //   APIUtility.API.verifyLSToken(() => setIsLoading(false));
+  // }, []);
 
   // // Display alert message
   useEffect(() => {
@@ -73,6 +73,7 @@ const Annotate = props => {
         <MenuBar
           title="Annotate"
           tagsLink
+          sandboxLink
           handleLayoutConfirm={() => handleLayoutModifierButton()}
           handleResetLayout={resetLayout}
           inModifyMode={isLayoutModifiable}

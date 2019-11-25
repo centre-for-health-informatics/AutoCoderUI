@@ -32,3 +32,10 @@ export const disableAllTags = () => {
     type: actionTypes.DISABLE_ALL_TAGS
   };
 };
+
+export const setAddingTags = tags => {
+  return {
+    type: actionTypes.SET_ADDING_TAGS,
+    tags
+  };
+};

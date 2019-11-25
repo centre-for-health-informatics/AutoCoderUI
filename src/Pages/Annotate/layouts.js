@@ -1,22 +1,22 @@
 const defaultLayoutLg = [
-  { w: 2, h: 15, x: 0, y: 0, i: "tagSelector" },
-  { w: 5, h: 15, x: 2, y: 0, i: "document" }
+  { w: 5, h: 7, x: 0, y: 0, i: "tagSelector" },
+  { w: 5, h: 15, x: 0, y: 2, i: "document" }
 ];
 const defaultLayoutMd = [
-  { w: 2, h: 15, x: 0, y: 0, i: "tagSelector" },
-  { w: 5, h: 15, x: 2, y: 0, i: "document" }
+  { w: 5, h: 7, x: 0, y: 0, i: "tagSelector" },
+  { w: 5, h: 15, x: 0, y: 2, i: "document" }
 ];
 const defaultLayoutSm = [
-  { w: 2, h: 15, x: 0, y: 0, i: "tagSelector" },
-  { w: 5, h: 15, x: 2, y: 0, i: "document" }
+  { w: 5, h: 7, x: 0, y: 0, i: "tagSelector" },
+  { w: 5, h: 15, x: 0, y: 2, i: "document" }
 ];
 const defaultLayoutXs = [
-  { w: 2, h: 15, x: 0, y: 0, i: "tagSelector" },
-  { w: 5, h: 15, x: 2, y: 0, i: "document" }
+  { w: 5, h: 7, x: 0, y: 0, i: "tagSelector" },
+  { w: 5, h: 15, x: 0, y: 2, i: "document" }
 ];
 const defaultLayoutXxs = [
-  { w: 2, h: 15, x: 0, y: 0, i: "tagSelector" },
-  { w: 5, h: 15, x: 2, y: 0, i: "document" }
+  { w: 5, h: 7, x: 0, y: 0, i: "tagSelector" },
+  { w: 5, h: 15, x: 0, y: 2, i: "document" }
 ];
 
 export const defaultLayouts = {

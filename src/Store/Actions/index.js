@@ -11,9 +11,15 @@ export {
   setAnnotations,
   setTagColors,
   setSectionList,
-  setTag,
   setFileReference,
   setAlternatingColors,
   setLinkedListAdd
 } from "./fileViewer";
-export { setUploadedTags, enableTagByIndex, disableTagByIndex, enableAllTags, disableAllTags } from "./tagManagement";
+export {
+  setUploadedTags,
+  enableTagByIndex,
+  disableTagByIndex,
+  enableAllTags,
+  disableAllTags,
+  setAddingTags
+} from "./tagManagement";
