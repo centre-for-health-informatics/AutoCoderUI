@@ -15,15 +15,16 @@ const annoteStyle = {
 class DocumentDisplay extends Component {
   constructor(props) {
     super(props);
-    this.props.setTag("");
+    this.props.setAddingTags("");
   }
 
   handleTagChange = e => {
-    this.props.setTag(e.target.value);
+    this.props.setAddingTags(e.target.value);
   };
 
   // this is called whenever the user selects something to annotate or clicks on an annotation to remove it
   handleAnnotate = annotations => {
+    console.log(annotations);
     if (this.props.annotationFocus === "Entity") {
       this.props.setEntities(annotations);
     } else if (this.props.annotationFocus === "Section") {
@@ -59,11 +60,11 @@ class DocumentDisplay extends Component {
       // this.props.setICDCodes(annotations);
     }
     this.props.setAnnotations(annotations);
-    console.log("prop.annot", this.props.annotations);
+    // console.log("prop.annot", this.props.annotations);
   };
 
   handleTypeChange = e => {
-    this.props.setTag(""); // prevents entity tags from being assigned to sections etc
+    this.props.setAddingTags(""); // prevents entity tags from being assigned to sections etc
     this.props.setAnnotationFocus(e.target.value);
     if (e.target.value === "Entity") {
       this.props.setAnnotations(this.props.entities);
@@ -145,8 +146,8 @@ class DocumentDisplay extends Component {
         onChange={this.handleAnnotate}
         getSpan={span => ({
           ...span,
-          tag: this.props.tag,
-          color: this.props.tagColors[this.props.tag]
+          tag: this.props.addingTags[0].id,
+          color: this.props.tagColors[this.props.addingTags[0].id]
         })}
       />
     );
@@ -163,8 +164,8 @@ class DocumentDisplay extends Component {
         onChange={this.handleAnnotate}
         getSpan={span => ({
           ...span,
-          tag: this.props.tag,
-          color: this.props.tagColors[this.props.tag]
+          tag: this.props.addingTags[0].id,
+          color: this.props.tagColors[this.props.addingTags[0].id]
         })}
       />
     );
@@ -202,7 +203,7 @@ const mapStateToProps = state => {
     annotations: state.fileViewer.annotations,
     tagColors: state.fileViewer.tagColors,
     sectionList: state.fileViewer.sectionList,
-    tag: state.fileViewer.tag,
+    addingTags: state.tagManagement.addingTags,
     alternatingColors: state.fileViewer.alternatingColors
   };
 };
@@ -216,7 +217,7 @@ const mapDispatchToProps = dispatch => {
     // setICDCodes: icdCodes => dispatch
     setAnnotationFocus: annotationFocus => dispatch(actions.setAnnotationFocus(annotationFocus)),
     setAnnotations: annotations => dispatch(actions.setAnnotations(annotations)),
-    setTag: tag => dispatch(actions.setTag(tag))
+    setAddingTags: tag => dispatch(actions.setAddingTags(tag))
   };
 };
 

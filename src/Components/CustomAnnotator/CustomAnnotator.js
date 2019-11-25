@@ -98,10 +98,10 @@ class CustomAnnotator extends Component {
   };
 
   render() {
-    // const splits = util.splitWithOffsets(this.props.textToDisplay, this.props.annotations);
-    console.log("annotations", this.props.annotations);
-    const splits = util.createIntervals(this.props.textToDisplay, this.props.annotations);
-    console.log("splits", splits);
+    const splits = util.splitWithOffsets(this.props.textToDisplay, this.props.annotations);
+    // console.log("annotations", this.props.annotations);
+    // const splits = util.createIntervals(this.props.textToDisplay, this.props.annotations);
+    // console.log("splits", splits);
     return (
       <div>
         <div style={this.props.style} ref={this.rootRef}>

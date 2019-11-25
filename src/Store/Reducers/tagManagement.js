@@ -1,7 +1,8 @@
 import * as actionTypes from "../Actions/actionTypes";
 
 const initialState = {
-  uploadedTags: []
+  uploadedTags: [],
+  addingTags: []
 };
 
 const reducer = (state = initialState, action) => {
@@ -9,14 +10,14 @@ const reducer = (state = initialState, action) => {
     const items = [...state.uploadedTags];
     const newTag = { ...items[action.index], disabled: false };
     items[action.index] = newTag;
-    return { uploadedTags: items };
+    return { ...state, uploadedTags: items };
   };
 
   const disableTagByIndex = () => {
     const items = [...state.uploadedTags];
     const newTag = { ...items[action.index], disabled: true };
     items[action.index] = newTag;
-    return { uploadedTags: items };
+    return { ...state, uploadedTags: items };
   };
 
   const setDisableForAllTags = (disable = false) => {
@@ -24,12 +25,12 @@ const reducer = (state = initialState, action) => {
     items.forEach(tag => {
       tag.disabled = disable;
     });
-    return { uploadedTags: items };
+    return { ...state, uploadedTags: items };
   };
 
   switch (action.type) {
     case actionTypes.SET_UPLOADED_TAGS:
-      return { uploadedTags: action.uploadedTags };
+      return { ...state, uploadedTags: action.uploadedTags };
 
     case actionTypes.ENABLE_TAG_BY_INDEX:
       return enableTagByIndex();
@@ -42,6 +43,9 @@ const reducer = (state = initialState, action) => {
 
     case actionTypes.DISABLE_ALL_TAGS:
       return setDisableForAllTags(true);
+
+    case actionTypes.SET_ADDING_TAGS:
+      return { ...state, addingTags: action.tags };
 
     default:
       return state;
