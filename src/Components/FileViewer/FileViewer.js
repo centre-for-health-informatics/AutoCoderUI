@@ -65,7 +65,6 @@ class FileViewer extends Component {
   readFile = file => {
     // reset store if user changes file
     this.props.setAnnotations([]);
-    this.props.setAnnotationFocus("NA");
     this.props.setFileText("");
     this.props.setSpacyLoading(true);
     this.props.setSections([]);
@@ -106,6 +105,8 @@ class FileViewer extends Component {
 
           this.props.setSpacyLoading(false);
           this.props.setFileText(text);
+          this.props.setAnnotations(this.props.sections);
+          this.props.setAnnotationFocus("Sections");
         })
         .catch(error => {
           console.log("ERROR:", error);

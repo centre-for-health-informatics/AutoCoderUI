@@ -69,11 +69,8 @@ export const createIntervals = (text, annotations) => {
   let tree = new IntervalTree(); // tree library uses inclusive end points
 
   for (let i = 0; i < annotations.length; i++) {
-    console.log("annotations", i, annotations[i]);
     tree.insert([annotations[i].start, annotations[i].end - 1], i + 1); // i + 1 --- tree library won't let you use 0 as a key
   }
-
-  console.log("\n\n\n\n\n\n\n");
 
   for (let interval of intervals) {
     interval.annotes = tree.search([interval.start, interval.end - 1]);
@@ -105,7 +102,6 @@ const colorAnnotations = (intervals, annotations) => {
         interval.colors.push(annotations[interval.annotes[i] - 1].color);
         // interval.color = annotations[interval.annotes[i] - 1].color;
       }
-      console.log("marking interval", interval);
     }
   }
 
@@ -121,7 +117,6 @@ const createGradients = intervals => {
       for (let i = 0; i < 90; i += multiplier) {
         percents.push(i + multiplier);
       }
-      console.log(percents);
 
       interval.gradient = "linear-gradient(";
 
@@ -146,8 +141,6 @@ const createGradients = intervals => {
       interval.gradient += " steelblue 90%,";
       interval.gradient += " steelblue 100%";
       interval.gradient += ")";
-
-      console.log(interval.gradient);
     }
   }
 
