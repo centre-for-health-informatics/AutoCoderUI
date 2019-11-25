@@ -8,6 +8,9 @@ export const Split = props => {
 
   return (
     <span
+      style={{
+        backgroundImage: "linear-gradient(white 90%, steelblue 90%, steelblue 100%)"
+      }}
       data-start={props.start}
       data-end={props.end}
       onClick={() => props.onClick({ start: props.start, end: props.end })}
@@ -20,7 +23,10 @@ export const Split = props => {
 export const Mark = props => {
   return (
     <mark
-      style={{ backgroundColor: props.color || "#84d2ff", padding: "0 4px" }}
+      style={{
+        backgroundImage: props.gradient
+      }}
+      // style={{ backgroundColor: props.color || "#84d2ff", padding: "0 4px" }}
       data-start={props.start}
       data-end={props.end}
       onClick={() => props.onClick({ start: props.start, end: props.end })}
@@ -36,55 +42,6 @@ export const selectionIsEmpty = selection => {
   let position = selection.anchorNode.compareDocumentPosition(selection.focusNode);
   return position === 0 && selection.focusOffset === selection.anchorOffset;
 };
-
-////////////////////////////////////
-////////////////////////////////////
-////////////////////////////////////
-////////////////////////////////////
-////////////////////////////////////
-////////////////////////////////////
-////////////////////////////////////
-////////////////////////////////////
-
-// this needs to be modified for overlapping - createIntervals function
-export const splitWithOffsets = (text, offsets) => {
-  let lastEnd = 0;
-  const splits = [];
-
-  offsets = offsets.sort((a, b) => {
-    return a.start - b.start;
-  });
-
-  for (let i = 0; i < offsets.length; i++) {
-    if (lastEnd < offsets[i].start) {
-      splits.push({
-        start: lastEnd,
-        end: offsets[i].start,
-        content: text.slice(lastEnd, offsets[i].start)
-      });
-    }
-    splits.push({
-      ...offsets[i],
-      mark: true,
-      content: text.slice(offsets[i].start, offsets[i].end)
-    });
-    lastEnd = offsets[i].end;
-  }
-  if (lastEnd < text.length) {
-    splits.push({
-      start: lastEnd,
-      end: text.length,
-      content: text.slice(lastEnd, text.length)
-    });
-  }
-
-  return splits;
-};
-
-////////////////////////////////////
-////////////////////////////////////
-////////////////////////////////////
-////////////////////////////////////
 
 export const createIntervals = (text, annotations) => {
   let breakPoints = new Set();
@@ -109,6 +66,17 @@ export const createIntervals = (text, annotations) => {
     });
   }
 
+  let tree = new IntervalTree(); // tree library uses inclusive end points
+
+  for (let i = 0; i < annotations.length; i++) {
+    tree.insert([annotations[i].start, annotations[i].end - 1], i + 1); // i + 1 --- tree library won't let you use 0 as a key
+  }
+
+  for (let interval of intervals) {
+    interval.annotes = tree.search([interval.start, interval.end - 1]);
+    interval.numAnnotes = interval.annotes.length;
+  }
+
   intervals = colorAnnotations(intervals, annotations);
 
   return intervals;
@@ -116,34 +84,75 @@ export const createIntervals = (text, annotations) => {
 
 // maybe call this something else - see where it goes
 const colorAnnotations = (intervals, annotations) => {
-  let tree = new IntervalTree(); // tree library uses inclusive end points
-
-  for (let i = 0; i < annotations.length; i++) {
-    console.log("annotations", i, annotations[i]);
-    tree.insert([annotations[i].start, annotations[i].end - 1], i + 1); // i + 1 --- tree library won't let you use 0 as a key
-  }
-
   for (let interval of intervals) {
-    interval.annotes = tree.search([interval.start, interval.end - 1]);
-    interval.numAnnotes = interval.annotes.length;
-    console.log("interval", interval);
+    for (let annote of interval.annotes) {
+      for (let innerInterval of intervals) {
+        if (innerInterval.annotes.includes(annote)) {
+          if (innerInterval.numAnnotes > interval.numAnnotes) {
+            interval.numAnnotes = innerInterval.numAnnotes;
+          }
+        }
+      }
+    }
+
+    if (interval.numAnnotes > 0) {
+      interval.mark = true;
+      interval.colors = [];
+      for (let i = 0; i < interval.annotes.length; i++) {
+        interval.colors.push(annotations[interval.annotes[i] - 1].color);
+        // interval.color = annotations[interval.annotes[i] - 1].color;
+      }
+    }
   }
 
-  // tasks to do
-  // -------------------
-
-  // get number of annotations per interval
-
-  // determine height percent for each color based upon the max number of
-  // annotations per interval for all of the annotations in that specific interval
-
-  // align colouring and map to labels
-
-  // set mark to true and pass colours to css gradient
-
-  return intervals; // change later
+  intervals = createGradients(intervals);
+  return intervals;
 };
 
+const createGradients = intervals => {
+  for (let interval of intervals) {
+    if (interval.numAnnotes > 0) {
+      let percents = [];
+      let multiplier = 90 / interval.numAnnotes;
+      for (let i = 0; i < 90; i += multiplier) {
+        percents.push(i + multiplier);
+      }
+
+      interval.gradient = "linear-gradient(";
+
+      if (interval.numAnnotes === 1) {
+        interval.gradient += interval.colors[0] + " 0%," + interval.colors[0] + " 90%,";
+      } else {
+        interval.gradient += interval.colors[0] + " " + percents[0] + "%,";
+        for (let i = 1; i < percents.length - 1; i++) {
+          interval.gradient += (interval.colors[i] || "white") + " " + percents[i - 1] + "%,";
+          interval.gradient += (interval.colors[i] || "white") + " " + percents[i] + "%,";
+        }
+        interval.gradient +=
+          (interval.colors[percents.length - 1] || "white") +
+          " " +
+          percents[percents.length - 2] +
+          "%," +
+          (interval.colors[percents.length - 1] || "white") +
+          " " +
+          percents[percents.length - 1] +
+          "%,";
+      }
+      interval.gradient += " steelblue 90%,";
+      interval.gradient += " steelblue 100%";
+      interval.gradient += ")";
+    }
+  }
+
+  // backgroundImage:
+  //       `linear-gradient(${color1} ${percent1}%, ${color3} ${percent1}%, ${color3} ${percent2}%, ${color2} ${percent2}%, ${color2} ${percent3}%)` ||
+  //       "#84d2ff",
+  //     padding: "0 4px"
+
+  return intervals;
+};
+
+// returns true if the user selects text backwards
 export const selectionIsBackwards = selection => {
   if (selectionIsEmpty(selection)) {
     return false;

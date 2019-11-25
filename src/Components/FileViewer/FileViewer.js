@@ -3,7 +3,6 @@ import * as APIUtility from "../../Util/API";
 import { connect } from "react-redux";
 import Button from "@material-ui/core/Button";
 import * as actions from "../../Store/Actions/index";
-import "./FileViewer.css";
 import DocumentDisplay from "../DocumentDisplay/DocumentDisplay";
 import TagUploader from "../../Components/TagManagement/TagUploader";
 import ImportExportAnnotations from "../../Components/ImportExportAnnotations/ImportExportAnnotations";
@@ -66,7 +65,6 @@ class FileViewer extends Component {
   readFile = file => {
     // reset store if user changes file
     this.props.setAnnotations([]);
-    this.props.setAnnotationFocus("NA");
     this.props.setFileText("");
     this.props.setSpacyLoading(true);
     this.props.setSections([]);
@@ -107,6 +105,8 @@ class FileViewer extends Component {
 
           this.props.setSpacyLoading(false);
           this.props.setFileText(text);
+          this.props.setAnnotations(this.props.sections);
+          this.props.setAnnotationFocus("Sections");
         })
         .catch(error => {
           console.log("ERROR:", error);
@@ -149,7 +149,7 @@ class FileViewer extends Component {
           </Button>
           <input
             ref={this.fileInputRef}
-            className="file-input"
+            style={{ display: "none" }}
             type="file"
             //   multiple
             onChange={e => this.readFile(e.target.files[0])}

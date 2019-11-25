@@ -98,10 +98,8 @@ class CustomAnnotator extends Component {
   };
 
   render() {
-    const splits = util.splitWithOffsets(this.props.textToDisplay, this.props.annotations);
-    // console.log("annotations", this.props.annotations);
-    // const splits = util.createIntervals(this.props.textToDisplay, this.props.annotations);
-    // console.log("splits", splits);
+    console.log("annotations", this.props.annotations);
+    const splits = util.createIntervals(this.props.textToDisplay, this.props.annotations);
     return (
       <div>
         <div style={this.props.style} ref={this.rootRef}>
@@ -116,11 +114,6 @@ class CustomAnnotator extends Component {
 
 const mapStateToProps = state => {
   return {
-    //   fileReference: state.fileViewer.fileReference,
-    //   sections: state.fileViewer.sections,
-    //   sentences: state.fileViewer.sentences,
-    //   tokens: state.fileViewer.tokens,
-    //   entities: state.fileViewer.entities,
     annotations: state.fileViewer.annotations,
     annotationFocus: state.fileViewer.annotationFocus,
     tag: state.fileViewer.tag,
@@ -132,13 +125,6 @@ const mapStateToProps = state => {
 const mapDispatchToProps = dispatch => {
   return {
     setLinkedListAdd: setLinkedListAdd => dispatch(actions.setLinkedListAdd(setLinkedListAdd))
-    //   setSections: sections => dispatch(actions.setSections(sections)),
-    //   setSentences: sentences => dispatch(actions.setSentences(sentences)),
-    //   setTokens: tokens => dispatch(actions.setTokens(tokens)),
-    //   setEntities: entities => dispatch(actions.setEntities(entities)),
-    //   // setICDCodes: icdCodes => dispatch
-    //   setAnnotationFocus: annotationFocus => dispatch(actions.setAnnotationFocus(annotationFocus)),
-    //   setAnnotations: annotations => dispatch(actions.setAnnotations(annotations))
   };
 };
 

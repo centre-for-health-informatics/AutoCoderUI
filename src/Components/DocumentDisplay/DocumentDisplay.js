@@ -2,9 +2,8 @@ import React, { Component } from "react";
 import { connect } from "react-redux";
 import * as actions from "../../Store/Actions/index";
 import LoadingIndicator from "../../Components/LoadingIndicator/LoadingIndicator";
-import { TextAnnotator } from "react-text-annotate";
+import * as tagTypes from "../TagManagement/tagTypes";
 import CustomAnnotator from "../../Components/CustomAnnotator/CustomAnnotator";
-import "./DocumentDisplay.css";
 
 const annoteStyle = {
   // fontFamily: "IBM Plex Sans",
@@ -25,11 +24,11 @@ class DocumentDisplay extends Component {
   // this is called whenever the user selects something to annotate or clicks on an annotation to remove it
   handleAnnotate = annotations => {
     console.log(annotations);
-    if (this.props.annotationFocus === "Entity") {
+    if (this.props.annotationFocus === tagTypes.ENTITIES) {
       this.props.setEntities(annotations);
-    } else if (this.props.annotationFocus === "Section") {
+    } else if (this.props.annotationFocus === tagTypes.SECTIONS) {
       this.props.setSections(annotations);
-    } else if (this.props.annotationFocus === "Sentence") {
+    } else if (this.props.annotationFocus === tagTypes.SENTENCES) {
       // sorting sentences in order to have alternating sentences in different colors
       annotations = annotations.sort((a, b) => {
         return a.start - b.start;
@@ -42,7 +41,7 @@ class DocumentDisplay extends Component {
         }
       }
       this.props.setSentences(annotations);
-    } else if (this.props.annotationFocus === "Token") {
+    } else if (this.props.annotationFocus === tagTypes.TOKENS) {
       annotations = annotations.sort((a, b) => {
         return a.start - b.start;
       });
@@ -60,104 +59,12 @@ class DocumentDisplay extends Component {
       // this.props.setICDCodes(annotations);
     }
     this.props.setAnnotations(annotations);
-    // console.log("prop.annot", this.props.annotations);
-  };
-
-  handleTypeChange = e => {
-    this.props.setAddingTags(""); // prevents entity tags from being assigned to sections etc
-    this.props.setAnnotationFocus(e.target.value);
-    if (e.target.value === "Entity") {
-      this.props.setAnnotations(this.props.entities);
-    } else if (e.target.value === "Section") {
-      this.props.setAnnotations(this.props.sections);
-    } else if (e.target.value === "Sentence") {
-      this.props.setAnnotations(this.props.sentences);
-    } else if (e.target.value === "Token") {
-      this.props.setAnnotations(this.props.tokens);
-    } else if (e.target.value === "ICD Codes") {
-      // implement this
-    }
-  };
-
-  displayTypeDropDown = () => {
-    if (!this.props.spacyLoading && this.props.textToDisplay !== "") {
-      return (
-        <select
-          onChange={this.handleTypeChange}
-          value={this.props.annotationFocus && !this.props.spacyLoading ? this.props.annotationFocus : "NA"}
-        >
-          <option disabled value="NA">
-            Select Display Type
-          </option>
-          <option value="Entity">Entity</option>
-          <option value="Section">Section</option>
-          <option value="Sentence">Sentence</option>
-          <option value="Token">Token</option>
-          <option value="ICD Codes">ICD Codes</option>
-        </select>
-      );
-    } else if (!this.props.spacyLoading && this.props.textToDisplay === "") {
-      // do nothing
-    } else {
-      return <LoadingIndicator />;
-    }
-  };
-
-  entityTagDropDown = () => {
-    if (!this.props.spacyLoading && this.props.textToDisplay !== "" && this.props.annotationFocus === "Entity") {
-      return (
-        <select onChange={this.handleTagChange} value={this.props.tag ? this.props.tag : "NA"}>
-          <option disabled value="NA">
-            Select a tag
-          </option>
-          {this.props.tags.map(tag => (
-            <option value={tag.id} key={tag.id}>
-              {tag.description}
-            </option>
-          ))}
-        </select>
-      );
-    }
-  };
-
-  sectionTagDropDown = () => {
-    if (!this.props.spacyLoading && this.props.textToDisplay !== "" && this.props.annotationFocus === "Section") {
-      return (
-        <select onChange={this.handleTagChange} value={this.props.tag ? this.props.tag : "NA"}>
-          <option disabled value="NA">
-            Select a tag
-          </option>
-          {this.props.sectionList.map(section => (
-            <option value={section} key={section}>
-              {section}
-            </option>
-          ))}
-        </select>
-      );
-    }
-  };
-
-  renderAnnotator = () => {
-    return (
-      <TextAnnotator
-        style={annoteStyle}
-        content={this.props.textToDisplay}
-        value={this.props.annotations}
-        onChange={this.handleAnnotate}
-        getSpan={span => ({
-          ...span,
-          tag: this.props.addingTags[0].id,
-          color: this.props.tagColors[this.props.addingTags[0].id]
-        })}
-      />
-    );
-  };
-
-  handleChange = value => {
-    this.props.setAnnotations(value);
   };
 
   renderCustomAnnotator = () => {
+    if (this.props.spacyLoading) {
+      return <LoadingIndicator />;
+    }
     return (
       <CustomAnnotator
         style={annoteStyle}
@@ -172,20 +79,7 @@ class DocumentDisplay extends Component {
   };
 
   render() {
-    return (
-      <div>
-        {/* <div>
-          <h1 qwerty="some random text">some random text</h1>
-        </div> */}
-        <div>
-          {this.displayTypeDropDown()}
-          {this.entityTagDropDown()}
-          {this.sectionTagDropDown()}
-        </div>
-        {/* <div id="whiteSpace">{this.renderAnnotator()}</div> */}
-        <div id="whiteSpace">{this.renderCustomAnnotator()}</div>
-      </div>
-    );
+    return <div style={{ whiteSpace: "pre-wrap" }}>{this.renderCustomAnnotator()}</div>;
   }
 }
 

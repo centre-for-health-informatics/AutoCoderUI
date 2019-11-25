@@ -139,7 +139,12 @@ const TagUploader = props => {
       <Button onClick={openExplorer} variant="contained" color="primary" className={classes.button}>
         Upload Tags
       </Button>
-      <input ref={fileInputRef} className="file-input" type="file" onChange={e => readFile(e.target.files)}></input>
+      <input
+        ref={fileInputRef}
+        style={{ display: "none" }}
+        type="file"
+        onChange={e => readFile(e.target.files)}
+      ></input>
       <Button onClick={parseTagsToDownload} variant="contained" color="primary" className={classes.button}>
         {" "}
         Download Tags

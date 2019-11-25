@@ -63,7 +63,7 @@ const ImportExportAnnotations = props => {
         </Button>
         <input
           ref={fileInputRef}
-          className="file-input"
+          style={{ display: "none" }}
           type="file"
           //   multiple
           onChange={e => readFile(e.target.files[0])}
