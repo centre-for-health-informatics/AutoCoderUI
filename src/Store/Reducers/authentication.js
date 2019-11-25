@@ -1,4 +1,4 @@
-import * as actionTypes from "../Actions/actionsTypes";
+import * as actionTypes from "../Actions/actionTypes";
 
 const initialState = {
   isAuthorized: false,

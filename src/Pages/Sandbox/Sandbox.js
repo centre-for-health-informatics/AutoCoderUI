@@ -2,8 +2,8 @@ import React, { useState } from "react";
 import { defaultLayouts } from "./layouts";
 import { getFromLS, saveToLS } from "../../Util/layoutFunctions";
 import { WidthProvider, Responsive } from "react-grid-layout";
-import MenuBar from "../../Containers/MenuBar/MenuBar";
-import FileViewer from "../../Containers/FileViewer/FileViewer";
+import MenuBar from "../../Components/MenuBar/MenuBar";
+import FileViewer from "../../Components/FileViewer/FileViewer";
 
 const ResponsiveReactGridLayout = WidthProvider(Responsive);
 const originalLayouts = getFromLS("sandboxLayouts", "layouts") || defaultLayouts;

@@ -5,8 +5,8 @@ import Button from "@material-ui/core/Button";
 import * as actions from "../../Store/Actions/index";
 import "./FileViewer.css";
 import DocumentDisplay from "../DocumentDisplay/DocumentDisplay";
-import TagUploader from "../../Containers/TagManagement/TagUploader";
-import ImportExportAnnotations from "../../Containers/ImportExportAnnotations/ImportExportAnnotations";
+import TagUploader from "../../Components/TagManagement/TagUploader";
+import ImportExportAnnotations from "../../Components/ImportExportAnnotations/ImportExportAnnotations";
 
 class FileViewer extends Component {
   constructor(props) {

@@ -1,5 +1,5 @@
 import React from "react";
-import MenuBar from "../../Containers/MenuBar/MenuBar";
+import MenuBar from "../../Components/MenuBar/MenuBar";
 import LoadingIndicator from "../../Components/LoadingIndicator/LoadingIndicator";
 
 export default function Loading() {

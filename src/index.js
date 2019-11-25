@@ -1,7 +1,6 @@
 import React from "react";
 import ReactDOM from "react-dom";
 import "./index.css";
-import ExamplePage from "./Pages/Example/ExamplePage.js";
 import * as serviceWorker from "./Util/serviceWorker.js";
 import router from "./router";
 

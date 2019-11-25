@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { WidthProvider, Responsive } from "react-grid-layout";
 import { defaultLayouts } from "./layouts";
-import MenuBar from "../../Containers/MenuBar/MenuBar";
+import MenuBar from "../../Components/MenuBar/MenuBar";
 import * as actions from "../../Store/Actions/index";
 import { getFromLS, saveToLS } from "../../Util/layoutFunctions";
 import { connect } from "react-redux";
@@ -9,8 +9,8 @@ import { useAlert, positions } from "react-alert";
 import { Redirect } from "react-router";
 import Loading from "../Loading/Loading";
 import * as APIUtility from "../../Util/API";
-import TagSelector from "../../Containers/TagManagement/TagSelector";
-import FileViewer from "../../Containers/FileViewer/FileViewer";
+import TagSelector from "../../Components/TagManagement/TagSelector";
+import FileViewer from "../../Components/FileViewer/FileViewer";
 
 const ResponsiveReactGridLayout = WidthProvider(Responsive);
 const originalLayouts = getFromLS("annotateLayouts", "layouts") || defaultLayouts;

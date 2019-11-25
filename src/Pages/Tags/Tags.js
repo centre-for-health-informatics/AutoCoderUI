@@ -1,16 +1,16 @@
 import React, { useState, useEffect } from "react";
 import { WidthProvider, Responsive } from "react-grid-layout";
 import { defaultLayouts } from "./layouts";
-import MenuBar from "../../Containers/MenuBar/MenuBar";
+import MenuBar from "../../Components/MenuBar/MenuBar";
 import * as actions from "../../Store/Actions/index";
 import { getFromLS, saveToLS } from "../../Util/layoutFunctions";
 import { connect } from "react-redux";
 import { useAlert, positions } from "react-alert";
 import { Redirect } from "react-router";
 import Loading from "../Loading/Loading";
-import TagUploader from "../../Containers/TagManagement/TagUploader";
+import TagUploader from "../../Components/TagManagement/TagUploader";
 import * as APIUtility from "../../Util/API";
-import TagViewer from "../../Containers/TagManagement/TagViewer";
+import TagViewer from "../../Components/TagManagement/TagViewer";
 
 const ResponsiveReactGridLayout = WidthProvider(Responsive);
 const originalLayouts = getFromLS("tagsLayouts", "layouts") || defaultLayouts;

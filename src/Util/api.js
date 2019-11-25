@@ -28,7 +28,7 @@ export class API {
    */
   static _revokeUserAuthorizationFromStore() {
     store.dispatch(actions.setIsAuthorized(false));
-    store.dispatch(actions.setUserRole(null));
+    // store.dispatch(actions.setUserRole(null));
   }
 
   // METHODS DEALING WITH TOKENS---------------------------------------------------------
@@ -43,7 +43,7 @@ export class API {
       .then(response => {
         if (response.access_token !== undefined) {
           localStorage.setItem("tokenObject", JSON.stringify(response));
-          store.dispatch(actions.setUserRole(response.user.role));
+          // store.dispatch(actions.setUserRole(response.user.role));
           store.dispatch(actions.setIsAuthorized(true));
         } else {
           store.dispatch(actions.setAlertMessage({ message: "Invalid username or password", messageType: "error" }));
@@ -96,7 +96,7 @@ export class API {
       .then(response => {
         if (response.status === 200) {
           store.dispatch(actions.setIsAuthorized(true));
-          store.dispatch(actions.setUserRole(JSON.parse(localStorage.getItem("tokenObject")).user.role));
+          // store.dispatch(actions.setUserRole(JSON.parse(localStorage.getItem("tokenObject")).user.role));
         }
         store.dispatch(actions.setIsServerDown(false));
         callBackFunction();
