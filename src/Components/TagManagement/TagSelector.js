@@ -147,7 +147,22 @@ const TagSelector = props => {
   };
 
   const searchboxSelectionChange = (event, selections) => {
-    props.setAddingTags(selections);
+    if (Array.isArray(selections)) {
+      props.setAddingTags(selections);
+    } else {
+      props.setAddingTags([selections]);
+    }
+  };
+
+  const getSearchboxInputValue = () => {
+    switch (props.annotationFocus) {
+      case tagTypes.SECTIONS:
+        return props.addingTags ? props.addingTags[0] : "";
+      case tagTypes.ENTITIES:
+        return props.addingTags ? props.addingTags[0].id : "";
+      default:
+        return "";
+    }
   };
 
   return (
@@ -160,32 +175,33 @@ const TagSelector = props => {
               value={tagTypes.SECTIONS}
               control={<Radio />}
               label={tagTypes.SECTIONS}
-              labelPlacement="right"
+              labelPlacement="end"
             />
             <FormControlLabel
               value={tagTypes.SENTENCES}
               control={<Radio />}
               label={tagTypes.SENTENCES}
-              labelPlacement="right"
+              labelPlacement="end"
             />
             <FormControlLabel
               value={tagTypes.ENTITIES}
               control={<Radio />}
               label={tagTypes.ENTITIES}
-              labelPlacement="right"
+              labelPlacement="end"
             />
             <FormControlLabel
               value={tagTypes.TOKENS}
               control={<Radio />}
               label={tagTypes.TOKENS}
-              labelPlacement="right"
+              labelPlacement="end"
             />
           </RadioGroup>
         </FormControl>
       </div>
       <div className={classes.searchBox}>
         <Autocomplete
-          multiple
+          // multiple
+
           disabled={shouldDisableAutoComplete()}
           filterSelectedOptions
           options={getCurrentTagOptions()}
