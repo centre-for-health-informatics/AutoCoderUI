@@ -110,18 +110,20 @@ const colorAnnotations = (intervals, annotations) => {
 };
 
 const createGradients = intervals => {
+  let backgroundColor = "white";
+  let highlightPercent = 90;
   for (let interval of intervals) {
     if (interval.numAnnotes > 0) {
       let percents = [];
-      let multiplier = 90 / interval.numAnnotes;
-      for (let i = 0; i < 90; i += multiplier) {
+      let multiplier = highlightPercent / interval.numAnnotes;
+      for (let i = 0; i < highlightPercent; i += multiplier) {
         percents.push(i + multiplier);
       }
 
       interval.gradient = "linear-gradient(";
 
       if (interval.numAnnotes === 1) {
-        interval.gradient += interval.colors[0] + " 0%," + interval.colors[0] + " 90%,";
+        interval.gradient += interval.colors[0] + " 0%," + interval.colors[0] + " " + highlightPercent + "%,";
       } else {
         interval.gradient += interval.colors[0] + " " + percents[0] + "%,";
         for (let i = 1; i < percents.length - 1; i++) {
@@ -138,7 +140,7 @@ const createGradients = intervals => {
           percents[percents.length - 1] +
           "%,";
       }
-      interval.gradient += " steelblue 90%,";
+      interval.gradient += " steelblue " + highlightPercent + "%,";
       interval.gradient += " steelblue 100%";
       interval.gradient += ")";
     }
