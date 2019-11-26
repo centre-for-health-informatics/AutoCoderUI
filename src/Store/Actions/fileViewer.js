@@ -63,13 +63,6 @@ export const setTagColors = tagColors => {
   };
 };
 
-export const setSectionList = sectionList => {
-  return {
-    type: actionTypes.SET_SECTION_LIST,
-    sectionList
-  };
-};
-
 export const setFileReference = fileReference => {
   return {
     type: actionTypes.SET_FILE_REFERENCE,
