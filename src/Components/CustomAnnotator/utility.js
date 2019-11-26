@@ -138,7 +138,7 @@ const createGradients = intervals => {
       let percents = [];
       let multiplier = highlightPercent / interval.numAnnotes;
       for (let i = 0; i < highlightPercent; i += multiplier) {
-        percents.push(i + multiplier + 100 - highlightPercent);
+        percents.push(i + multiplier);
       }
 
       // creating gradient string to pass to css

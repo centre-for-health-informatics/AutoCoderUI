@@ -63,55 +63,57 @@ class FileViewer extends Component {
   };
 
   readFile = file => {
-    // reset store if user changes file
-    this.props.setAnnotations([]);
-    this.props.setFileText("");
-    this.props.setSpacyLoading(true);
-    this.props.setSections([]);
-    this.props.setSentences([]);
-    this.props.setTokens([]);
-    this.props.setEntities([]);
+    if (file) {
+      // reset store if user changes file
+      this.props.setAnnotations([]);
+      this.props.setFileText("");
+      this.props.setSpacyLoading(true);
+      this.props.setSections([]);
+      this.props.setSentences([]);
+      this.props.setTokens([]);
+      this.props.setEntities([]);
 
-    this.fileData.id = file.name;
-    let ext = file.name.split(".")[file.name.split(".").length - 1];
-    let filename = file.name.slice(0, file.name.length - 1 - ext.length);
-    this.props.setFileReference(filename);
-    if (ext === "txt") {
-      this.fileData.format = "plain_text";
-    } else if (ext === "rtf") {
-      this.fileData.format = "rich_text";
-    } else {
-      this.fileData.format = "other";
-    }
+      this.fileData.id = file.name;
+      let ext = file.name.split(".")[file.name.split(".").length - 1];
+      let filename = file.name.slice(0, file.name.length - 1 - ext.length);
+      this.props.setFileReference(filename);
+      if (ext === "txt") {
+        this.fileData.format = "plain_text";
+      } else if (ext === "rtf") {
+        this.fileData.format = "rich_text";
+      } else {
+        this.fileData.format = "other";
+      }
 
-    this.fileReader.readAsText(file);
+      this.fileReader.readAsText(file);
 
-    this.fileReader.onloadend = () => {
-      let text = this.fileReader.result.replace(/\r\n/g, "\n"); // Replaces /r/n with /n for Windows OS
-      this.fileData.content = text;
+      this.fileReader.onloadend = () => {
+        let text = this.fileReader.result.replace(/\r\n/g, "\n"); // Replaces /r/n with /n for Windows OS
+        this.fileData.content = text;
 
-      const options = {
-        method: "POST",
-        body: this.fileData
+        const options = {
+          method: "POST",
+          body: this.fileData
+        };
+
+        APIUtility.API.makeAPICall(APIUtility.UPLOAD_DOCUMENT, null, options)
+          .then(response => response.json())
+          .then(data => {
+            this.props.setSections(this.mapData(data.sections));
+            this.props.setSentences(this.mapData(data.sentences, "color"));
+            this.props.setTokens(this.mapData(data.tokens, "color"));
+            this.props.setEntities(this.mapData(data.entities));
+
+            this.props.setSpacyLoading(false);
+            this.props.setFileText(text);
+            this.props.setAnnotations(this.props.sections);
+            this.props.setAnnotationFocus("Sections");
+          })
+          .catch(error => {
+            console.log("ERROR:", error);
+          });
       };
-
-      APIUtility.API.makeAPICall(APIUtility.UPLOAD_DOCUMENT, null, options)
-        .then(response => response.json())
-        .then(data => {
-          this.props.setSections(this.mapData(data.sections));
-          this.props.setSentences(this.mapData(data.sentences, "color"));
-          this.props.setTokens(this.mapData(data.tokens, "color"));
-          this.props.setEntities(this.mapData(data.entities));
-
-          this.props.setSpacyLoading(false);
-          this.props.setFileText(text);
-          this.props.setAnnotations(this.props.sections);
-          this.props.setAnnotationFocus("Sections");
-        })
-        .catch(error => {
-          console.log("ERROR:", error);
-        });
-    };
+    }
   };
 
   mapData = (data, coloring = "") => {

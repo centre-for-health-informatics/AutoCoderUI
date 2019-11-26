@@ -23,15 +23,17 @@ const TagUploader = props => {
   };
 
   const readFile = files => {
-    let fileReader = new FileReader();
+    if (files[0]) {
+      let fileReader = new FileReader();
 
-    fileReader.onload = e => {
-      let lines = e.target.result.replace(/\r\n/g, "\n").split("\n"); // Replace /r/n with /n for Windows OS
-      let tags = readTagsFromStrings(lines);
-      props.setUploadedTags(tags);
-    };
+      fileReader.onload = e => {
+        let lines = e.target.result.replace(/\r\n/g, "\n").split("\n"); // Replace /r/n with /n for Windows OS
+        let tags = readTagsFromStrings(lines);
+        props.setUploadedTags(tags);
+      };
 
-    fileReader.readAsText(files[0]);
+      fileReader.readAsText(files[0]);
+    }
   };
 
   const readTagsFromStrings = lines => {

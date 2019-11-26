@@ -23,19 +23,21 @@ const ImportExportAnnotations = props => {
   };
 
   const readFile = file => {
-    let fileReader = new FileReader();
+    if (file) {
+      let fileReader = new FileReader();
 
-    fileReader.onload = e => {
-      const json = JSON.parse(e.target.result);
-      props.setSections(json.Section);
-      props.setEntities(json.Entity);
-      props.setTokens(json.Token);
-      props.setSentences(json.Sentence);
-      props.setAnnotationFocus("");
-      props.setAnnotations([]);
-    };
+      fileReader.onload = e => {
+        const json = JSON.parse(e.target.result);
+        props.setSections(json.Section);
+        props.setEntities(json.Entity);
+        props.setTokens(json.Token);
+        props.setSentences(json.Sentence);
+        props.setAnnotationFocus("");
+        props.setAnnotations([]);
+      };
 
-    fileReader.readAsText(file);
+      fileReader.readAsText(file);
+    }
   };
 
   const exportAnnotations = () => {
