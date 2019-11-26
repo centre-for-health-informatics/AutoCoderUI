@@ -61,7 +61,6 @@ class DocumentDisplay extends Component {
     if (this.props.spacyLoading) {
       return <LoadingIndicator />;
     }
-    console.log("in render, addingTags", this.props.addingTags);
     return (
       <CustomAnnotator
         style={annoteStyle}

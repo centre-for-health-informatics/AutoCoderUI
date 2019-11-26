@@ -102,6 +102,9 @@ class CustomAnnotator extends Component {
     const splits = util.createIntervals(this.props.textToDisplay, this.props.annotations);
     return (
       <div>
+        <svg style={{ position: "absolute" }}>
+          {this.props.annotations.map(annotation => util.drawLine(annotation))}
+        </svg>
         <div style={this.props.style} ref={this.rootRef}>
           {splits.map(split => (
             <util.Split key={`${split.start}-${split.end}`} {...split} onClick={this.handleSplitClick} />
