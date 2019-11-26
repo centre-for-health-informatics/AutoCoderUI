@@ -10,7 +10,7 @@ export {
   setAnnotationFocus,
   setAnnotations,
   setTagColors,
-  setSectionList,
+  // setSectionList,
   setFileReference,
   setAlternatingColors,
   setLinkedListAdd

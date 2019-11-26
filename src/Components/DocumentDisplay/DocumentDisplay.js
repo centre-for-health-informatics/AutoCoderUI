@@ -72,7 +72,7 @@ class DocumentDisplay extends Component {
         getSpan={span => ({
           ...span,
           tag: this.props.addingTags[0].id,
-          color: this.props.tagColors[this.props.addingTags[0].id]
+          color: this.props.addingTags[0].color
         })}
       />
     );
@@ -91,12 +91,10 @@ const mapStateToProps = state => {
     sentences: state.fileViewer.sentences,
     tokens: state.fileViewer.tokens,
     entities: state.fileViewer.entities,
-    // icdCodes:
     spacyLoading: state.fileViewer.spacyLoading,
     annotationFocus: state.fileViewer.annotationFocus,
     annotations: state.fileViewer.annotations,
     tagColors: state.fileViewer.tagColors,
-    sectionList: state.fileViewer.sectionList,
     addingTags: state.tagManagement.addingTags,
     alternatingColors: state.fileViewer.alternatingColors
   };
@@ -108,7 +106,6 @@ const mapDispatchToProps = dispatch => {
     setSentences: sentences => dispatch(actions.setSentences(sentences)),
     setTokens: tokens => dispatch(actions.setTokens(tokens)),
     setEntities: entities => dispatch(actions.setEntities(entities)),
-    // setICDCodes: icdCodes => dispatch
     setAnnotationFocus: annotationFocus => dispatch(actions.setAnnotationFocus(annotationFocus)),
     setAnnotations: annotations => dispatch(actions.setAnnotations(annotations)),
     setAddingTags: tag => dispatch(actions.setAddingTags(tag))

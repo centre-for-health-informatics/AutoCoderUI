@@ -87,35 +87,14 @@ const TagSelector = props => {
   };
 
   const getCurrentTagOptions = () => {
-    switch (props.annotationFocus) {
-      case tagTypes.SECTIONS:
-        return props.sectionTagsList;
-
-      case tagTypes.ENTITIES:
-        return props.entityTagsList;
-
-      case tagTypes.SENTENCES:
-        return [];
-
-      case tagTypes.TOKENS:
-        return [];
-
-      default:
-        return [];
-    }
+    const options = props.tagColors.filter(tag => {
+      return tag.type === props.annotationFocus;
+    });
+    return options;
   };
 
   const getOptionLabelFunc = () => {
-    switch (props.annotationFocus) {
-      case tagTypes.SECTIONS:
-        return x => x;
-
-      case tagTypes.ENTITIES:
-        return x => x.id + ": " + x.description;
-
-      default:
-        return x => x;
-    }
+    return x => x.id + ": " + x.description;
   };
 
   const getTextLabel = () => {
@@ -225,14 +204,15 @@ const TagSelector = props => {
 
 const mapStateToProps = state => {
   return {
+    tagColors: state.fileViewer.tagColors,
     annotationFocus: state.fileViewer.annotationFocus, // the currently active type
     addingTags: state.fileViewer.tag, // the currently active tag
     sections: state.fileViewer.sections,
     sentences: state.fileViewer.sentences,
     tokens: state.fileViewer.tokens,
     entities: state.fileViewer.entities,
-    entityTagsList: state.tagManagement.uploadedTags, // a selection of tags for labelling entities
-    sectionTagsList: state.fileViewer.sectionList // list of available tags for labelling sections
+    entityTagsList: state.tagManagement.uploadedTags // a selection of tags for labelling entities
+    // sectionTagsList: state.fileViewer.sectionList // list of available tags for labelling sections
   };
 };
 
