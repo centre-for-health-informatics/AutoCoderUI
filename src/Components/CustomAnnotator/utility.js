@@ -37,12 +37,7 @@ export const Mark = props => {
   );
 };
 
-// checks if selection is empty
-export const selectionIsEmpty = selection => {
-  let position = selection.anchorNode.compareDocumentPosition(selection.focusNode);
-  return position === 0 && selection.focusOffset === selection.anchorOffset;
-};
-
+// creates the intervals to display
 export const createIntervals = (text, annotations) => {
   let breakPoints = new Set();
   for (let annotation of annotations) {
@@ -82,8 +77,10 @@ export const createIntervals = (text, annotations) => {
   return intervals;
 };
 
-// maybe call this something else - see where it goes
+// assigns colors to intervals
 const colorAnnotations = (intervals, annotations) => {
+  let backgroundColor = "white";
+  let prevInterval;
   for (let interval of intervals) {
     for (let annote of interval.annotes) {
       for (let innerInterval of intervals) {
@@ -99,57 +96,81 @@ const colorAnnotations = (intervals, annotations) => {
       interval.mark = true;
       interval.colors = [];
       for (let i = 0; i < interval.annotes.length; i++) {
-        interval.colors.push(annotations[interval.annotes[i] - 1].color);
-        // interval.color = annotations[interval.annotes[i] - 1].color;
+        interval.colors.push(annotations[interval.annotes[i] - 1].color || "#34e4ed");
       }
+      while (interval.colors.length < interval.numAnnotes) {
+        interval.colors.push(backgroundColor);
+      }
+
+      if (prevInterval && prevInterval.numAnnotes === interval.numAnnotes) {
+        matchColors(prevInterval, interval);
+      }
+
+      console.log(interval.colors);
     }
+
+    prevInterval = interval;
   }
 
   intervals = createGradients(intervals);
   return intervals;
 };
 
+const matchColors = (prevInterval, interval) => {
+  for (let i = 0; i < prevInterval.colors.length; i++) {
+    if (prevInterval.colors[i] !== "white" && interval.colors.includes(prevInterval.colors[i])) {
+      let colorIndex = interval.colors.indexOf(prevInterval.colors[i]);
+      if (colorIndex > -1) {
+        let temp = Array.from(interval.colors);
+        temp[colorIndex] = interval.colors[i];
+        temp[i] = prevInterval.colors[i];
+        interval.colors = temp;
+      }
+    }
+  }
+};
+
+// creates the gradient for highlighting intervals
 const createGradients = intervals => {
-  let backgroundColor = "white";
   let highlightPercent = 90;
   for (let interval of intervals) {
     if (interval.numAnnotes > 0) {
       let percents = [];
       let multiplier = highlightPercent / interval.numAnnotes;
       for (let i = 0; i < highlightPercent; i += multiplier) {
-        percents.push(i + multiplier);
+        percents.push(i + multiplier + 100 - highlightPercent);
       }
 
+      // creating gradient string to pass to css
       interval.gradient = "linear-gradient(";
 
       if (interval.numAnnotes === 1) {
         interval.gradient += interval.colors[0] + " 0%," + interval.colors[0] + " " + highlightPercent + "%,";
       } else {
+        // first colour
         interval.gradient += interval.colors[0] + " " + percents[0] + "%,";
+        // 2nd colour to the 2nd last colour
         for (let i = 1; i < percents.length - 1; i++) {
-          interval.gradient += (interval.colors[i] || "white") + " " + percents[i - 1] + "%,";
-          interval.gradient += (interval.colors[i] || "white") + " " + percents[i] + "%,";
+          interval.gradient += interval.colors[i] + " " + percents[i - 1] + "%,";
+          interval.gradient += interval.colors[i] + " " + percents[i] + "%,";
         }
+        // last colour
         interval.gradient +=
-          (interval.colors[percents.length - 1] || "white") +
+          interval.colors[percents.length - 1] +
           " " +
           percents[percents.length - 2] +
           "%," +
-          (interval.colors[percents.length - 1] || "white") +
+          interval.colors[percents.length - 1] +
           " " +
           percents[percents.length - 1] +
           "%,";
       }
+      // adding blue lines between lines of text to help separate some of the annotations
       interval.gradient += " steelblue " + highlightPercent + "%,";
       interval.gradient += " steelblue 100%";
       interval.gradient += ")";
     }
   }
-
-  // backgroundImage:
-  //       `linear-gradient(${color1} ${percent1}%, ${color3} ${percent1}%, ${color3} ${percent2}%, ${color2} ${percent2}%, ${color2} ${percent3}%)` ||
-  //       "#84d2ff",
-  //     padding: "0 4px"
 
   return intervals;
 };
@@ -167,4 +188,10 @@ export const selectionIsBackwards = selection => {
   }
 
   return backward;
+};
+
+// checks if selection is empty
+export const selectionIsEmpty = selection => {
+  let position = selection.anchorNode.compareDocumentPosition(selection.focusNode);
+  return position === 0 && selection.focusOffset === selection.anchorOffset;
 };
