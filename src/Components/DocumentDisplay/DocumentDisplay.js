@@ -17,10 +17,6 @@ class DocumentDisplay extends Component {
     this.props.setAddingTags("");
   }
 
-  handleTagChange = e => {
-    this.props.setAddingTags(e.target.value);
-  };
-
   // this is called whenever the user selects something to annotate or clicks on an annotation to remove it
   handleAnnotate = annotations => {
     console.log(annotations);
@@ -65,6 +61,7 @@ class DocumentDisplay extends Component {
     if (this.props.spacyLoading) {
       return <LoadingIndicator />;
     }
+    console.log("in render, addingTags", this.props.addingTags);
     return (
       <CustomAnnotator
         style={annoteStyle}
