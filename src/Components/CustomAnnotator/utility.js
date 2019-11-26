@@ -105,8 +105,6 @@ const colorAnnotations = (intervals, annotations) => {
       if (prevInterval && prevInterval.numAnnotes === interval.numAnnotes) {
         matchColors(prevInterval, interval);
       }
-
-      console.log(interval.colors);
     }
 
     prevInterval = interval;

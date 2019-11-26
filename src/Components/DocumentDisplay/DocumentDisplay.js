@@ -61,15 +61,15 @@ class DocumentDisplay extends Component {
     if (this.props.spacyLoading) {
       return <LoadingIndicator />;
     }
-    console.log("in render, addingTags", this.props.addingTags);
+    // console.log("in render, addingTags", this.props.addingTags);
     return (
       <CustomAnnotator
         style={annoteStyle}
         onChange={this.handleAnnotate}
         getSpan={span => ({
           ...span,
-          tag: this.props.addingTags[0].id,
-          color: this.props.addingTags[0].color
+          tag: this.props.addingTags.length > 0 ? this.props.addingTags[0].id : "",
+          color: this.props.addingTags.length > 0 ? this.props.addingTags[0].color : ""
         })}
       />
     );

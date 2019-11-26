@@ -8,6 +8,7 @@ import TagUploader from "../../Components/TagManagement/TagUploader";
 import ImportExportAnnotations from "../../Components/ImportExportAnnotations/ImportExportAnnotations";
 import * as templateTags from "../TagManagement/defaultTags";
 import * as tagTypes from "../TagManagement/tagTypes";
+import getColors from "../../Util/colorMap";
 
 class FileViewer extends Component {
   constructor(props) {
@@ -21,45 +22,27 @@ class FileViewer extends Component {
     APIUtility.API.makeAPICall(APIUtility.GET_SECTIONS).then(response => response.json());
   }
 
+  componentDidUpdate(prevProps) {
+    if (prevProps.tagColors !== this.props.tagColors) {
+      this.mapColors();
+    }
+  }
+
   setDefaultTagTemplate = () => {
     this.props.setTagColors(templateTags.DEFAULTS);
+  };
 
-    //TODO: Map colors if color options are missing
-
-    // const sectionColormap = require("colormap");
-    // this.colors = sectionColormap({
-    //   colormap: [
-    //     { index: 0, rgb: [172, 205, 239] },
-    //     { index: 0.1, rgb: [244, 189, 161] },
-    //     { index: 0.2, rgb: [140, 202, 181] },
-    //     { index: 0.3, rgb: [241, 174, 195] },
-    //     { index: 0.4, rgb: [205, 183, 228] },
-    //     { index: 0.5, rgb: [127, 202, 212] },
-    //     { index: 0.6, rgb: [149, 156, 243] },
-    //     { index: 0.7, rgb: [222, 146, 202] },
-    //     { index: 0.8, rgb: [202, 210, 213] },
-    //     { index: 0.9, rgb: [244, 196, 199] },
-    //     { index: 1, rgb: [130, 156, 182] }
-    //   ],
-    //   nshades: this.props.sectionList.length,
-    //   format: "hex",
-    //   alpha: 0.5
-    // });
-
-    // this.TAG_COLORS = {
-    //   neg_f: "rgb(255, 0, 0)",
-    //   NEGATION_B: "#88f7af",
-    //   NEGATION_BI: "#9df283",
-    //   CLOSURE_BUT: "#f277c3",
-    //   SECTION: "#7d8c81",
-    //   SENTENCE: "#9bacde",
-    //   TOKEN: "#dedd9b"
-    // };
-
-    // for (let i = 0; i < this.props.sectionList.length; i++) {
-    //   this.TAG_COLORS[this.props.sectionList[i]] = this.colors[i];
-    // }
-    // console.log(templateTags.DEFAULTS);
+  mapColors = () => {
+    const tagsWithoutColors = [];
+    for (let tag of this.props.tagColors) {
+      if (tag.color === undefined || tag.color === "") {
+        tagsWithoutColors.push(tag);
+      }
+    }
+    const newColors = getColors(tagsWithoutColors.length);
+    for (let i = 0; i < tagsWithoutColors.length; i++) {
+      tagsWithoutColors[i].color = newColors[i];
+    }
   };
 
   openExplorer = () => {
@@ -104,7 +87,6 @@ class FileViewer extends Component {
         APIUtility.API.makeAPICall(APIUtility.UPLOAD_DOCUMENT, null, options)
           .then(response => response.json())
           .then(data => {
-            console.log(data);
             this.props.setSections(this.mapData(data.sections, tagTypes.SECTIONS));
             this.props.setSentences(this.mapData(data.sentences, tagTypes.SENTENCES));
             this.props.setTokens(this.mapData(data.tokens, tagTypes.TOKENS));
@@ -129,7 +111,12 @@ class FileViewer extends Component {
       delete dataPoint.label;
 
       if (type === tagTypes.ENTITIES || type === tagTypes.SECTIONS) {
-        dataPoint.color = this.props.tagColors[dataPoint.tag];
+        let idMatchingTags = this.props.tagColors.filter(item => {
+          return item.id === dataPoint.tag;
+        });
+        if (idMatchingTags.length > 0) {
+          dataPoint.color = idMatchingTags[0].color;
+        }
       } else {
         dataPoint.color = this.getAlternatingColor(i);
       }
