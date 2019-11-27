@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { connect } from "react-redux";
 import * as actions from "../../Store/Actions/index";
 import * as tagTypes from "./tagTypes";
@@ -84,6 +84,8 @@ const TagSelector = props => {
       default:
         console.log("No annotation type selected.");
     }
+
+    props.setAddingTags([]);
   };
 
   const getCurrentTagOptions = () => {
@@ -128,19 +130,10 @@ const TagSelector = props => {
   const searchboxSelectionChange = (event, selections) => {
     if (Array.isArray(selections)) {
       props.setAddingTags(selections);
+    } else if (selections === null) {
+      props.setAddingTags([]);
     } else {
       props.setAddingTags([selections]);
-    }
-  };
-
-  const getSearchboxInputValue = () => {
-    switch (props.annotationFocus) {
-      case tagTypes.SECTIONS:
-        return props.addingTags ? props.addingTags[0] : "";
-      case tagTypes.ENTITIES:
-        return props.addingTags ? props.addingTags[0].id : "";
-      default:
-        return "";
     }
   };
 
@@ -180,7 +173,8 @@ const TagSelector = props => {
       <div className={classes.searchBox}>
         <Autocomplete
           // multiple
-
+          id={"tagSearchInputField"}
+          value={props.addingTags ? props.addingTags[0] : null}
           disabled={shouldDisableAutoComplete()}
           filterSelectedOptions
           options={getCurrentTagOptions()}
@@ -212,7 +206,6 @@ const mapStateToProps = state => {
     tokens: state.fileViewer.tokens,
     entities: state.fileViewer.entities,
     entityTagsList: state.tagManagement.uploadedTags // a selection of tags for labelling entities
-    // sectionTagsList: state.fileViewer.sectionList // list of available tags for labelling sections
   };
 };
 
