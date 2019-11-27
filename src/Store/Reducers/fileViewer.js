@@ -14,7 +14,8 @@ const initialState = {
   fileReference: "",
   alternatingColors: ["rgb(149,156,243)", "rgb(244,196,199)"],
   linkedListAdd: false,
-  splitDivHeight: 0
+  splitDivHeight: 0,
+  splitDivWidth: 0
 };
 
 const reducer = (state = initialState, action) => {
@@ -47,6 +48,8 @@ const reducer = (state = initialState, action) => {
       return { ...state, linkedListAdd: action.linkedListAdd };
     case actionTypes.SET_SPLIT_DIV_HEIGHT:
       return { ...state, splitDivHeight: action.splitDivHeight };
+    case actionTypes.SET_SPLIT_DIV_WIDTH:
+      return { ...state, splitDivWidth: action.splitDivWidth };
     default:
       return state;
   }

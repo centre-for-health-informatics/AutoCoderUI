@@ -90,3 +90,10 @@ export const setSplitDivHeight = splitDivHeight => {
     splitDivHeight
   };
 };
+
+export const setSplitDivWidth = splitDivWidth => {
+  return {
+    type: actionTypes.SET_SPLIT_DIV_WIDTH,
+    splitDivWidth
+  };
+};

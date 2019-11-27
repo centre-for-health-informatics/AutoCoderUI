@@ -108,8 +108,8 @@ class CustomAnnotator extends Component {
         </div>
         <svg
           style={({ position: "absolute" }, { zIndex: -1 })}
-          height={document.getElementById("splitsDiv").offsetHeight}
-          width={document.getElementById("splitsDiv").offsetWidth}
+          height={this.props.splitDivHeight}
+          width={this.props.splitDivWidth}
         >
           {this.props.annotations.map(annotation => util.drawLine(annotation))}
         </svg>
@@ -124,7 +124,9 @@ const mapStateToProps = state => {
     annotationFocus: state.fileViewer.annotationFocus,
     tag: state.fileViewer.tag,
     textToDisplay: state.fileViewer.fileViewerText,
-    linkedListAdd: state.fileViewer.linkedListAdd
+    linkedListAdd: state.fileViewer.linkedListAdd,
+    splitDivHeight: state.fileViewer.splitDivHeight,
+    splitDivWidth: state.fileViewer.splitDivWidth
   };
 };
 
