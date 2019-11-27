@@ -76,7 +76,11 @@ class DocumentDisplay extends Component {
   };
 
   render() {
-    return <div style={{ whiteSpace: "pre-wrap" }}>{this.renderCustomAnnotator()}</div>;
+    return (
+      <div id="docDisplay" style={{ whiteSpace: "pre-wrap" }}>
+        {this.renderCustomAnnotator()}
+      </div>
+    );
   }
 }
 
