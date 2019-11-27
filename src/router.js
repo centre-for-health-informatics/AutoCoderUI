@@ -7,6 +7,7 @@ import store from "./Store/configureStore";
 import Sandbox from "./Pages/Sandbox/Sandbox";
 import Tags from "./Pages/Tags/Tags";
 import Annotate from "./Pages/Annotate/Annotate";
+import SignIn from "./Pages/SignIn/SignIn";
 
 const router = (
   <Provider store={store}>
@@ -16,6 +17,7 @@ const router = (
           <Route path="/sandbox" component={Sandbox} />
           <Route path="/tags" component={Tags} />
           <Route path="/annotate" component={Annotate} />
+          <Route path="/sign-in" component={SignIn} />
         </Switch>
       </BrowserRouter>
     </AlertProvider>

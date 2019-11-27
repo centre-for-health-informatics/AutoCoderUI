@@ -26,7 +26,6 @@ export const Mark = props => {
       style={{
         backgroundImage: props.gradient
       }}
-      // style={{ backgroundColor: props.color || "#84d2ff", padding: "0 4px" }}
       data-start={props.start}
       data-end={props.end}
       onClick={() => props.onClick({ start: props.start, end: props.end })}
@@ -36,6 +35,33 @@ export const Mark = props => {
     </mark>
   );
 };
+
+export const drawLine = annotation => {
+  return (
+    <line
+      strokeWidth="2px"
+      stroke="#000000"
+      x1={Math.random() * 100}
+      y1={Math.random() * 100}
+      x2={Math.random() * 100}
+      y2={Math.random() * 100}
+    />
+  );
+};
+
+// export const drawLines = annotations => {
+//   let lineList = [];
+//   let y = 20;
+//   for (let annotation of annotations) {
+//     if (annotation.next) {
+//       lineList.push([20, 50, y, y + 30]);
+//       y += 20;
+//     }
+//   }
+//   console.log("linelist", lineList);
+
+//   return <line strokeWidth="2px" stroke="#000000" x1="80" y1="50" x2="400" y2="80" id="mySV2G" />;
+// };
 
 // creates the intervals to display
 export const createIntervals = (text, annotations) => {
