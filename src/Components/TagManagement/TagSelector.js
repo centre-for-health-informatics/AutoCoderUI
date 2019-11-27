@@ -87,7 +87,7 @@ const TagSelector = props => {
   };
 
   const getCurrentTagOptions = () => {
-    const options = props.tagColors.filter(tag => {
+    const options = props.tagTemplates.filter(tag => {
       return tag.type === props.annotationFocus;
     });
     return options;
@@ -204,7 +204,7 @@ const TagSelector = props => {
 
 const mapStateToProps = state => {
   return {
-    tagColors: state.fileViewer.tagColors,
+    tagTemplates: state.fileViewer.tagTemplates,
     annotationFocus: state.fileViewer.annotationFocus, // the currently active type
     addingTags: state.fileViewer.tag, // the currently active tag
     sections: state.fileViewer.sections,

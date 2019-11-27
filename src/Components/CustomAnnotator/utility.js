@@ -37,16 +37,20 @@ export const Mark = props => {
 };
 
 export const drawLine = annotation => {
-  return (
-    <line
-      strokeWidth="2px"
-      stroke="#000000"
-      x1={Math.random() * 100}
-      y1={Math.random() * 100}
-      x2={Math.random() * 100}
-      y2={Math.random() * 100}
-    />
-  );
+  let height = document.getElementById("splitsDiv").offsetHeight;
+  let width = document.getElementById("splitsDiv").offsetWidth;
+  if (annotation.next) {
+    return (
+      <line
+        strokeWidth="2px"
+        stroke={annotation.color}
+        x1={Math.random() * width}
+        y1={Math.random() * height}
+        x2={Math.random() * width}
+        y2={Math.random() * height}
+      />
+    );
+  }
 };
 
 // export const drawLines = annotations => {

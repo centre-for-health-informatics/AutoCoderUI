@@ -9,11 +9,12 @@ export {
   setSpacyLoading,
   setAnnotationFocus,
   setAnnotations,
-  setTagColors,
+  setTagTemplates,
   // setSectionList,
   setFileReference,
   setAlternatingColors,
-  setLinkedListAdd
+  setLinkedListAdd,
+  setSplitDivHeight
 } from "./fileViewer";
 export {
   setUploadedTags,

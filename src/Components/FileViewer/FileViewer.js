@@ -23,18 +23,18 @@ class FileViewer extends Component {
   }
 
   componentDidUpdate(prevProps) {
-    if (prevProps.tagColors !== this.props.tagColors) {
+    if (prevProps.tagTemplates !== this.props.tagTemplates) {
       this.mapColors();
     }
   }
 
   setDefaultTagTemplate = () => {
-    this.props.setTagColors(templateTags.DEFAULTS);
+    this.props.setTagTemplates(templateTags.DEFAULTS);
   };
 
   mapColors = () => {
     const tagsWithoutColors = [];
-    for (let tag of this.props.tagColors) {
+    for (let tag of this.props.tagTemplates) {
       if (tag.color === undefined || tag.color === "") {
         tagsWithoutColors.push(tag);
       }
@@ -111,7 +111,7 @@ class FileViewer extends Component {
       delete dataPoint.label;
 
       if (type === tagTypes.ENTITIES || type === tagTypes.SECTIONS) {
-        let idMatchingTags = this.props.tagColors.filter(item => {
+        let idMatchingTags = this.props.tagTemplates.filter(item => {
           return item.id === dataPoint.tag;
         });
         if (idMatchingTags.length > 0) {
@@ -171,7 +171,7 @@ const mapStateToProps = state => {
     entities: state.fileViewer.entities,
     // icdCodes:
     spacyLoading: state.fileViewer.spacyLoading,
-    tagColors: state.fileViewer.tagColors,
+    tagTemplates: state.fileViewer.tagTemplates,
     // sectionList: state.fileViewer.sectionList,
     alternatingColors: state.fileViewer.alternatingColors
   };
@@ -188,7 +188,7 @@ const mapDispatchToProps = dispatch => {
     setSpacyLoading: spacyLoading => dispatch(actions.setSpacyLoading(spacyLoading)),
     setAnnotations: annotations => dispatch(actions.setAnnotations(annotations)),
     setAnnotationFocus: annotationFocus => dispatch(actions.setAnnotationFocus(annotationFocus)),
-    setTagColors: tagColors => dispatch(actions.setTagColors(tagColors)),
+    setTagTemplates: tagTemplates => dispatch(actions.setTagTemplates(tagTemplates)),
     // setSectionList: sectionList => dispatch(actions.setSectionList(sectionList)),
     setFileReference: fileReference => dispatch(actions.setFileReference(fileReference))
   };

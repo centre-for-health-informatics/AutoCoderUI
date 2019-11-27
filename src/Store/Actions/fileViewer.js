@@ -56,10 +56,10 @@ export const setAnnotations = annotations => {
   };
 };
 
-export const setTagColors = tagColors => {
+export const setTagTemplates = tagTemplates => {
   return {
-    type: actionTypes.SET_TAG_COLORS,
-    tagColors
+    type: actionTypes.SET_TAG_TEMPLATES,
+    tagTemplates
   };
 };
 
@@ -81,5 +81,12 @@ export const setLinkedListAdd = linkedListAdd => {
   return {
     type: actionTypes.SET_LINKED_LIST_ADD,
     linkedListAdd
+  };
+};
+
+export const setSplitDivHeight = splitDivHeight => {
+  return {
+    type: actionTypes.SET_SPLIT_DIV_HEIGHT,
+    splitDivHeight
   };
 };

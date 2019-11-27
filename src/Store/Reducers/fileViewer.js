@@ -9,11 +9,12 @@ const initialState = {
   spacyLoading: false,
   annotationFocus: "Sections",
   annotations: [],
-  tagColors: [],
+  tagTemplates: [],
   // sectionList: [],
   fileReference: "",
   alternatingColors: ["rgb(149,156,243)", "rgb(244,196,199)"],
-  linkedListAdd: false
+  linkedListAdd: false,
+  splitDivHeight: 0
 };
 
 const reducer = (state = initialState, action) => {
@@ -34,8 +35,8 @@ const reducer = (state = initialState, action) => {
       return { ...state, annotationFocus: action.annotationFocus };
     case actionTypes.SET_ANNOTATIONS:
       return { ...state, annotations: action.annotations };
-    case actionTypes.SET_TAG_COLORS:
-      return { ...state, tagColors: action.tagColors };
+    case actionTypes.SET_TAG_TEMPLATES:
+      return { ...state, tagTemplates: action.tagTemplates };
     // case actionTypes.SET_SECTION_LIST:
     //   return { ...state, sectionList: action.sectionList };
     case actionTypes.SET_FILE_REFERENCE:
@@ -44,6 +45,8 @@ const reducer = (state = initialState, action) => {
       return { ...state, alternatingColors: action.alternatingColors };
     case actionTypes.SET_LINKED_LIST_ADD:
       return { ...state, linkedListAdd: action.linkedListAdd };
+    case actionTypes.SET_SPLIT_DIV_HEIGHT:
+      return { ...state, splitDivHeight: action.splitDivHeight };
     default:
       return state;
   }

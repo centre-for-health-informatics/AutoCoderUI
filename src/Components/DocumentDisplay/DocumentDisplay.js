@@ -9,6 +9,7 @@ const annoteStyle = {
   // fontFamily: "IBM Plex Sans",
   // maxWidth: 500,
   // lineHeight: 1.5
+  position: "absolute"
 };
 
 class DocumentDisplay extends Component {
@@ -90,7 +91,7 @@ const mapStateToProps = state => {
     spacyLoading: state.fileViewer.spacyLoading,
     annotationFocus: state.fileViewer.annotationFocus,
     annotations: state.fileViewer.annotations,
-    tagColors: state.fileViewer.tagColors,
+    tagTemplates: state.fileViewer.tagTemplates,
     addingTags: state.tagManagement.addingTags,
     alternatingColors: state.fileViewer.alternatingColors
   };
