@@ -22,6 +22,11 @@ class CustomAnnotator extends Component {
     this.props.setLinkedListAdd(false);
   }
 
+  componentWillUpdate() {
+    this.props.setSplitDivHeight(document.getElementById("splitsDiv").offsetHeight);
+    this.props.setSplitDivWidth(document.getElementById("splitsDiv").offsetWidth);
+  }
+
   handleKeyPress = e => {
     let key = e.key;
     if (key.toLowerCase() === "a" && this.prevSpan) {
@@ -66,12 +71,12 @@ class CustomAnnotator extends Component {
 
     const span = this.getSpan({ start, end, text: this.props.textToDisplay.slice(start, end) });
 
+    this.props.onChange([...this.props.annotations, span]);
+
     if (this.props.linkedListAdd) {
       this.prevSpan.next = span;
       this.props.setLinkedListAdd(false);
     }
-
-    this.props.onChange([...this.props.annotations, span]);
 
     this.prevSpan = span;
 
@@ -98,7 +103,9 @@ class CustomAnnotator extends Component {
   };
 
   render() {
+    // console.log("annotations", this.props.annotations);
     const splits = util.createIntervals(this.props.textToDisplay, this.props.annotations);
+    // console.log("splits", splits);
     return (
       <div>
         <div style={this.props.style} ref={this.rootRef} id="splitsDiv">
@@ -132,7 +139,9 @@ const mapStateToProps = state => {
 
 const mapDispatchToProps = dispatch => {
   return {
-    setLinkedListAdd: setLinkedListAdd => dispatch(actions.setLinkedListAdd(setLinkedListAdd))
+    setLinkedListAdd: linkedListAdd => dispatch(actions.setLinkedListAdd(linkedListAdd)),
+    setSplitDivHeight: splitDivHeight => dispatch(actions.setSplitDivHeight(splitDivHeight)),
+    setSplitDivWidth: splitDivWidth => dispatch(actions.setSplitDivWidth(splitDivWidth))
   };
 };
 
