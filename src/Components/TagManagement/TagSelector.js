@@ -137,6 +137,15 @@ const TagSelector = props => {
     }
   };
 
+  const getSearchTextValue = () => {
+    if (Array.isArray(props.addingTags) && props.addingTags.length > 0) {
+      console.log("returning", props.addingTags[0]);
+      return props.addingTags[0];
+    } else {
+      return null;
+    }
+  };
+
   return (
     <div className={classes.root}>
       <div className={classes.radioButtonForm}>
@@ -174,7 +183,7 @@ const TagSelector = props => {
         <Autocomplete
           // multiple
           id={"tagSearchInputField"}
-          value={props.addingTags ? props.addingTags[0] : null}
+          value={getSearchTextValue()}
           disabled={shouldDisableAutoComplete()}
           filterSelectedOptions
           options={getCurrentTagOptions()}
@@ -200,7 +209,7 @@ const mapStateToProps = state => {
   return {
     tagTemplates: state.fileViewer.tagTemplates,
     annotationFocus: state.fileViewer.annotationFocus, // the currently active type
-    addingTags: state.fileViewer.tag, // the currently active tag
+    addingTags: state.tagManagement.addingTags, // the currently active tag
     sections: state.fileViewer.sections,
     sentences: state.fileViewer.sentences,
     tokens: state.fileViewer.tokens,
