@@ -96,7 +96,7 @@ const TagSelector = props => {
   };
 
   const getOptionLabelFunc = () => {
-    return x => x.id + ": " + x.description;
+    return x => x.id + (x.description !== "" ? ": " + x.description : "");
   };
 
   const getTextLabel = () => {
