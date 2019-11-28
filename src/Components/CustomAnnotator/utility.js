@@ -4,10 +4,17 @@ import IntervalTree from "@flatten-js/interval-tree";
 const backgroundColor = "transparent";
 
 export const Interval = props => {
+  // if the interval needs to be marked, return a mark instead
   if (props.mark) {
     return <Mark {...props} />;
   }
 
+  // Else: return regular span
+  // ID spans at the start and end for the purpose of drawing lines between linked annotations.
+  // getBoundingClientRect draws rectangle around the element, which is problematic for annotations
+  // that span more than 1 line of text.
+  // Background image is a gradient of the background color and a blue line under the text.
+  // This line is to easily distinguish which line of text the annotations are for.
   return (
     <React.Fragment>
       <span id={props.start + "-start"} />
@@ -28,6 +35,11 @@ export const Interval = props => {
 };
 
 export const Mark = props => {
+  // ID spans at the start and end for the purpose of drawing lines between linked annotations.
+  // getBoundingClientRect draws rectangle around the element, which is problematic for annotations
+  // that span more than 1 line of text.
+  // Background image is a gradient of the background color and a blue line under the text.
+  // This line is to easily distinguish which line of text the annotations are for.
   return (
     <React.Fragment>
       <span id={props.start + "-start"} />
@@ -42,18 +54,23 @@ export const Mark = props => {
         id={props.start}
       >
         {props.content}
-        {props.tag && <span style={{ fontSize: "0.7em", fontWeight: 500, marginLeft: 6 }}>{props.tag}</span>}
+        {/* {props.tag && <span style={{ fontSize: "0.7em", fontWeight: 500, marginLeft: 6 }}>{props.tag}</span>} */}
       </mark>
       <span id={props.start + "-end"} />
     </React.Fragment>
   );
 };
 
+// Method to draw a line between linked annotations
 export const drawLine = annotation => {
+  // only draw a line if the annotation has a next property (linked annotation)
   if (annotation.next) {
+    // getting offsets for the other components on the page above the annotations
     let xOffset = document.getElementById("docDisplay").getBoundingClientRect().left;
     let yOffset = document.getElementById("docDisplay").getBoundingClientRect().top;
 
+    // setting coordinates of the line start and end to the empty spans before and after intervals
+    // first coordinate is the end of the first annotation and second is the start of the second annotation
     let x1 = document.getElementById(annotation.end + "-start").getBoundingClientRect().left - xOffset;
     let x2 = document.getElementById(annotation.next.start + "-start").getBoundingClientRect().left - xOffset;
     let y1 =
@@ -64,13 +81,14 @@ export const drawLine = annotation => {
       document.getElementById(annotation.next.start + "-start").getBoundingClientRect().top -
       yOffset +
       document.getElementById(annotation.next.start + "-start").getBoundingClientRect().height / 2;
-    console.log(x1, x2, y1, y2);
-    return <line strokeWidth="3px" strokeDasharray="4" stroke={annotation.color} x1={x1} y1={y1} x2={x2} y2={y2} />;
+    // returning a dashed line
+    return <line strokeWidth="4px" strokeDasharray="4" stroke={annotation.color} x1={x1} y1={y1} x2={x2} y2={y2} />;
   }
 };
 
 // creates the intervals to display
 export const createIntervals = (text, annotations) => {
+  // set of breakpoints to create all intervals
   let breakPoints = new Set();
   for (let annotation of annotations) {
     breakPoints.add(annotation.start);
@@ -79,12 +97,14 @@ export const createIntervals = (text, annotations) => {
     breakPoints.add(text.length - 1);
   }
 
+  // sorting breakpoints so intervals can be created in order
   breakPoints = Array.from(breakPoints).sort((a, b) => {
     return parseInt(a) - parseInt(b);
   });
 
   let intervals = [];
 
+  // creating intervals with content
   for (let i = 0; i < breakPoints.length - 1; i++) {
     intervals.push({
       start: breakPoints[i],
@@ -95,15 +115,18 @@ export const createIntervals = (text, annotations) => {
 
   let tree = new IntervalTree(); // tree library uses inclusive end points
 
+  // inserting all annotations into the interval tree
   for (let i = 0; i < annotations.length; i++) {
     tree.insert([annotations[i].start, annotations[i].end - 1], i + 1); // i + 1 --- tree library won't let you use 0 as a key
   }
 
+  // determining the annotations in each interval
   for (let interval of intervals) {
     interval.annotes = tree.search([interval.start, interval.end - 1]);
     interval.numAnnotes = interval.annotes.length;
   }
 
+  // assigning colors to annotations (also creates the gradient in another helper function)
   intervals = colorAnnotations(intervals, annotations);
 
   return intervals;
@@ -111,9 +134,11 @@ export const createIntervals = (text, annotations) => {
 
 // assigns colors to intervals
 const colorAnnotations = (intervals, annotations) => {
-  // let backgroundColor = "transparent";
   let prevInterval;
   for (let interval of intervals) {
+    // if the neighbouring interval contains the same annotation as the current one, the percentage
+    // of the height occupied must be the same. This is "increasing" the number of annotations in an interval
+    // to give the appropriate height percent to the annotation
     for (let annote of interval.annotes) {
       for (let innerInterval of intervals) {
         if (innerInterval.annotes.includes(annote)) {
@@ -124,16 +149,20 @@ const colorAnnotations = (intervals, annotations) => {
       }
     }
 
+    // if there are annotations, set mark to true so it will be rendered with a Mark object
     if (interval.numAnnotes > 0) {
       interval.mark = true;
       interval.colors = [];
       for (let i = 0; i < interval.annotes.length; i++) {
+        // setting color or a default color
         interval.colors.push(annotations[interval.annotes[i] - 1].color || "#34e4ed");
       }
+      // adding colours
       while (interval.colors.length < interval.numAnnotes) {
         interval.colors.push(backgroundColor);
       }
 
+      // make sure colours are in the right order to ensure the annotation is seamless
       if (prevInterval && prevInterval.numAnnotes === interval.numAnnotes) {
         matchColors(prevInterval, interval);
       }
@@ -146,10 +175,13 @@ const colorAnnotations = (intervals, annotations) => {
   return intervals;
 };
 
+// helper functions to align colours across different intervals
 const matchColors = (prevInterval, interval) => {
   for (let i = 0; i < prevInterval.colors.length; i++) {
+    // setting same colour of each interval to same index
     if (prevInterval.colors[i] !== backgroundColor && interval.colors.includes(prevInterval.colors[i])) {
       let colorIndex = interval.colors.indexOf(prevInterval.colors[i]);
+      // swapping colours
       if (colorIndex > -1) {
         let temp = Array.from(interval.colors);
         temp[colorIndex] = interval.colors[i];
@@ -162,10 +194,12 @@ const matchColors = (prevInterval, interval) => {
 
 // creates the gradient for highlighting intervals
 const createGradients = intervals => {
+  // percentage of the height that is allocated to annotation highlighting
   let highlightPercent = 90;
   for (let interval of intervals) {
     if (interval.numAnnotes > 0) {
       let percents = [];
+      // splitting the line into height
       let multiplier = highlightPercent / interval.numAnnotes;
       for (let i = 0; i < highlightPercent; i += multiplier) {
         percents.push(i + multiplier);
@@ -174,6 +208,7 @@ const createGradients = intervals => {
       // creating gradient string to pass to css
       interval.gradient = "linear-gradient(";
 
+      // only 1 annotation - takes the whole space
       if (interval.numAnnotes === 1) {
         interval.gradient += interval.colors[0] + " 0%," + interval.colors[0] + " " + highlightPercent + "%,";
       } else {
@@ -195,7 +230,7 @@ const createGradients = intervals => {
           percents[percents.length - 1] +
           "%,";
       }
-      // adding blue lines between lines of text to help separate some of the annotations
+      // adding lines between lines of text to help separate the annotations
       interval.gradient += " steelblue " + highlightPercent + "%,";
       interval.gradient += " steelblue 100%";
       interval.gradient += ")";
