@@ -7,7 +7,7 @@ const initialState = {
   tokens: [],
   entities: [],
   spacyLoading: false,
-  spacyActive: false,
+  spacyActive: true,
   annotationFocus: "Sections",
   annotations: [],
   tagTemplates: [],

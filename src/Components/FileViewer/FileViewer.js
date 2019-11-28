@@ -57,7 +57,7 @@ class FileViewer extends Component {
       // reset store if user changes file
       this.props.setAnnotations([]);
       this.props.setFileText("");
-      this.props.setSpacyLoading(true);
+      // this.props.setSpacyLoading(true);
       this.props.setSections([]);
       this.props.setSentences([]);
       this.props.setTokens([]);
@@ -81,43 +81,37 @@ class FileViewer extends Component {
         let text = this.fileReader.result.replace(/\r\n/g, "\n"); // Replaces /r/n with /n for Windows OS
         this.fileData.content = text;
 
-        this.callApi();
         this.props.setFileText(text);
 
         if (this.props.spacyActive) {
-        } else {
-          this.props.setFileText(text);
-          this.props.setSpacyLoading(false);
+          this.callApi();
         }
       };
     }
   };
 
   callApi = () => {
-    if (this.props.spacyActive) {
-      this.props.setSpacyLoading(true);
-      const options = {
-        method: "POST",
-        body: this.fileData
-      };
+    this.props.setSpacyLoading(true);
+    const options = {
+      method: "POST",
+      body: this.fileData
+    };
 
-      APIUtility.API.makeAPICall(APIUtility.UPLOAD_DOCUMENT, null, options)
-        .then(response => response.json())
-        .then(data => {
-          this.props.setSections(this.mapData(data.sections, tagTypes.SECTIONS));
-          this.props.setSentences(this.mapData(data.sentences, tagTypes.SENTENCES));
-          this.props.setTokens(this.mapData(data.tokens, tagTypes.TOKENS));
-          this.props.setEntities(this.mapData(data.entities, tagTypes.ENTITIES));
+    APIUtility.API.makeAPICall(APIUtility.UPLOAD_DOCUMENT, null, options)
+      .then(response => response.json())
+      .then(data => {
+        this.props.setSections([...this.props.sections, ...this.mapData(data.sections, tagTypes.SECTIONS)]);
+        this.props.setSentences([...this.props.sentences, ...this.mapData(data.sentences, tagTypes.SENTENCES)]);
+        this.props.setTokens([...this.props.tokens, ...this.mapData(data.tokens, tagTypes.TOKENS)]);
+        this.props.setEntities([...this.props.entities, ...this.mapData(data.entities, tagTypes.ENTITIES)]);
 
-          this.props.setSpacyLoading(false);
-          //this.props.setFileText(text);
-          this.props.setAnnotations(this.props.sections); // default type selection
-          this.props.setAnnotationFocus(tagTypes.SECTIONS); // default type selection
-        })
-        .catch(error => {
-          console.log("ERROR:", error);
-        });
-    }
+        this.props.setSpacyLoading(false);
+        this.props.setAnnotations(this.props.sections); // default type selection
+        this.props.setAnnotationFocus(tagTypes.SECTIONS); // default type selection
+      })
+      .catch(error => {
+        console.log("ERROR:", error);
+      });
   };
 
   mapData = (data, type) => {
