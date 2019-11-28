@@ -10,7 +10,6 @@ const initialState = {
   annotationFocus: "Sections",
   annotations: [],
   tagTemplates: [],
-  // sectionList: [],
   fileReference: "",
   alternatingColors: ["rgb(149,156,243)", "rgb(244,196,199)"],
   linkedListAdd: false,
@@ -38,8 +37,6 @@ const reducer = (state = initialState, action) => {
       return { ...state, annotations: action.annotations };
     case actionTypes.SET_TAG_TEMPLATES:
       return { ...state, tagTemplates: action.tagTemplates };
-    // case actionTypes.SET_SECTION_LIST:
-    //   return { ...state, sectionList: action.sectionList };
     case actionTypes.SET_FILE_REFERENCE:
       return { ...state, fileReference: action.fileReference };
     case actionTypes.SET_ALTERNATING_COLORS:

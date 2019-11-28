@@ -3,12 +3,13 @@ import * as APIUtility from "../../Util/API";
 import { connect } from "react-redux";
 import Button from "@material-ui/core/Button";
 import * as actions from "../../Store/Actions/index";
-import DocumentDisplay from "../DocumentDisplay/DocumentDisplay";
 import TagUploader from "../../Components/TagManagement/TagUploader";
 import ImportExportAnnotations from "../../Components/ImportExportAnnotations/ImportExportAnnotations";
 import * as templateTags from "../TagManagement/defaultTags";
 import * as tagTypes from "../TagManagement/tagTypes";
 import getColors from "../../Util/colorMap";
+import LoadingIndicator from "../../Components/LoadingIndicator/LoadingIndicator";
+import CustomAnnotator from "../../Components/CustomAnnotator/CustomAnnotator";
 
 class FileViewer extends Component {
   constructor(props) {
@@ -133,6 +134,13 @@ class FileViewer extends Component {
     }
   };
 
+  renderCustomAnnotator = () => {
+    if (this.props.spacyLoading) {
+      return <LoadingIndicator />;
+    }
+    return <CustomAnnotator />;
+  };
+
   render() {
     return (
       <div>
@@ -154,8 +162,8 @@ class FileViewer extends Component {
             onChange={e => this.readFile(e.target.files[0])}
           />
         </div>
-        <div>
-          <DocumentDisplay />
+        <div id="docDisplay" style={{ whiteSpace: "pre-wrap" }}>
+          {this.renderCustomAnnotator()}
         </div>
       </div>
     );
@@ -172,7 +180,6 @@ const mapStateToProps = state => {
     // icdCodes:
     spacyLoading: state.fileViewer.spacyLoading,
     tagTemplates: state.fileViewer.tagTemplates,
-    // sectionList: state.fileViewer.sectionList,
     alternatingColors: state.fileViewer.alternatingColors
   };
 };
@@ -189,7 +196,6 @@ const mapDispatchToProps = dispatch => {
     setAnnotations: annotations => dispatch(actions.setAnnotations(annotations)),
     setAnnotationFocus: annotationFocus => dispatch(actions.setAnnotationFocus(annotationFocus)),
     setTagTemplates: tagTemplates => dispatch(actions.setTagTemplates(tagTemplates)),
-    // setSectionList: sectionList => dispatch(actions.setSectionList(sectionList)),
     setFileReference: fileReference => dispatch(actions.setFileReference(fileReference))
   };
 };
