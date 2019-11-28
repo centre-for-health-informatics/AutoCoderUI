@@ -97,3 +97,10 @@ export const setIntervalDivWidth = intervalDivWidth => {
     intervalDivWidth
   };
 };
+
+export const setAnnotationsToEdit = annotationsToEdit => {
+  return {
+    type: actionTypes.SET_ANNOTATIONS_TO_EDIT,
+    annotationsToEdit
+  };
+};

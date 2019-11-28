@@ -13,8 +13,7 @@ class CustomAnnotator extends Component {
     this.annoteStyle = {
       // fontFamily: "IBM Plex Sans",
       // maxWidth: 500,
-      lineHeight: 1.5,
-      position: "absolute"
+      // lineHeight: 1.5,
     };
   }
 
@@ -139,13 +138,22 @@ class CustomAnnotator extends Component {
     this.props.setAnnotations(annotations);
   };
 
-  // method to remove an annotation
+  // handles clicking on an interval to open edit window
   handleIntervalClick = ({ start, end }) => {
-    const intervalIndex = this.props.annotations.findIndex(s => s.start === start && s.end === end);
-    if (intervalIndex >= 0) {
+    let annotationsInInterval = this.props.annotations.filter(s => s.start <= start && s.end >= end);
+    this.props.setAnnotationsToEdit(annotationsInInterval);
+  };
+
+  // removes annotations
+  removeAnnotations = annotationsToRemove => {
+    // for each annotation to remove
+    for (let annotation of annotationsToRemove) {
+      // find index
+      const annotationIndex = this.props.annotations.indexof(annotation);
+      // removing annotations
       this.handleAnnotate([
-        ...this.props.annotations.slice(0, intervalIndex),
-        ...this.props.annotations.slice(intervalIndex + 1)
+        ...this.props.annotations.slice(0, annotationIndex),
+        ...this.props.annotations.slice(annotationIndex + 1)
       ]);
     }
   };
@@ -155,7 +163,7 @@ class CustomAnnotator extends Component {
     const intervals = util.createIntervals(this.props.textToDisplay, this.props.annotations);
     return (
       <div>
-        <div style={this.annoteStyle} ref={this.rootRef} id="intervalsDiv">
+        <div style={(this.annoteStyle, { position: "absolute" })} ref={this.rootRef} id="intervalsDiv">
           {intervals.map(interval => (
             <util.Interval key={`${interval.start}-${interval.end}`} {...interval} onClick={this.handleIntervalClick} />
           ))}
@@ -196,7 +204,8 @@ const mapDispatchToProps = dispatch => {
     setEntities: entities => dispatch(actions.setEntities(entities)),
     setAnnotationFocus: annotationFocus => dispatch(actions.setAnnotationFocus(annotationFocus)),
     setAnnotations: annotations => dispatch(actions.setAnnotations(annotations)),
-    setAddingTags: tag => dispatch(actions.setAddingTags(tag))
+    setAddingTags: tag => dispatch(actions.setAddingTags(tag)),
+    setAnnotationsToEdit: annotationsToEdit => dispatch(actions.setAnnotationsToEdit(annotationsToEdit))
   };
 };
 

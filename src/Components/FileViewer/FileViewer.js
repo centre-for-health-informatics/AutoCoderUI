@@ -10,6 +10,7 @@ import * as tagTypes from "../TagManagement/tagTypes";
 import getColors from "../../Util/colorMap";
 import LoadingIndicator from "../../Components/LoadingIndicator/LoadingIndicator";
 import CustomAnnotator from "../../Components/CustomAnnotator/CustomAnnotator";
+import AnnotationEditor from "../../Components/CustomAnnotator/AnnotationEditor";
 
 class FileViewer extends Component {
   constructor(props) {

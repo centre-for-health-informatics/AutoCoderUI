@@ -14,7 +14,8 @@ const initialState = {
   alternatingColors: ["rgb(149,156,243)", "rgb(244,196,199)"],
   linkedListAdd: false,
   intervalDivHeight: 0,
-  intervalDivWidth: 0
+  intervalDivWidth: 0,
+  annotationsToEdit: []
 };
 
 const reducer = (state = initialState, action) => {
@@ -47,6 +48,8 @@ const reducer = (state = initialState, action) => {
       return { ...state, intervalDivHeight: action.intervalDivHeight };
     case actionTypes.SET_INTERVAL_DIV_WIDTH:
       return { ...state, intervalDivWidth: action.intervalDivWidth };
+    case actionTypes.SET_ANNOTATIONS_TO_EDIT:
+      return { ...state, annotationsToEdit: action.annotationsToEdit };
     default:
       return state;
   }
