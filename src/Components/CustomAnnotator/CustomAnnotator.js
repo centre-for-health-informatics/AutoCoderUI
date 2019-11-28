@@ -31,10 +31,12 @@ class CustomAnnotator extends Component {
   }
 
   componentWillUpdate() {
+    // setting height and width to be used to render svg element
     this.props.setIntervalDivHeight(document.getElementById("intervalsDiv").offsetHeight);
     this.props.setIntervalDivWidth(document.getElementById("intervalsDiv").offsetWidth);
   }
 
+  // if the user presses A key, it will link the next selection to the previous one
   handleKeyPress = e => {
     let key = e.key;
     if (key.toLowerCase() === "a" && this.prevSpan) {
@@ -47,7 +49,7 @@ class CustomAnnotator extends Component {
   handleMouseUp = () => {
     // can't set a section or entity annotation without a tag
     if (
-      (this.props.annotationFocus === "Entity" || this.props.annotationFocus === "Section") &&
+      (this.props.annotationFocus === tagTypes.ENTITIES || this.props.annotationFocus === tagTypes.SECTIONS) &&
       this.props.addingTags.length === 0
     ) {
       return;
@@ -79,8 +81,8 @@ class CustomAnnotator extends Component {
       start,
       end,
       text: this.props.textToDisplay.slice(start, end),
-      tag: this.props.addingTags[0].id,
-      color: this.props.addingTags[0].color
+      tag: this.props.addingTags.length > 0 ? this.props.addingTags[0].id : "",
+      color: this.props.addingTags.length > 0 ? this.props.addingTags[0].color : ""
     };
 
     // adding span to annotations
@@ -89,6 +91,7 @@ class CustomAnnotator extends Component {
     // linking annotations if applicable
     if (this.props.linkedListAdd) {
       this.prevSpan.next = span;
+      span.prev = this.prevSpan;
       this.props.setLinkedListAdd(false);
     }
 
@@ -146,21 +149,45 @@ class CustomAnnotator extends Component {
 
   // removes annotations
   removeAnnotations = annotationsToRemove => {
+    annotationsToRemove = this.getLinkedAnnotations(annotationsToRemove);
     // for each annotation to remove
     for (let annotation of annotationsToRemove) {
       // find index
       const annotationIndex = this.props.annotations.indexof(annotation);
       // removing annotations
-      this.handleAnnotate([
-        ...this.props.annotations.slice(0, annotationIndex),
-        ...this.props.annotations.slice(annotationIndex + 1)
-      ]);
+      if (annotationIndex !== -1) {
+        this.handleAnnotate([
+          ...this.props.annotations.slice(0, annotationIndex),
+          ...this.props.annotations.slice(annotationIndex + 1)
+        ]);
+      }
     }
+  };
+
+  // retreives all annotations linked to an annotation that is being removed
+  getLinkedAnnotations = annotationsToRemove => {
+    for (let annotation of annotationsToRemove) {
+      let previousAnnotation = annotation.prev;
+      let nextAnnotation = annotation.next;
+      // previous annotations
+      while (previousAnnotation) {
+        annotationsToRemove.push(previousAnnotation);
+        previousAnnotation = previousAnnotation.prev;
+      }
+      // next annotations
+      while (nextAnnotation) {
+        annotationsToRemove.push(nextAnnotation);
+        nextAnnotation = nextAnnotation.next;
+      }
+    }
+    return annotationsToRemove;
   };
 
   render() {
     // create intervals and render interval elements defined in utility and draw lines between linked intervals
     const intervals = util.createIntervals(this.props.textToDisplay, this.props.annotations);
+    console.log("rendering custon annotator");
+    console.log("intervals", intervals);
     return (
       <div>
         <div style={(this.annoteStyle, { position: "absolute" })} ref={this.rootRef} id="intervalsDiv">
