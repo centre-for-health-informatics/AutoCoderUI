@@ -84,16 +84,16 @@ export const setLinkedListAdd = linkedListAdd => {
   };
 };
 
-export const setSplitDivHeight = splitDivHeight => {
+export const setIntervalDivHeight = intervalDivHeight => {
   return {
-    type: actionTypes.SET_SPLIT_DIV_HEIGHT,
-    splitDivHeight
+    type: actionTypes.SET_INTERVAL_DIV_HEIGHT,
+    intervalDivHeight
   };
 };
 
-export const setSplitDivWidth = splitDivWidth => {
+export const setIntervalDivWidth = intervalDivWidth => {
   return {
-    type: actionTypes.SET_SPLIT_DIV_WIDTH,
-    splitDivWidth
+    type: actionTypes.SET_INTERVAL_DIV_WIDTH,
+    intervalDivWidth
   };
 };

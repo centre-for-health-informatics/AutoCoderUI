@@ -14,8 +14,8 @@ export {
   setFileReference,
   setAlternatingColors,
   setLinkedListAdd,
-  setSplitDivHeight,
-  setSplitDivWidth
+  setIntervalDivHeight,
+  setIntervalDivWidth
 } from "./fileViewer";
 export {
   setUploadedTags,

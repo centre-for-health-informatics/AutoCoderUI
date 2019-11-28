@@ -1,12 +1,21 @@
 import React, { Component } from "react";
 import { connect } from "react-redux";
 import * as actions from "../../Store/Actions/index";
+import * as tagTypes from "../TagManagement/tagTypes";
 import * as util from "./utility";
 
 class CustomAnnotator extends Component {
   constructor(props) {
     super(props);
     this.rootRef = React.createRef();
+    this.props.setAddingTags("");
+
+    this.annoteStyle = {
+      // fontFamily: "IBM Plex Sans",
+      // maxWidth: 500,
+      lineHeight: 1.5,
+      position: "absolute"
+    };
   }
 
   componentDidMount() {
@@ -23,8 +32,8 @@ class CustomAnnotator extends Component {
   }
 
   componentWillUpdate() {
-    this.props.setSplitDivHeight(document.getElementById("splitsDiv").offsetHeight);
-    this.props.setSplitDivWidth(document.getElementById("splitsDiv").offsetWidth);
+    this.props.setIntervalDivHeight(document.getElementById("intervalsDiv").offsetHeight);
+    this.props.setIntervalDivWidth(document.getElementById("intervalsDiv").offsetWidth);
   }
 
   handleKeyPress = e => {
@@ -37,15 +46,10 @@ class CustomAnnotator extends Component {
   };
 
   handleMouseUp = () => {
-    // if method to handle annotation isn't passed, return
-    if (!this.props.onChange) {
-      return;
-    }
-
     // can't set a section or entity annotation without a tag
     if (
       (this.props.annotationFocus === "Entity" || this.props.annotationFocus === "Section") &&
-      this.props.tag === ""
+      this.props.addingTags.length === 0
     ) {
       return;
     }
@@ -57,6 +61,7 @@ class CustomAnnotator extends Component {
       return;
     }
 
+    // getting start and end of selection
     let start = parseInt(selection.anchorNode.parentElement.getAttribute("data-start"), 10) + selection.anchorOffset;
     let end = parseInt(selection.focusNode.parentElement.getAttribute("data-start"), 10) + selection.focusOffset;
 
@@ -65,14 +70,24 @@ class CustomAnnotator extends Component {
       return;
     }
 
+    // swapping start and end if the selection was backwards
     if (util.selectionIsBackwards(selection)) {
       [start, end] = [end, start];
     }
 
-    const span = this.getSpan({ start, end, text: this.props.textToDisplay.slice(start, end) });
+    // creating span object
+    const span = {
+      start,
+      end,
+      text: this.props.textToDisplay.slice(start, end),
+      tag: this.props.addingTags[0].id,
+      color: this.props.addingTags[0].color
+    };
 
-    this.props.onChange([...this.props.annotations, span]);
+    // adding span to annotations
+    this.handleAnnotate([...this.props.annotations, span]);
 
+    // linking annotations if applicable
     if (this.props.linkedListAdd) {
       this.prevSpan.next = span;
       this.props.setLinkedListAdd(false);
@@ -84,39 +99,71 @@ class CustomAnnotator extends Component {
     window.getSelection().empty();
   };
 
+  // this is called whenever the user selects something to annotate or clicks on an annotation to remove it
+  handleAnnotate = annotations => {
+    if (this.props.annotationFocus === tagTypes.ENTITIES) {
+      this.props.setEntities(annotations);
+    } else if (this.props.annotationFocus === tagTypes.SECTIONS) {
+      this.props.setSections(annotations);
+    } else if (this.props.annotationFocus === tagTypes.SENTENCES) {
+      // sorting sentences in order to have alternating sentences in different colors
+      annotations = annotations.sort((a, b) => {
+        return a.start - b.start;
+      });
+      for (let i = 0; i < annotations.length; i++) {
+        if (i % 2 === 0) {
+          annotations[i].color = this.props.alternatingColors[0];
+        } else {
+          annotations[i].color = this.props.alternatingColors[1];
+        }
+      }
+      this.props.setSentences(annotations);
+    } else if (this.props.annotationFocus === tagTypes.TOKENS) {
+      // sorting tokens in order to have alternating sentences in different colors
+      annotations = annotations.sort((a, b) => {
+        return a.start - b.start;
+      });
+      for (let i = 0; i < annotations.length; i++) {
+        if (i % 2 === 0) {
+          annotations[i].color = this.props.alternatingColors[0];
+        } else {
+          annotations[i].color = this.props.alternatingColors[1];
+        }
+      }
+      this.props.setTokens(annotations);
+    } else if (this.props.annotationFocus === "ICD Codes") {
+      // TO DO: Implement this
+      // this.setState({ annotations });
+      // this.props.setICDCodes(annotations);
+    }
+    this.props.setAnnotations(annotations);
+  };
+
   // method to remove an annotation
-  handleSplitClick = ({ start, end }) => {
-    const splitIndex = this.props.annotations.findIndex(s => s.start === start && s.end === end);
-    if (splitIndex >= 0) {
-      this.props.onChange([
-        ...this.props.annotations.slice(0, splitIndex),
-        ...this.props.annotations.slice(splitIndex + 1)
+  handleIntervalClick = ({ start, end }) => {
+    const intervalIndex = this.props.annotations.findIndex(s => s.start === start && s.end === end);
+    if (intervalIndex >= 0) {
+      this.handleAnnotate([
+        ...this.props.annotations.slice(0, intervalIndex),
+        ...this.props.annotations.slice(intervalIndex + 1)
       ]);
     }
   };
 
-  getSpan = span => {
-    if (this.props.getSpan) {
-      return this.props.getSpan(span);
-    }
-    return span;
-  };
-
   render() {
-    // console.log("annotations", this.props.annotations);
-    const splits = util.createIntervals(this.props.textToDisplay, this.props.annotations);
-    // console.log("splits", splits);
+    // create intervals and render interval elements defined in utility and draw lines between linked intervals
+    const intervals = util.createIntervals(this.props.textToDisplay, this.props.annotations);
     return (
       <div>
-        <div style={this.props.style} ref={this.rootRef} id="splitsDiv">
-          {splits.map(split => (
-            <util.Split key={`${split.start}-${split.end}`} {...split} onClick={this.handleSplitClick} />
+        <div style={this.annoteStyle} ref={this.rootRef} id="intervalsDiv">
+          {intervals.map(interval => (
+            <util.Interval key={`${interval.start}-${interval.end}`} {...interval} onClick={this.handleIntervalClick} />
           ))}
         </div>
         <svg
           style={({ position: "absolute" }, { zIndex: -1 })}
-          height={this.props.splitDivHeight}
-          width={this.props.splitDivWidth}
+          height={this.props.intervalDivHeight}
+          width={this.props.intervalDivWidth}
         >
           {this.props.annotations.map(annotation => util.drawLine(annotation))}
         </svg>
@@ -129,19 +176,27 @@ const mapStateToProps = state => {
   return {
     annotations: state.fileViewer.annotations,
     annotationFocus: state.fileViewer.annotationFocus,
-    tag: state.fileViewer.tag,
+    addingTags: state.tagManagement.addingTags,
     textToDisplay: state.fileViewer.fileViewerText,
     linkedListAdd: state.fileViewer.linkedListAdd,
-    splitDivHeight: state.fileViewer.splitDivHeight,
-    splitDivWidth: state.fileViewer.splitDivWidth
+    intervalDivHeight: state.fileViewer.intervalDivHeight,
+    intervalDivWidth: state.fileViewer.intervalDivWidth,
+    alternatingColors: state.fileViewer.alternatingColors
   };
 };
 
 const mapDispatchToProps = dispatch => {
   return {
     setLinkedListAdd: linkedListAdd => dispatch(actions.setLinkedListAdd(linkedListAdd)),
-    setSplitDivHeight: splitDivHeight => dispatch(actions.setSplitDivHeight(splitDivHeight)),
-    setSplitDivWidth: splitDivWidth => dispatch(actions.setSplitDivWidth(splitDivWidth))
+    setIntervalDivHeight: intervalDivHeight => dispatch(actions.setIntervalDivHeight(intervalDivHeight)),
+    setIntervalDivWidth: intervalDivWidth => dispatch(actions.setIntervalDivWidth(intervalDivWidth)),
+    setSections: sections => dispatch(actions.setSections(sections)),
+    setSentences: sentences => dispatch(actions.setSentences(sentences)),
+    setTokens: tokens => dispatch(actions.setTokens(tokens)),
+    setEntities: entities => dispatch(actions.setEntities(entities)),
+    setAnnotationFocus: annotationFocus => dispatch(actions.setAnnotationFocus(annotationFocus)),
+    setAnnotations: annotations => dispatch(actions.setAnnotations(annotations)),
+    setAddingTags: tag => dispatch(actions.setAddingTags(tag))
   };
 };
 

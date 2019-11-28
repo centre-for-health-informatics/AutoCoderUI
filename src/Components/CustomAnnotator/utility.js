@@ -4,7 +4,7 @@ import { getThemeProps } from "@material-ui/styles";
 
 const backgroundColor = "transparent";
 
-export const Split = props => {
+export const Interval = props => {
   if (props.mark) {
     return <Mark {...props} />;
   }

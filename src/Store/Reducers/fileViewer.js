@@ -14,8 +14,8 @@ const initialState = {
   fileReference: "",
   alternatingColors: ["rgb(149,156,243)", "rgb(244,196,199)"],
   linkedListAdd: false,
-  splitDivHeight: 0,
-  splitDivWidth: 0
+  intervalDivHeight: 0,
+  intervalDivWidth: 0
 };
 
 const reducer = (state = initialState, action) => {
@@ -46,10 +46,10 @@ const reducer = (state = initialState, action) => {
       return { ...state, alternatingColors: action.alternatingColors };
     case actionTypes.SET_LINKED_LIST_ADD:
       return { ...state, linkedListAdd: action.linkedListAdd };
-    case actionTypes.SET_SPLIT_DIV_HEIGHT:
-      return { ...state, splitDivHeight: action.splitDivHeight };
-    case actionTypes.SET_SPLIT_DIV_WIDTH:
-      return { ...state, splitDivWidth: action.splitDivWidth };
+    case actionTypes.SET_INTERVAL_DIV_HEIGHT:
+      return { ...state, intervalDivHeight: action.intervalDivHeight };
+    case actionTypes.SET_INTERVAL_DIV_WIDTH:
+      return { ...state, intervalDivWidth: action.intervalDivWidth };
     default:
       return state;
   }
