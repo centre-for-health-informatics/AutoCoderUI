@@ -3,12 +3,19 @@ import { defaultLayouts } from "./layouts";
 import { getFromLS, saveToLS } from "../../Util/layoutFunctions";
 import { WidthProvider, Responsive } from "react-grid-layout";
 import MenuBar from "../../Components/MenuBar/MenuBar";
-import FileViewer from "../../Components/FileViewer/FileViewer";
+import Button from "@material-ui/core/Button";
 import AnnotationEditor from "../../Components/CustomAnnotator/AnnotationEditor";
+import { makeStyles } from "@material-ui/core/styles";
+
+import Popover from "@material-ui/core/Popover";
 
 const ResponsiveReactGridLayout = WidthProvider(Responsive);
 const originalLayouts = getFromLS("sandboxLayouts", "layouts") || defaultLayouts;
-
+const useStyles = makeStyles(theme => ({
+  typography: {
+    padding: theme.spacing(2)
+  }
+}));
 const testItems = [
   { start: 188, end: 196, tag: "NEG_F" },
   { start: 1579, end: 1589, tag: "NEG_F", color: "#fcba03" },
@@ -19,6 +26,18 @@ const testItems = [
 function Sandbox(props) {
   const [layouts, setLayouts] = useState(originalLayouts);
   const [isLayoutModifiable, setLayoutModifiable] = useState(false);
+  const [anchorEl, setAnchorEl] = React.useState(null);
+  const classes = useStyles();
+
+  const handleClick = event => {
+    setAnchorEl(event.currentTarget);
+  };
+  const handleClose = () => {
+    // reset anchorEl
+    setAnchorEl(null);
+  };
+  const open = Boolean(anchorEl);
+  const id = open ? "simple-popover" : undefined;
 
   const resetLayout = () => {
     setLayouts(defaultLayouts);
@@ -59,7 +78,27 @@ function Sandbox(props) {
       >
         <div key="0" className={highlightEditDiv}>
           <div className="cardContainer">
-            <AnnotationEditor itemsToEdit={testItems} />
+            <Button aria-describedby={id} variant="contained" color="primary" onClick={handleClick}>
+              Open Popover
+            </Button>
+            <Popover
+              id={id}
+              open={open}
+              anchorEl={anchorEl}
+              onClose={handleClose}
+              // anchorReference="anchorPosition"
+              // anchorPosition={{ top: 200, left: 400 }}
+              anchorOrigin={{
+                vertical: "top",
+                horizontal: "center"
+              }}
+              transformOrigin={{
+                vertical: "bottom",
+                horizontal: "left"
+              }}
+            >
+              <AnnotationEditor itemsToEdit={testItems} />
+            </Popover>
           </div>
         </div>
       </ResponsiveReactGridLayout>

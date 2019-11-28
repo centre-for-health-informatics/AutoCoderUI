@@ -5,7 +5,7 @@ import List from "@material-ui/core/List";
 import ListItem from "@material-ui/core/ListItem";
 import ListItemText from "@material-ui/core/ListItemText";
 import Chip from "@material-ui/core/Chip";
-import Divider from "@material-ui/core/Divider";
+import Typography from "@material-ui/core/Typography";
 import * as actions from "../../Store/Actions/index";
 import * as tagTypes from "../TagManagement/tagTypes";
 
@@ -71,9 +71,9 @@ const AnnotationEditor = props => {
     const listData = generateListItemData();
 
     return listData.map(item => (
-      <ListItem divider>
+      <ListItem divider key={"listItem-" + item.start + "-" + item.end}>
         <div className={classes.textSpan}>
-          <ListItemText primary={props.fileViewerText.slice(item.start, item.end)} />
+          <Typography>{props.fileViewerText.slice(item.start, item.end)}</Typography>
         </div>
         <div className={classes.tags}>{makeListItemHTML(item.start, item.end, item.labels)}</div>
       </ListItem>
@@ -83,6 +83,7 @@ const AnnotationEditor = props => {
   const makeListItemHTML = (start, end, tags) => {
     return tags.map(item => (
       <Chip
+        key={"chipItem-" + item.tag}
         variant="outlined"
         size="small"
         label={item.tag}
