@@ -93,9 +93,9 @@ export const createIntervals = (text, annotations) => {
   for (let annotation of annotations) {
     breakPoints.add(annotation.start);
     breakPoints.add(annotation.end);
-    breakPoints.add(0);
-    breakPoints.add(text.length - 1);
   }
+  breakPoints.add(0);
+  breakPoints.add(text.length - 1);
 
   // sorting breakpoints so intervals can be created in order
   breakPoints = Array.from(breakPoints).sort((a, b) => {

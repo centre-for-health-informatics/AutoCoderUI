@@ -81,28 +81,42 @@ class FileViewer extends Component {
         let text = this.fileReader.result.replace(/\r\n/g, "\n"); // Replaces /r/n with /n for Windows OS
         this.fileData.content = text;
 
-        const options = {
-          method: "POST",
-          body: this.fileData
-        };
+        this.callApi();
+        this.props.setFileText(text);
 
-        APIUtility.API.makeAPICall(APIUtility.UPLOAD_DOCUMENT, null, options)
-          .then(response => response.json())
-          .then(data => {
-            this.props.setSections(this.mapData(data.sections, tagTypes.SECTIONS));
-            this.props.setSentences(this.mapData(data.sentences, tagTypes.SENTENCES));
-            this.props.setTokens(this.mapData(data.tokens, tagTypes.TOKENS));
-            this.props.setEntities(this.mapData(data.entities, tagTypes.ENTITIES));
-
-            this.props.setSpacyLoading(false);
-            this.props.setFileText(text);
-            this.props.setAnnotations(this.props.sections); // default type selection
-            this.props.setAnnotationFocus(tagTypes.SECTIONS); // default type selection
-          })
-          .catch(error => {
-            console.log("ERROR:", error);
-          });
+        if (this.props.spacyActive) {
+        } else {
+          this.props.setFileText(text);
+          this.props.setSpacyLoading(false);
+        }
       };
+    }
+  };
+
+  callApi = () => {
+    if (this.props.spacyActive) {
+      this.props.setSpacyLoading(true);
+      const options = {
+        method: "POST",
+        body: this.fileData
+      };
+
+      APIUtility.API.makeAPICall(APIUtility.UPLOAD_DOCUMENT, null, options)
+        .then(response => response.json())
+        .then(data => {
+          this.props.setSections(this.mapData(data.sections, tagTypes.SECTIONS));
+          this.props.setSentences(this.mapData(data.sentences, tagTypes.SENTENCES));
+          this.props.setTokens(this.mapData(data.tokens, tagTypes.TOKENS));
+          this.props.setEntities(this.mapData(data.entities, tagTypes.ENTITIES));
+
+          this.props.setSpacyLoading(false);
+          //this.props.setFileText(text);
+          this.props.setAnnotations(this.props.sections); // default type selection
+          this.props.setAnnotationFocus(tagTypes.SECTIONS); // default type selection
+        })
+        .catch(error => {
+          console.log("ERROR:", error);
+        });
     }
   };
 
@@ -179,6 +193,7 @@ const mapStateToProps = state => {
     tokens: state.fileViewer.tokens,
     entities: state.fileViewer.entities,
     // icdCodes:
+    spacyActive: state.fileViewer.spacyActive,
     spacyLoading: state.fileViewer.spacyLoading,
     tagTemplates: state.fileViewer.tagTemplates,
     alternatingColors: state.fileViewer.alternatingColors

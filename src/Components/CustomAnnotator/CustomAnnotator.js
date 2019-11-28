@@ -49,7 +49,7 @@ class CustomAnnotator extends Component {
   handleMouseUp = () => {
     // can't set a section or entity annotation without a tag
     if (
-      (this.props.annotationFocus === "Entity" || this.props.annotationFocus === "Section") &&
+      (this.props.annotationFocus === tagTypes.ENTITIES || this.props.annotationFocus === tagTypes.SECTIONS) &&
       this.props.addingTags.length === 0
     ) {
       return;
@@ -81,8 +81,8 @@ class CustomAnnotator extends Component {
       start,
       end,
       text: this.props.textToDisplay.slice(start, end),
-      tag: this.props.addingTags[0].id,
-      color: this.props.addingTags[0].color
+      tag: this.props.addingTags.length > 0 ? this.props.addingTags[0].id : "",
+      color: this.props.addingTags.length > 0 ? this.props.addingTags[0].color : ""
     };
 
     // adding span to annotations
@@ -186,6 +186,8 @@ class CustomAnnotator extends Component {
   render() {
     // create intervals and render interval elements defined in utility and draw lines between linked intervals
     const intervals = util.createIntervals(this.props.textToDisplay, this.props.annotations);
+    console.log("rendering custon annotator");
+    console.log("intervals", intervals);
     return (
       <div>
         <div style={(this.annoteStyle, { position: "absolute" })} ref={this.rootRef} id="intervalsDiv">

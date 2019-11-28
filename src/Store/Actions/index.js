@@ -15,7 +15,8 @@ export {
   setLinkedListAdd,
   setIntervalDivHeight,
   setIntervalDivWidth,
-  setAnnotationsToEdit
+  setAnnotationsToEdit,
+  setSpacyActive
 } from "./fileViewer";
 export {
   setUploadedTags,

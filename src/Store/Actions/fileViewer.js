@@ -42,6 +42,13 @@ export const setSpacyLoading = spacyLoading => {
   };
 };
 
+export const setSpacyActive = spacyActive => {
+  return {
+    type: actionTypes.SET_SPACY_ACTIVE,
+    spacyActive
+  };
+};
+
 export const setAnnotationFocus = annotationFocus => {
   return {
     type: actionTypes.SET_ANNOTATION_FOCUS,
