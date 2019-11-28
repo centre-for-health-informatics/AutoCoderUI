@@ -1,10 +1,9 @@
 import React from "react";
 import IntervalTree from "@flatten-js/interval-tree";
-import { getThemeProps } from "@material-ui/styles";
 
 const backgroundColor = "transparent";
 
-export const Split = props => {
+export const Interval = props => {
   if (props.mark) {
     return <Mark {...props} />;
   }
@@ -66,7 +65,7 @@ export const drawLine = annotation => {
       yOffset +
       document.getElementById(annotation.next.start + "-start").getBoundingClientRect().height / 2;
     console.log(x1, x2, y1, y2);
-    return <line strokeWidth="3px" stroke-dasharray="4" stroke={annotation.color} x1={x1} y1={y1} x2={x2} y2={y2} />;
+    return <line strokeWidth="3px" strokeDasharray="4" stroke={annotation.color} x1={x1} y1={y1} x2={x2} y2={y2} />;
   }
 };
 

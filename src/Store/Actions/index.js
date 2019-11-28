@@ -10,12 +10,12 @@ export {
   setAnnotationFocus,
   setAnnotations,
   setTagTemplates,
-  // setSectionList,
   setFileReference,
   setAlternatingColors,
   setLinkedListAdd,
-  setSplitDivHeight,
-  setSplitDivWidth
+  setIntervalDivHeight,
+  setIntervalDivWidth,
+  setAnnotationsToEdit
 } from "./fileViewer";
 export {
   setUploadedTags,
