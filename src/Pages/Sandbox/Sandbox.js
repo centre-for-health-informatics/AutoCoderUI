@@ -10,7 +10,7 @@ const ResponsiveReactGridLayout = WidthProvider(Responsive);
 const originalLayouts = getFromLS("sandboxLayouts", "layouts") || defaultLayouts;
 
 const testItems = [
-  { start: 188, end: 196, tag: "NEG_F", color: "#fcba03" },
+  { start: 188, end: 196, tag: "NEG_F" },
   { start: 1579, end: 1589, tag: "NEG_F", color: "#fcba03" },
   { start: 188, end: 196, tag: "CLOS_B", color: "#f277c3" },
   { start: 180, end: 192, tag: "NEG_B", color: "88f7af" }

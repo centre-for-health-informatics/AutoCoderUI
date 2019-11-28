@@ -30,59 +30,71 @@ const useStyles = makeStyles(theme => ({
 const AnnotationEditor = props => {
   const classes = useStyles();
 
-  const handleRemoveTag = () => {};
-
-  const generateListItems = () => {
-    // for (let i = 0; i < props.itemsToEdit.length; i++) {
-
-    // }
-
-    return props.itemsToEdit.map(item => {
-      console.log("make item");
-      console.log(item);
-      return (
-        <ListItem divider>
-          <div className={classes.textSpan}>
-            <ListItemText primary={props.fileViewerText.slice(item.start, item.end)} />
-          </div>
-
-          <div className={classes.tags}>
-            <Chip
-              variant="outlined"
-              size="small"
-              label={item.tag}
-              onDelete={handleRemoveTag}
-              style={{ backgroundColor: item.color }}
-            />
-            <Chip variant="outlined" size="small" label="tag2" onDelete={handleRemoveTag} />
-          </div>
-        </ListItem>
-      );
-    });
+  const handleRemoveLabel = (start, end, tag) => {
+    //TODO: call function to remove a label
+    console.log("Please remove: " + tag, start, end);
   };
 
-  const generateTagChips = () => {};
+  const findSameTextSpan = (start, end, arr) => {
+    for (let i = 0; i < arr.length; i++) {
+      if (start === arr[i].start && end === arr[i].end) {
+        return arr[i];
+      }
+    }
+    return null;
+  };
+
+  const generateListItemData = () => {
+    const uniqueTextSpans = [];
+    let currentItem;
+
+    for (let i = 0; i < props.itemsToEdit.length; i++) {
+      let spanAlreadyExist = findSameTextSpan(props.itemsToEdit[i].start, props.itemsToEdit[i].end, uniqueTextSpans);
+      // If span doesnt exist in the array yet, add it
+      if (spanAlreadyExist === null) {
+        currentItem = {
+          ref: props.itemsToEdit[i],
+          start: props.itemsToEdit[i].start,
+          end: props.itemsToEdit[i].end,
+          labels: [{ tag: props.itemsToEdit[i].tag, color: props.itemsToEdit[i].color }]
+        };
+        uniqueTextSpans.push(currentItem);
+      } else {
+        // item already exist, add to the item's colors and tags lists
+        spanAlreadyExist.labels.push({ tag: props.itemsToEdit[i].tag, color: props.itemsToEdit[i].color });
+      }
+    }
+    return uniqueTextSpans;
+  };
+
+  const makeListHTML = () => {
+    const listData = generateListItemData();
+
+    return listData.map(item => (
+      <ListItem divider>
+        <div className={classes.textSpan}>
+          <ListItemText primary={props.fileViewerText.slice(item.start, item.end)} />
+        </div>
+        <div className={classes.tags}>{makeListItemHTML(item.start, item.end, item.labels)}</div>
+      </ListItem>
+    ));
+  };
+
+  const makeListItemHTML = (start, end, tags) => {
+    return tags.map(item => (
+      <Chip
+        variant="outlined"
+        size="small"
+        label={item.tag}
+        onDelete={() => handleRemoveLabel(start, end, item.tag)}
+        style={{ backgroundColor: item.color }}
+      />
+    ));
+  };
 
   return (
     <List className={classes.root} dense disablePadding>
-      <ListItem divider>
-        <div className={classes.textSpan}>
-          <ListItemText primary="annotated text" />
-        </div>
-
-        <div className={classes.tags}>
-          <Chip
-            variant="outlined"
-            size="small"
-            label="tag1"
-            onDelete={handleRemoveTag}
-            style={{ backgroundColor: "#32a852" }}
-          />
-          <Chip variant="outlined" size="small" label="tag2" onDelete={handleRemoveTag} />
-        </div>
-      </ListItem>
-
-      {generateListItems()}
+      {makeListHTML()}
     </List>
   );
 };
