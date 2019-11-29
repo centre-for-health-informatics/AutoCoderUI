@@ -158,9 +158,8 @@ class CustomAnnotator extends Component {
 
   // Closing AnnotationEditor popup
   handleEditorClose = () => {
-    this.setState({ anchorEl: null }, () => {
-      console.log("reset anchorEl to null");
-    });
+    this.setState({ anchorEl: null });
+    this.props.setAnnotationsToEdit([]);
   };
 
   // // removes annotations
@@ -233,7 +232,7 @@ class CustomAnnotator extends Component {
         </div>
         <Popover
           id={this.editorPopUpId}
-          open={Boolean(this.state.anchorEl)}
+          open={Boolean(this.state.anchorEl && this.props.annotationsToEdit.length > 0)}
           anchorEl={this.state.anchorEl}
           onClose={this.handleEditorClose}
           // anchorReference="anchorPosition"

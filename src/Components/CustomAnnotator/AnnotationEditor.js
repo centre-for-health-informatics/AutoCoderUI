@@ -3,7 +3,6 @@ import { connect } from "react-redux";
 import { makeStyles } from "@material-ui/core/styles";
 import List from "@material-ui/core/List";
 import ListItem from "@material-ui/core/ListItem";
-import ListItemText from "@material-ui/core/ListItemText";
 import Chip from "@material-ui/core/Chip";
 import Typography from "@material-ui/core/Typography";
 import * as actions from "../../Store/Actions/index";
@@ -35,6 +34,11 @@ const AnnotationEditor = props => {
     props.removeAnnotation(annotation);
   };
 
+  /**
+   * Helper function for generateListItemData()
+   * Given the the start char number, end char number, and a list of objects that has same attributes of "start" and "end"
+   * returns the next object from the list if it has identical start and end values
+   */
   const findSameTextSpan = (start, end, arr) => {
     for (let i = 0; i < arr.length; i++) {
       if (start === arr[i].start && end === arr[i].end) {
@@ -44,6 +48,14 @@ const AnnotationEditor = props => {
     return null;
   };
 
+  /**
+   * Generates list data to populate AnnotationEditor from annotation data
+   * Returns a list of unique text spans consisting of:
+   * - ref: [] list of references to the original annotation object
+   * - start: start char number of the text span
+   * - end: end char number of the text span
+   * - labels: list of objects consisting of attributes "tag" and "color", corresponding to the list of ref
+   */
   const generateListItemData = () => {
     const uniqueTextSpans = [];
     let currentItem;
@@ -69,6 +81,11 @@ const AnnotationEditor = props => {
     return uniqueTextSpans;
   };
 
+  /**
+   * Calls on generateListItemData() to create data for populating list
+   * Loops through list in data and generates HTML of a list line item
+   * Calls on makeListItemHTML() to generate HTML for chips within the line item
+   */
   const makeListHTML = () => {
     const listData = generateListItemData();
 
@@ -82,6 +99,9 @@ const AnnotationEditor = props => {
     ));
   };
 
+  /**
+   * Returns a list of HTML elements for displaying chips inline within a list item
+   */
   const makeListItemHTML = item => {
     const chipList = [];
     for (let i = 0; i < item.labels.length; i++) {
