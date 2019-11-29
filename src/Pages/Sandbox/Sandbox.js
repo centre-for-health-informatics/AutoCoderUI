@@ -11,11 +11,7 @@ import Popover from "@material-ui/core/Popover";
 
 const ResponsiveReactGridLayout = WidthProvider(Responsive);
 const originalLayouts = getFromLS("sandboxLayouts", "layouts") || defaultLayouts;
-const useStyles = makeStyles(theme => ({
-  typography: {
-    padding: theme.spacing(2)
-  }
-}));
+
 const testItems = [
   { start: 188, end: 196, tag: "NEG_F" },
   { start: 1579, end: 1589, tag: "NEG_F", color: "#fcba03" },
@@ -27,7 +23,6 @@ function Sandbox(props) {
   const [layouts, setLayouts] = useState(originalLayouts);
   const [isLayoutModifiable, setLayoutModifiable] = useState(false);
   const [anchorEl, setAnchorEl] = React.useState(null);
-  const classes = useStyles();
 
   const handleClick = event => {
     setAnchorEl(event.currentTarget);

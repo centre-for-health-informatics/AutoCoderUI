@@ -24,7 +24,7 @@ export const Interval = props => {
         }}
         data-start={props.start}
         data-end={props.end}
-        onClick={() => props.onClick({ start: props.start, end: props.end })}
+        onClick={event => props.onClick(event, props.start, props.end)}
         id={props.start}
       >
         {props.content}
@@ -50,7 +50,7 @@ export const Mark = props => {
         }}
         data-start={props.start}
         data-end={props.end}
-        onClick={() => props.onClick({ start: props.start, end: props.end })}
+        onClick={event => props.onClick(event, props.start, props.end)}
         id={props.start}
       >
         {props.content}

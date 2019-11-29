@@ -3,12 +3,18 @@ import { connect } from "react-redux";
 import * as actions from "../../Store/Actions/index";
 import * as tagTypes from "../TagManagement/tagTypes";
 import * as util from "./utility";
-
+import AnnotationEditor from "./AnnotationEditor";
+import Popover from "@material-ui/core/Popover";
 class CustomAnnotator extends Component {
   constructor(props) {
     super(props);
     this.rootRef = React.createRef();
     this.props.setAddingTags("");
+    this.state = {
+      anchorEl: null // used to keep track of the element that is clicked to pop up AnnotationEditor
+    };
+
+    this.editorPopUpId = this.shouldEditorOpen ? "label-editor-popup" : undefined;
 
     this.annoteStyle = {
       // fontFamily: "IBM Plex Sans",
@@ -141,10 +147,20 @@ class CustomAnnotator extends Component {
     this.props.setAnnotations(annotations);
   };
 
-  // handles clicking on an interval to open edit window
-  handleIntervalClick = ({ start, end }) => {
+  // handles clicking on an interval to open AnnotationEditor popup
+  handleIntervalClick = (event, start, end) => {
     let annotationsInInterval = this.props.annotations.filter(s => s.start <= start && s.end >= end);
     this.props.setAnnotationsToEdit(annotationsInInterval);
+    this.setState({ anchorEl: event.currentTarget }, () => {
+      console.log(this.state.shouldEditorOpen);
+    });
+  };
+
+  // Closing AnnotationEditor popup
+  handleEditorClose = () => {
+    this.setState({ anchorEl: null }, () => {
+      console.log("reset anchorEl to null");
+    });
   };
 
   // removes annotations
@@ -186,15 +202,37 @@ class CustomAnnotator extends Component {
   render() {
     // create intervals and render interval elements defined in utility and draw lines between linked intervals
     const intervals = util.createIntervals(this.props.textToDisplay, this.props.annotations);
-    console.log("rendering custon annotator");
-    console.log("intervals", intervals);
+    // console.log("rendering custon annotator");
+    // console.log("intervals", intervals);
     return (
       <div>
         <div style={(this.annoteStyle, { position: "absolute" })} ref={this.rootRef} id="intervalsDiv">
           {intervals.map(interval => (
-            <util.Interval key={`${interval.start}-${interval.end}`} {...interval} onClick={this.handleIntervalClick} />
+            <util.Interval
+              key={interval.start + "-" + interval.end}
+              {...interval}
+              onClick={event => this.handleIntervalClick(event, interval.start, interval.end)}
+            />
           ))}
         </div>
+        <Popover
+          id={this.editorPopUpId}
+          open={Boolean(this.state.anchorEl)}
+          anchorEl={this.state.anchorEl}
+          onClose={this.handleEditorClose}
+          // anchorReference="anchorPosition"
+          // anchorPosition={{ top: 200, left: 400 }}
+          anchorOrigin={{
+            vertical: "top",
+            horizontal: "center"
+          }}
+          transformOrigin={{
+            vertical: "bottom",
+            horizontal: "left"
+          }}
+        >
+          <AnnotationEditor itemsToEdit={this.props.annotationsToEdit} />
+        </Popover>
         <svg
           style={({ position: "absolute" }, { zIndex: -1 })}
           height={this.props.intervalDivHeight}
@@ -209,6 +247,7 @@ class CustomAnnotator extends Component {
 
 const mapStateToProps = state => {
   return {
+    annotationsToEdit: state.fileViewer.annotationsToEdit,
     annotations: state.fileViewer.annotations,
     annotationFocus: state.fileViewer.annotationFocus,
     addingTags: state.tagManagement.addingTags,
