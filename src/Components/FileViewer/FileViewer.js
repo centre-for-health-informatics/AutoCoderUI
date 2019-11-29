@@ -149,6 +149,13 @@ class FileViewer extends Component {
     return <CustomAnnotator />;
   };
 
+  handleUseSpacyChange = () => {
+    if (!this.props.spacyActive && this.props.textToDisplay !== "") {
+      this.callApi();
+    }
+    this.props.setSpacyActive(!this.props.spacyActive);
+  };
+
   render() {
     return (
       <div>
@@ -177,7 +184,7 @@ class FileViewer extends Component {
                 size="small"
                 color="primary"
                 checked={this.props.spacyActive}
-                onChange={() => this.props.setSpacyActive(!this.props.spacyActive)}
+                onChange={this.handleUseSpacyChange}
               />
             }
             label="Use Spacy"
