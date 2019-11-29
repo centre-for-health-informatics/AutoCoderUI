@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 import * as APIUtility from "../../Util/API";
 import { connect } from "react-redux";
-import Button from "@material-ui/core/Button";
+import { Button, Switch, FormControlLabel } from "@material-ui/core";
 import * as actions from "../../Store/Actions/index";
 import TagUploader from "../../Components/TagManagement/TagUploader";
 import ImportExportAnnotations from "../../Components/ImportExportAnnotations/ImportExportAnnotations";
@@ -10,7 +10,6 @@ import * as tagTypes from "../TagManagement/tagTypes";
 import getColors from "../../Util/colorMap";
 import LoadingIndicator from "../../Components/LoadingIndicator/LoadingIndicator";
 import CustomAnnotator from "../../Components/CustomAnnotator/CustomAnnotator";
-import AnnotationEditor from "../../Components/CustomAnnotator/AnnotationEditor";
 
 class FileViewer extends Component {
   constructor(props) {
@@ -150,6 +149,13 @@ class FileViewer extends Component {
     return <CustomAnnotator />;
   };
 
+  handleUseSpacyChange = () => {
+    if (!this.props.spacyActive && this.props.textToDisplay !== "") {
+      this.callApi();
+    }
+    this.props.setSpacyActive(!this.props.spacyActive);
+  };
+
   render() {
     return (
       <div>
@@ -169,6 +175,19 @@ class FileViewer extends Component {
             type="file"
             //   multiple
             onChange={e => this.readFile(e.target.files[0])}
+          />
+        </div>
+        <div>
+          <FormControlLabel
+            control={
+              <Switch
+                size="small"
+                color="primary"
+                checked={this.props.spacyActive}
+                onChange={this.handleUseSpacyChange}
+              />
+            }
+            label="Use Spacy"
           />
         </div>
         <div id="docDisplay" style={{ whiteSpace: "pre-wrap" }}>
@@ -203,6 +222,7 @@ const mapDispatchToProps = dispatch => {
     setEntities: entities => dispatch(actions.setEntities(entities)),
     // setICDCodes: icdCodes => dispatch
     setSpacyLoading: spacyLoading => dispatch(actions.setSpacyLoading(spacyLoading)),
+    setSpacyActive: spacyActive => dispatch(actions.setSpacyActive(spacyActive)),
     setAnnotations: annotations => dispatch(actions.setAnnotations(annotations)),
     setAnnotationFocus: annotationFocus => dispatch(actions.setAnnotationFocus(annotationFocus)),
     setTagTemplates: tagTemplates => dispatch(actions.setTagTemplates(tagTemplates)),

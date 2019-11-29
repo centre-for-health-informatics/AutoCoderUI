@@ -4,6 +4,7 @@ import * as actions from "../../Store/Actions/index";
 import Button from "@material-ui/core/Button";
 import { makeStyles } from "@material-ui/core/styles";
 import downloader from "../../Util/download";
+import * as tagTypes from "../TagManagement/tagTypes";
 
 const useStyles = makeStyles(theme => ({
   button: {
@@ -32,7 +33,7 @@ const ImportExportAnnotations = props => {
         props.setEntities(json.Entity);
         props.setTokens(json.Token);
         props.setSentences(json.Sentence);
-        props.setAnnotationFocus("");
+        props.setAnnotationFocus(tagTypes.SECTIONS);
         props.setAnnotations([]);
       };
 
