@@ -151,9 +151,7 @@ class CustomAnnotator extends Component {
   handleIntervalClick = (event, start, end) => {
     let annotationsInInterval = this.props.annotations.filter(s => s.start <= start && s.end >= end);
     this.props.setAnnotationsToEdit(annotationsInInterval);
-    this.setState({ anchorEl: event.currentTarget }, () => {
-      console.log(this.state.shouldEditorOpen);
-    });
+    this.setState({ anchorEl: event.currentTarget });
   };
 
   // Closing AnnotationEditor popup

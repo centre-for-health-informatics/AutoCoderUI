@@ -139,7 +139,6 @@ const TagSelector = props => {
 
   const getSearchTextValue = () => {
     if (Array.isArray(props.addingTags) && props.addingTags.length > 0) {
-      console.log("returning", props.addingTags[0]);
       return props.addingTags[0];
     } else {
       return null;

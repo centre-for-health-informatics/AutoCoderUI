@@ -115,8 +115,8 @@ const AnnotationEditor = props => {
           style={{ backgroundColor: item.labels[i].color }}
         />
       );
-      return chipList;
     }
+    return chipList;
   };
 
   return (
