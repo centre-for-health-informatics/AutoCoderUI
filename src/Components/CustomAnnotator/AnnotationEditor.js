@@ -54,7 +54,7 @@ const AnnotationEditor = props => {
    * - ref: [] list of references to the original annotation object
    * - start: start char number of the text span
    * - end: end char number of the text span
-   * - labels: list of objects consisting of attributes "tag" and "color", corresponding to the list of ref
+   * - labels: list of objects {"tag", "color"}, corresponding to the list of ref
    */
   const generateListItemData = () => {
     const uniqueTextSpans = [];
@@ -77,7 +77,6 @@ const AnnotationEditor = props => {
         spanAlreadyExist.ref.push(props.itemsToEdit[i]);
       }
     }
-    console.log(uniqueTextSpans);
     return uniqueTextSpans;
   };
 
@@ -92,11 +91,20 @@ const AnnotationEditor = props => {
     return listData.map(item => (
       <ListItem divider key={"listItem-" + item.start + "-" + item.end}>
         <div className={classes.textSpan}>
+          {makeTextSpan(item)}
           <Typography>{props.fileViewerText.slice(item.start, item.end)}</Typography>
         </div>
         <div className={classes.tags}>{makeListItemHTML(item)}</div>
       </ListItem>
     ));
+  };
+
+  /**
+   * // TODO:
+   * Creates the text span to be displayed within the list item
+   */
+  const makeTextSpan = item => {
+    console.log(item);
   };
 
   /**
