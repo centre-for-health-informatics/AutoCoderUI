@@ -163,13 +163,31 @@ class CustomAnnotator extends Component {
     });
   };
 
-  // removes annotations
-  removeAnnotations = annotationsToRemove => {
-    annotationsToRemove = this.getLinkedAnnotations(annotationsToRemove);
+  // // removes annotations
+  // removeAnnotations = annotationsToRemove => {
+  //   annotationsToRemove = this.getLinkedAnnotations(annotationsToRemove);
+  //   // for each annotation to remove
+  //   for (let annotation of annotationsToRemove) {
+  //     // find index
+  //     const annotationIndex = this.props.annotations.indexof(annotation);
+  //     // removing annotations
+  //     if (annotationIndex !== -1) {
+  //       this.handleAnnotate([
+  //         ...this.props.annotations.slice(0, annotationIndex),
+  //         ...this.props.annotations.slice(annotationIndex + 1)
+  //       ]);
+  //     }
+  //   }
+  // };
+
+  // removes an annotation
+  removeAnnotation = annotationToRemove => {
+    console.log("annotation to remove", annotationToRemove);
+    let annotationsToRemove = this.getLinkedAnnotations(annotationToRemove);
     // for each annotation to remove
     for (let annotation of annotationsToRemove) {
       // find index
-      const annotationIndex = this.props.annotations.indexof(annotation);
+      const annotationIndex = this.props.annotations.indexOf(annotation);
       // removing annotations
       if (annotationIndex !== -1) {
         this.handleAnnotate([
@@ -181,29 +199,27 @@ class CustomAnnotator extends Component {
   };
 
   // retreives all annotations linked to an annotation that is being removed
-  getLinkedAnnotations = annotationsToRemove => {
-    for (let annotation of annotationsToRemove) {
-      let previousAnnotation = annotation.prev;
-      let nextAnnotation = annotation.next;
-      // previous annotations
-      while (previousAnnotation) {
-        annotationsToRemove.push(previousAnnotation);
-        previousAnnotation = previousAnnotation.prev;
-      }
-      // next annotations
-      while (nextAnnotation) {
-        annotationsToRemove.push(nextAnnotation);
-        nextAnnotation = nextAnnotation.next;
-      }
+  getLinkedAnnotations = annotation => {
+    const annotationsToRemove = [annotation];
+    let previousAnnotation = annotation.prev;
+    let nextAnnotation = annotation.next;
+    // previous annotations
+    while (previousAnnotation) {
+      annotationsToRemove.push(previousAnnotation);
+      previousAnnotation = previousAnnotation.prev;
     }
+    // next annotations
+    while (nextAnnotation) {
+      annotationsToRemove.push(nextAnnotation);
+      nextAnnotation = nextAnnotation.next;
+    }
+    console.log("annotations to remove", annotationsToRemove);
     return annotationsToRemove;
   };
 
   render() {
     // create intervals and render interval elements defined in utility and draw lines between linked intervals
     const intervals = util.createIntervals(this.props.textToDisplay, this.props.annotations);
-    // console.log("rendering custon annotator");
-    // console.log("intervals", intervals);
     return (
       <div>
         <div style={(this.annoteStyle, { position: "absolute" })} ref={this.rootRef} id="intervalsDiv">
@@ -231,7 +247,7 @@ class CustomAnnotator extends Component {
             horizontal: "left"
           }}
         >
-          <AnnotationEditor itemsToEdit={this.props.annotationsToEdit} />
+          <AnnotationEditor itemsToEdit={this.props.annotationsToEdit} removeAnnotation={this.removeAnnotation} />
         </Popover>
         <svg
           style={({ position: "absolute" }, { zIndex: -1 })}

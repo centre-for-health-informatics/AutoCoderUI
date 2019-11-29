@@ -30,9 +30,9 @@ const useStyles = makeStyles(theme => ({
 const AnnotationEditor = props => {
   const classes = useStyles();
 
-  const handleRemoveLabel = (start, end, tag) => {
+  const handleRemoveLabel = annotation => {
     //TODO: call function to remove a label
-    console.log("Please remove: " + tag, start, end);
+    props.removeAnnotation(annotation);
   };
 
   const findSameTextSpan = (start, end, arr) => {
@@ -53,7 +53,7 @@ const AnnotationEditor = props => {
       // If span doesnt exist in the array yet, add it
       if (spanAlreadyExist === null) {
         currentItem = {
-          ref: props.itemsToEdit[i],
+          ref: [props.itemsToEdit[i]],
           start: props.itemsToEdit[i].start,
           end: props.itemsToEdit[i].end,
           labels: [{ tag: props.itemsToEdit[i].tag, color: props.itemsToEdit[i].color }]
@@ -62,8 +62,10 @@ const AnnotationEditor = props => {
       } else {
         // item already exist, add to the item's colors and tags lists
         spanAlreadyExist.labels.push({ tag: props.itemsToEdit[i].tag, color: props.itemsToEdit[i].color });
+        spanAlreadyExist.ref.push(props.itemsToEdit[i]);
       }
     }
+    console.log(uniqueTextSpans);
     return uniqueTextSpans;
   };
 
@@ -75,22 +77,26 @@ const AnnotationEditor = props => {
         <div className={classes.textSpan}>
           <Typography>{props.fileViewerText.slice(item.start, item.end)}</Typography>
         </div>
-        <div className={classes.tags}>{makeListItemHTML(item.start, item.end, item.labels)}</div>
+        <div className={classes.tags}>{makeListItemHTML(item)}</div>
       </ListItem>
     ));
   };
 
-  const makeListItemHTML = (start, end, tags) => {
-    return tags.map(item => (
-      <Chip
-        key={"chipItem-" + item.tag}
-        variant="outlined"
-        size="small"
-        label={item.tag}
-        onDelete={() => handleRemoveLabel(start, end, item.tag)}
-        style={{ backgroundColor: item.color }}
-      />
-    ));
+  const makeListItemHTML = item => {
+    const chipList = [];
+    for (let i = 0; i < item.labels.length; i++) {
+      chipList.push(
+        <Chip
+          key={"chipItem-" + item.labels[i].tag}
+          variant="outlined"
+          size="small"
+          label={item.labels[i].tag}
+          onDelete={() => handleRemoveLabel(item.ref[i])}
+          style={{ backgroundColor: item.labels[i].color }}
+        />
+      );
+      return chipList;
+    }
   };
 
   return (

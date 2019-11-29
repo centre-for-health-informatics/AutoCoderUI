@@ -82,7 +82,18 @@ export const drawLine = annotation => {
       yOffset +
       document.getElementById(annotation.next.start + "-start").getBoundingClientRect().height / 2;
     // returning a dashed line
-    return <line strokeWidth="4px" strokeDasharray="4" stroke={annotation.color} x1={x1} y1={y1} x2={x2} y2={y2} />;
+    return (
+      <line
+        key={("x1:" + x1 + ",y1:" + y1 + ",x2:", x2 + ",y2:" + y2 + ",tag:" + annotation.tag)}
+        strokeWidth="4px"
+        strokeDasharray="4"
+        stroke={annotation.color}
+        x1={x1}
+        y1={y1}
+        x2={x2}
+        y2={y2}
+      />
+    );
   }
 };
 
