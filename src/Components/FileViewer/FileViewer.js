@@ -61,6 +61,7 @@ class FileViewer extends Component {
       this.props.setSentences([]);
       this.props.setTokens([]);
       this.props.setEntities([]);
+      this.props.setLabelsInUse([]);
 
       this.fileData.id = file.name;
       let ext = file.name.split(".")[file.name.split(".").length - 1];
@@ -189,6 +190,19 @@ class FileViewer extends Component {
             }
             label="Use Spacy"
           />
+          <FormControlLabel
+            control={
+              <Switch
+                size="small"
+                color="primary"
+                checked={this.props.snapToWord}
+                onChange={() => {
+                  this.props.setSnapToWord(!this.props.snapToWord);
+                }}
+              />
+            }
+            label="Snap to Whole Word"
+          />
         </div>
         <div id="docDisplay" style={{ whiteSpace: "pre-wrap" }}>
           {this.renderCustomAnnotator()}
@@ -209,7 +223,8 @@ const mapStateToProps = state => {
     spacyActive: state.fileViewer.spacyActive,
     spacyLoading: state.fileViewer.spacyLoading,
     tagTemplates: state.fileViewer.tagTemplates,
-    alternatingColors: state.fileViewer.alternatingColors
+    alternatingColors: state.fileViewer.alternatingColors,
+    snapToWord: state.fileViewer.snapToWord
   };
 };
 
@@ -226,7 +241,9 @@ const mapDispatchToProps = dispatch => {
     setAnnotations: annotations => dispatch(actions.setAnnotations(annotations)),
     setAnnotationFocus: annotationFocus => dispatch(actions.setAnnotationFocus(annotationFocus)),
     setTagTemplates: tagTemplates => dispatch(actions.setTagTemplates(tagTemplates)),
-    setFileReference: fileReference => dispatch(actions.setFileReference(fileReference))
+    setFileReference: fileReference => dispatch(actions.setFileReference(fileReference)),
+    setSnapToWord: snapToWord => dispatch(actions.setSnapToWord(snapToWord)),
+    setLabelsInUse: labelsInUse => dispatch(actions.setLabelsInUse(labelsInUse))
   };
 };
 

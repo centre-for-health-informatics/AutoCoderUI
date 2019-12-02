@@ -30,7 +30,6 @@ const AnnotationEditor = props => {
   const classes = useStyles();
 
   const handleRemoveLabel = annotation => {
-    //TODO: call function to remove a label
     props.removeAnnotation(annotation);
   };
 

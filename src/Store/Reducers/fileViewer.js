@@ -16,7 +16,9 @@ const initialState = {
   linkedListAdd: false,
   intervalDivHeight: 0,
   intervalDivWidth: 0,
-  annotationsToEdit: []
+  annotationsToEdit: [],
+  snapToWord: true,
+  labelsInUse: []
 };
 
 const reducer = (state = initialState, action) => {
@@ -53,6 +55,10 @@ const reducer = (state = initialState, action) => {
       return { ...state, intervalDivWidth: action.intervalDivWidth };
     case actionTypes.SET_ANNOTATIONS_TO_EDIT:
       return { ...state, annotationsToEdit: action.annotationsToEdit };
+    case actionTypes.SET_SNAP_TO_WORD:
+      return { ...state, snapToWord: action.snapToWord };
+    case actionTypes.SET_LABELS_IN_USE:
+      return { ...state, labelsInUse: action.labelsInUse };
     default:
       return state;
   }
