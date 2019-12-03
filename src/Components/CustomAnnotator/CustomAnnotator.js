@@ -224,7 +224,7 @@ class CustomAnnotator extends Component {
         </div>
         <Popover
           id={this.editorPopUpId}
-          open={Boolean(this.state.anchorEl && this.props.annotationsToEdit.length > 0)}
+          open={Boolean(this.state.anchorEl) && this.props.annotationsToEdit.length > 0}
           anchorEl={this.state.anchorEl}
           onClose={this.handleEditorClose}
           // anchorReference="anchorPosition"
