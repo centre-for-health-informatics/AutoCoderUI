@@ -71,7 +71,7 @@ const AnnotationEditor = props => {
         };
         uniqueTextSpans.push(currentItem);
       } else {
-        // item already exist, add to the item's colors and tags lists
+        // item already exists, add to the item's colors and tags lists
         spanAlreadyExist.labels.push({ tag: props.itemsToEdit[i].tag, color: props.itemsToEdit[i].color });
         spanAlreadyExist.ref.push(props.itemsToEdit[i]);
       }

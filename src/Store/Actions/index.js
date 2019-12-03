@@ -18,7 +18,8 @@ export {
   setAnnotationsToEdit,
   setSpacyActive,
   setSnapToWord,
-  setLabelsInUse
+  setSectionsInUse,
+  setEntitiesInUse
 } from "./fileViewer";
 export {
   setUploadedTags,

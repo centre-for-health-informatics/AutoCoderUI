@@ -128,11 +128,29 @@ class CustomAnnotator extends Component {
 
     this.prevSpan = span;
 
+    if (this.props.annotationFocus === tagTypes.SECTIONS) {
+      let newSections = this.props.sectionsInUse;
+      if (newSections.includes(this.props.addingTags[0].id)) {
+        const index = newSections.indexOf(this.props.addingTags[0].id);
+        newSections.splice(index, 1);
+      }
+      newSections.unshift(this.props.addingTags[0].id);
+      this.props.setSectionsInUse(Array.from(newSections));
+    } else if (this.props.annotationFocus === tagTypes.ENTITIES) {
+      let newEntities = this.props.entitiesInUse;
+      if (newEntities.includes(this.props.addingTags[0].id)) {
+        const index = newEntities.indexOf(this.props.addingTags[0].id);
+        newEntities.splice(index, 1);
+      }
+      newEntities.unshift(this.props.addingTags[0].id);
+      this.props.setEntitiesInUse(newEntities);
+    }
+
     // clears selection
     window.getSelection().empty();
   };
 
-  // this is called whenever the user selects something to annotate or clicks on an annotation to remove it
+  // this is called whenever the user selects text to annotate or clicks on an annotation to remove it
   handleAnnotate = annotations => {
     if (this.props.annotationFocus === tagTypes.ENTITIES) {
       this.props.setEntities(annotations);
@@ -187,6 +205,39 @@ class CustomAnnotator extends Component {
 
   // removes an annotation
   removeAnnotation = annotationToRemove => {
+    if (this.props.annotationFocus === tagTypes.SECTIONS || this.props.annotationFocus === tagTypes.ENTITIES) {
+      // removing from legend if it was the last tag of that type
+      const label = annotationToRemove.tag;
+      let labelCount = 0;
+      for (let annotation of this.props.annotations) {
+        if (annotation.tag === label) {
+          labelCount += 1;
+        }
+        if (annotation.next) {
+          labelCount -= 1;
+        }
+      }
+      if (labelCount === 1) {
+        if (this.props.annotationFocus === tagTypes.SECTIONS) {
+          const index = this.props.sectionsInUse.indexOf(label);
+          if (index >= 0) {
+            this.props.setSectionsInUse([
+              ...this.props.sectionsInUse.slice(0, index),
+              ...this.props.sectionsInUse.slice(index + 1)
+            ]);
+          }
+        } else if (this.props.annotationFocus === tagTypes.ENTITIES) {
+          const index = this.props.entitiesInUse.indexOf(label);
+          if (index >= 0) {
+            this.props.setEntitiesInUse([
+              ...this.props.entitiesInUse.slice(0, index),
+              ...this.props.entitiesInUse.slice(index + 1)
+            ]);
+          }
+        }
+      }
+    }
+
     let annotationsToRemove = this.getLinkedAnnotations(annotationToRemove);
     const indicesToRemove = [];
     // for each annotation to remove
@@ -288,7 +339,9 @@ const mapStateToProps = state => {
     intervalDivHeight: state.fileViewer.intervalDivHeight,
     intervalDivWidth: state.fileViewer.intervalDivWidth,
     alternatingColors: state.fileViewer.alternatingColors,
-    snapToWord: state.fileViewer.snapToWord
+    snapToWord: state.fileViewer.snapToWord,
+    sectionsInUse: state.fileViewer.sectionsInUse,
+    entitiesInUse: state.fileViewer.entitiesInUse
   };
 };
 
@@ -304,7 +357,9 @@ const mapDispatchToProps = dispatch => {
     setAnnotationFocus: annotationFocus => dispatch(actions.setAnnotationFocus(annotationFocus)),
     setAnnotations: annotations => dispatch(actions.setAnnotations(annotations)),
     setAddingTags: tag => dispatch(actions.setAddingTags(tag)),
-    setAnnotationsToEdit: annotationsToEdit => dispatch(actions.setAnnotationsToEdit(annotationsToEdit))
+    setAnnotationsToEdit: annotationsToEdit => dispatch(actions.setAnnotationsToEdit(annotationsToEdit)),
+    setSectionsInUse: sectionsInUse => dispatch(actions.setSectionsInUse(sectionsInUse)),
+    setEntitiesInUse: entitiesInUse => dispatch(actions.setEntitiesInUse(entitiesInUse))
   };
 };
 

@@ -18,7 +18,8 @@ const initialState = {
   intervalDivWidth: 0,
   annotationsToEdit: [],
   snapToWord: true,
-  labelsInUse: []
+  sectionsInUse: [],
+  entitiesInUse: []
 };
 
 const reducer = (state = initialState, action) => {
@@ -57,8 +58,10 @@ const reducer = (state = initialState, action) => {
       return { ...state, annotationsToEdit: action.annotationsToEdit };
     case actionTypes.SET_SNAP_TO_WORD:
       return { ...state, snapToWord: action.snapToWord };
-    case actionTypes.SET_LABELS_IN_USE:
-      return { ...state, labelsInUse: action.labelsInUse };
+    case actionTypes.SET_SECTIONS_IN_USE:
+      return { ...state, sectionsInUse: action.sectionsInUse };
+    case actionTypes.SET_ENTITIES_IN_USE:
+      return { ...state, entitiesInUse: action.entitiesInUse };
     default:
       return state;
   }

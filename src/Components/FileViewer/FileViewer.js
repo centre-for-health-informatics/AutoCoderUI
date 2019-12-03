@@ -10,6 +10,7 @@ import * as tagTypes from "../TagManagement/tagTypes";
 import getColors from "../../Util/colorMap";
 import LoadingIndicator from "../../Components/LoadingIndicator/LoadingIndicator";
 import CustomAnnotator from "../../Components/CustomAnnotator/CustomAnnotator";
+import Legend from "../../Components/CustomAnnotator/Legend";
 
 class FileViewer extends Component {
   constructor(props) {
@@ -56,12 +57,12 @@ class FileViewer extends Component {
       // reset store if user changes file
       this.props.setAnnotations([]);
       this.props.setFileText("");
-      // this.props.setSpacyLoading(true);
       this.props.setSections([]);
       this.props.setSentences([]);
       this.props.setTokens([]);
       this.props.setEntities([]);
-      this.props.setLabelsInUse([]);
+      this.props.setSectionsInUse([]);
+      this.props.setEntitiesInUse([]);
 
       this.fileData.id = file.name;
       let ext = file.name.split(".")[file.name.split(".").length - 1];
@@ -78,7 +79,7 @@ class FileViewer extends Component {
       this.fileReader.readAsText(file);
 
       this.fileReader.onloadend = () => {
-        let text = this.fileReader.result.replace(/\r\n/g, "\n"); // Replaces /r/n with /n for Windows OS
+        let text = this.fileReader.result.replace(/\r\n/g, "\n"); // Replaces \r\n with \n for Windows OS
         this.fileData.content = text;
 
         this.props.setFileText(text);
@@ -204,6 +205,9 @@ class FileViewer extends Component {
             label="Snap to Whole Word"
           />
         </div>
+        <div>
+          <Legend />
+        </div>
         <div id="docDisplay" style={{ whiteSpace: "pre-wrap" }}>
           {this.renderCustomAnnotator()}
         </div>
@@ -243,7 +247,8 @@ const mapDispatchToProps = dispatch => {
     setTagTemplates: tagTemplates => dispatch(actions.setTagTemplates(tagTemplates)),
     setFileReference: fileReference => dispatch(actions.setFileReference(fileReference)),
     setSnapToWord: snapToWord => dispatch(actions.setSnapToWord(snapToWord)),
-    setLabelsInUse: labelsInUse => dispatch(actions.setLabelsInUse(labelsInUse))
+    setSectionsInUse: sectionsInUse => dispatch(actions.setSectionsInUse(sectionsInUse)),
+    setEntitiesInUse: entitiesInUse => dispatch(actions.setEntitiesInUse(entitiesInUse))
   };
 };
 

@@ -119,9 +119,16 @@ export const setSnapToWord = snapToWord => {
   };
 };
 
-export const setLabelsInUse = labelsInUse => {
+export const setSectionsInUse = sectionsInUse => {
   return {
-    type: actionTypes.SET_LABELS_IN_USE,
-    labelsInUse
+    type: actionTypes.SET_SECTIONS_IN_USE,
+    sectionsInUse
+  };
+};
+
+export const setEntitiesInUse = entitiesInUse => {
+  return {
+    type: actionTypes.SET_ENTITIES_IN_USE,
+    entitiesInUse
   };
 };
