@@ -42,7 +42,7 @@ class CustomAnnotator extends Component {
     this.props.setIntervalDivWidth(document.getElementById("intervalsDiv").offsetWidth);
   }
 
-  // if the user presses A key, it will link the next selection to the previous one
+  // if the user presses "A" key, it will link the next selection to the previous one
   handleKeyPress = e => {
     let key = e.key;
     if (key.toLowerCase() === "a" && this.prevSpan) {

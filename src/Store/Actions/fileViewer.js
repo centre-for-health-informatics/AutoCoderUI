@@ -132,3 +132,10 @@ export const setEntitiesInUse = entitiesInUse => {
     entitiesInUse
   };
 };
+
+export const setAddingCustomTag = addingCustomTag => {
+  return {
+    type: actionTypes.SET_ADDING_CUSTOM_TAG,
+    addingCustomTag
+  };
+};

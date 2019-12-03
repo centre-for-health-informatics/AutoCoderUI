@@ -9,8 +9,11 @@ import { useAlert, positions } from "react-alert";
 import { Redirect } from "react-router";
 import Loading from "../Loading/Loading";
 import * as APIUtility from "../../Util/API";
+import "react-grid-layout/css/styles.css";
+import "react-resizable/css/styles.css";
 import TagSelector from "../../Components/TagManagement/TagSelector";
 import FileViewer from "../../Components/FileViewer/FileViewer";
+import Legend from "../../Components/CustomAnnotator/Legend";
 
 const ResponsiveReactGridLayout = WidthProvider(Responsive);
 const originalLayouts = getFromLS("annotateLayouts", "layouts") || defaultLayouts;
@@ -82,6 +85,7 @@ const Annotate = props => {
       <ResponsiveReactGridLayout
         className="layout"
         rowHeight={10}
+        cols={{ lg: 48, md: 40, sm: 24, xs: 16, xxs: 8 }}
         layouts={layouts}
         draggableCancel="input,textarea"
         isDraggable={isLayoutModifiable}
@@ -91,8 +95,11 @@ const Annotate = props => {
         <div key="tagSelector" className={highlightEditDiv}>
           <TagSelector />
         </div>
-        <div key="document" className={highlightEditDiv}>
+        <div key="document" className={highlightEditDiv} style={{ overflowY: "auto" }}>
           <FileViewer />
+        </div>
+        <div key="legend" className={highlightEditDiv}>
+          <Legend />
         </div>
       </ResponsiveReactGridLayout>
     </div>

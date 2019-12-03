@@ -36,17 +36,18 @@ const Legend = props => {
   };
 
   const getLabel = item => {
-    let tagToLabel;
-    for (let tag of props.tagTemplates) {
-      if (item === tag.id) {
-        tagToLabel = tag;
-        break;
-      }
-    }
-    if (tagToLabel.description) {
-      return tagToLabel.id + ": " + tagToLabel.description;
-    }
-    return tagToLabel.id;
+    // let tagToLabel;
+    // for (let tag of props.tagTemplates) {
+    //   if (item === tag.id) {
+    //     tagToLabel = tag;
+    //     break;
+    //   }
+    // }
+    // if (tagToLabel.description) {
+    //   return tagToLabel.id + ": " + tagToLabel.description;
+    // }
+    // return tagToLabel.id;
+    return item;
   };
 
   const getFontWeight = item => {

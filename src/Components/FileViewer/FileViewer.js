@@ -1,4 +1,4 @@
-import React, { Component } from "react";
+import React, { useEffect } from "react";
 import * as APIUtility from "../../Util/API";
 import { connect } from "react-redux";
 import { Button, Switch, FormControlLabel } from "@material-ui/core";
@@ -34,11 +34,9 @@ const FileViewer = props => {
 
   APIUtility.API.makeAPICall(APIUtility.GET_SECTIONS).then(response => response.json());
 
-  const componentDidUpdate = prevProps => {
-    if (prevProps.tagTemplates !== props.tagTemplates) {
-      mapColors();
-    }
-  };
+  useEffect(() => {
+    mapColors();
+  }, [props.tagTemplates]);
 
   const mapColors = () => {
     const tagsWithoutColors = [];
@@ -167,9 +165,6 @@ const FileViewer = props => {
   return (
     <div>
       <div>
-        <TagUploader />
-      </div>
-      <div>
         <ImportExportAnnotations />
       </div>
       <div className="fileUpload">
@@ -203,9 +198,6 @@ const FileViewer = props => {
           }
           label="Snap to Whole Word"
         />
-      </div>
-      <div>
-        <Legend />
       </div>
       <div id="docDisplay" style={{ whiteSpace: "pre-wrap" }}>
         {renderCustomAnnotator()}

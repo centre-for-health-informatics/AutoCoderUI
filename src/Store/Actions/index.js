@@ -19,7 +19,8 @@ export {
   setSpacyActive,
   setSnapToWord,
   setSectionsInUse,
-  setEntitiesInUse
+  setEntitiesInUse,
+  setAddingCustomTag
 } from "./fileViewer";
 export {
   setUploadedTags,

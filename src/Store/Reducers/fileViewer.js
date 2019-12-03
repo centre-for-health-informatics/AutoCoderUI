@@ -19,7 +19,8 @@ const initialState = {
   annotationsToEdit: [],
   snapToWord: true,
   sectionsInUse: [],
-  entitiesInUse: []
+  entitiesInUse: [],
+  addingCustomTag: false
 };
 
 const reducer = (state = initialState, action) => {
@@ -62,6 +63,8 @@ const reducer = (state = initialState, action) => {
       return { ...state, sectionsInUse: action.sectionsInUse };
     case actionTypes.SET_ENTITIES_IN_USE:
       return { ...state, entitiesInUse: action.entitiesInUse };
+    case actionTypes.SET_ADDING_CUSTOM_TAG:
+      return { ...state, addingCustomTag: action.addingCustomTag };
     default:
       return state;
   }
