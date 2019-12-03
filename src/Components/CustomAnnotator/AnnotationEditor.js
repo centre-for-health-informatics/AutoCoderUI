@@ -6,7 +6,6 @@ import ListItem from "@material-ui/core/ListItem";
 import Chip from "@material-ui/core/Chip";
 import Typography from "@material-ui/core/Typography";
 import * as actions from "../../Store/Actions/index";
-import * as tagTypes from "../TagManagement/tagTypes";
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -38,10 +37,37 @@ const AnnotationEditor = props => {
    * Given the the start char number, end char number, and a list of objects that has same attributes of "start" and "end"
    * returns the next object from the list if it has identical start and end values
    */
-  const findSameTextSpan = (start, end, arr) => {
+  const findDuplicateSingleTextInterval = (start, end, arr) => {
     for (let i = 0; i < arr.length; i++) {
-      if (start === arr[i].start && end === arr[i].end) {
-        return arr[i];
+      const spans = arr[i].spans;
+      for (let j = 0; j < spans.length; j++) {
+        const span = spans[j];
+
+        if (span.start === start && span.end === end) {
+          return arr[i];
+        }
+      }
+    }
+    return null;
+  };
+
+  /**
+   * Given an list item data object which consist of
+   */
+  const findDuplicateMultiPartAnnotation = (textInterval, arr) => {
+    for (const item of arr) {
+      if (item.spans.length === textInterval.spans.length) {
+        // only compare each set of text span if the sets are different in length
+
+        for (let i = 0; i < item.spans.length; i++) {
+          // finds unmatching start or end numbers
+          if (item.spans[i].start !== textInterval.spans[i].start || item.spans[i].end !== textInterval.spans[i].end) {
+            continue;
+          } else if (i === item.spans.length - 1) {
+            // finds the identical set of text spans
+            return item;
+          }
+        }
       }
     }
     return null;
@@ -50,33 +76,87 @@ const AnnotationEditor = props => {
   /**
    * Generates list data to populate AnnotationEditor from annotation data
    * Returns a list of unique text spans consisting of:
+   * - spans: [] list of text spans in form of {"start, "end"}
    * - ref: [] list of references to the original annotation object
-   * - start: start char number of the text span
-   * - end: end char number of the text span
    * - labels: list of objects {"tag", "color"}, corresponding to the list of ref
    */
   const generateListItemData = () => {
-    const uniqueTextSpans = [];
-    let currentItem;
-
+    const uniqueTextIntervals = [];
     for (let i = 0; i < props.itemsToEdit.length; i++) {
-      let spanAlreadyExist = findSameTextSpan(props.itemsToEdit[i].start, props.itemsToEdit[i].end, uniqueTextSpans);
-      // If span doesnt exist in the array yet, add it
-      if (spanAlreadyExist === null) {
-        currentItem = {
-          ref: [props.itemsToEdit[i]],
-          start: props.itemsToEdit[i].start,
-          end: props.itemsToEdit[i].end,
-          labels: [{ tag: props.itemsToEdit[i].tag, color: props.itemsToEdit[i].color }]
-        };
-        uniqueTextSpans.push(currentItem);
+      if (props.itemsToEdit[i].next !== undefined || props.itemsToEdit[i].prev !== undefined) {
+        // Handle multi-part labels, find and add head item of the multi-part label
+        const newMultiPartTextInterval = getMultiPartLabelHeadItemData(props.itemsToEdit[i]); // creates a new multipart data item
+        const duplicateMultiTextInterval = findDuplicateMultiPartAnnotation(
+          newMultiPartTextInterval,
+          uniqueTextIntervals
+        ); // looks for duplicate
+
+        if (duplicateMultiTextInterval === null) {
+          // no duplicate found, add to uniqueTextSpans
+          uniqueTextIntervals.push(newMultiPartTextInterval);
+        } else {
+          duplicateMultiTextInterval.labels.push({
+            tag: newMultiPartTextInterval.labels[0].tag,
+            color: newMultiPartTextInterval.labels[0].color
+          });
+        }
       } else {
-        // item already exists, add to the item's colors and tags lists
-        spanAlreadyExist.labels.push({ tag: props.itemsToEdit[i].tag, color: props.itemsToEdit[i].color });
-        spanAlreadyExist.ref.push(props.itemsToEdit[i]);
+        // handle single-part labels
+        let spanAlreadyExist = findDuplicateSingleTextInterval(
+          props.itemsToEdit[i].start,
+          props.itemsToEdit[i].end,
+          uniqueTextIntervals
+        );
+
+        if (spanAlreadyExist === null) {
+          // If span doesnt exist in the array yet, add it
+          uniqueTextIntervals.push(makeListItemDataFromAnnotation(props.itemsToEdit[i]));
+        } else {
+          // item already exist, add to the item's colors and tags lists
+          spanAlreadyExist.labels.push({ tag: props.itemsToEdit[i].tag, color: props.itemsToEdit[i].color });
+          spanAlreadyExist.ref.push(props.itemsToEdit[i]);
+        }
       }
     }
-    return uniqueTextSpans;
+
+    return uniqueTextIntervals;
+  };
+
+  /**
+   * Creates an data item using annotation
+   */
+  const makeListItemDataFromAnnotation = annot => {
+    return {
+      spans: [{ start: annot.start, end: annot.end }],
+      ref: [annot],
+      labels: [{ tag: annot.tag, color: annot.color }]
+    };
+  };
+
+  /**
+   * Given an annotation item from part of a multi-part label, returns the annotation item data
+   */
+  const getMultiPartLabelHeadItemData = annot => {
+    let head = annot;
+    // get first part of the multi-part annotation
+    while (head.prev !== undefined) {
+      head = head.prev;
+    }
+
+    // Creates a data item using the head annotation
+    const textIntervalDataItem = makeListItemDataFromAnnotation(head);
+
+    // Add subsequent parts of the multipart annotation to the data item
+    let cursor = head.next;
+    while (cursor !== undefined) {
+      textIntervalDataItem.spans.push({
+        start: cursor.start,
+        end: cursor.end
+      });
+      cursor = cursor.next;
+    }
+
+    return textIntervalDataItem;
   };
 
   /**
@@ -87,23 +167,31 @@ const AnnotationEditor = props => {
   const makeListHTML = () => {
     const listData = generateListItemData();
 
-    return listData.map(item => (
-      <ListItem divider key={"listItem-" + item.start + "-" + item.end}>
-        <div className={classes.textSpan}>
-          {makeTextSpan(item)}
-          <Typography>{props.fileViewerText.slice(item.start, item.end)}</Typography>
-        </div>
+    return listData.map((item, index) => (
+      <ListItem divider key={"listItem-" + index}>
+        <div className={classes.textSpan}>{makeTextSpan(item)}</div>
         <div className={classes.tags}>{makeListItemHTML(item)}</div>
       </ListItem>
     ));
   };
 
   /**
-   * // TODO:
-   * Creates the text span to be displayed within the list item
+   * Creates the text span to be displayed within the list item.
+   * item should be an object with following attributes:
+   * - spans: [{start, end}]
+   * - ref: [{start, end, color, tag, text, next*, prev*}]
+   * - labels: [{tag, color}]
    */
   const makeTextSpan = item => {
-    console.log(item);
+    let text = "";
+    item.spans.forEach((span, index) => {
+      text += props.fileViewerText.slice(span.start, span.end);
+      if (index < item.spans.length - 1) {
+        text += "---";
+      }
+    });
+
+    return <Typography>{text}</Typography>;
   };
 
   /**

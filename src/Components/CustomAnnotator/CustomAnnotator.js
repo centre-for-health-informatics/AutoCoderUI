@@ -203,7 +203,9 @@ class CustomAnnotator extends Component {
     this.setState({ anchorEl: null });
   };
 
-  // removes an annotation
+  /**
+   * Called upon to remove annotations
+   */
   removeAnnotation = annotationToRemove => {
     if (this.props.annotationFocus === tagTypes.SECTIONS || this.props.annotationFocus === tagTypes.ENTITIES) {
       // removing from legend if it was the last tag of that type
@@ -239,31 +241,32 @@ class CustomAnnotator extends Component {
     }
 
     let annotationsToRemove = this.getLinkedAnnotations(annotationToRemove);
+    const annotations = Array.from(this.props.annotations);
+    const annotationsToEdit = Array.from(this.props.annotationsToEdit);
+    const newAnnotations = this.removeItemsFromArrayByRef(annotationsToRemove, annotations);
+    const newAnnotationsToEdit = this.removeItemsFromArrayByRef(annotationsToRemove, annotationsToEdit);
+
+    this.props.setAnnotationsToEdit(newAnnotationsToEdit);
+    this.handleAnnotate(newAnnotations);
+  };
+
+  /**
+   * Given a list of items to be removed and an array the items are to be removed from,
+   * return a new list with items removed.
+   */
+  removeItemsFromArrayByRef = (itemsToRemove, arr) => {
     const indicesToRemove = [];
-    // for each annotation to remove
-    for (let annotation of annotationsToRemove) {
-      // find index
-      const annotationIndex = this.props.annotations.indexOf(annotation);
-      // removing annotations
-      if (annotationIndex !== -1) {
-        indicesToRemove.push(annotationIndex);
+    for (let item of itemsToRemove) {
+      const removeIndex = arr.indexOf(item);
+      if (removeIndex !== -1) {
+        indicesToRemove.push(removeIndex);
       }
     }
     indicesToRemove.sort();
-    let updatedAnnotations = this.props.annotations;
-    for (let i = 0; i < indicesToRemove.length; i++) {
-      updatedAnnotations = [
-        ...updatedAnnotations.slice(0, indicesToRemove[i] - i),
-        ...updatedAnnotations.slice(indicesToRemove[i] - i + 1)
-      ];
+    while (indicesToRemove.length) {
+      arr.splice(indicesToRemove.pop(), 1);
     }
-    this.handleAnnotate(updatedAnnotations);
-
-    const removedIndex = this.props.annotationsToEdit.indexOf(annotationToRemove);
-    this.props.setAnnotationsToEdit([
-      ...this.props.annotationsToEdit.slice(0, removedIndex),
-      ...this.props.annotationsToEdit.slice(removedIndex + 1)
-    ]);
+    return arr;
   };
 
   // retreives all annotations linked to an annotation that is being removed
@@ -300,7 +303,7 @@ class CustomAnnotator extends Component {
         </div>
         <Popover
           id={this.editorPopUpId}
-          open={Boolean(this.state.anchorEl && this.props.annotationsToEdit.length > 0)}
+          open={Boolean(this.state.anchorEl) && this.props.annotationsToEdit.length > 0}
           anchorEl={this.state.anchorEl}
           onClose={this.handleEditorClose}
           // anchorReference="anchorPosition"
