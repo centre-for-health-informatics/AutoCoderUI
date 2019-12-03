@@ -16,7 +16,9 @@ export {
   setIntervalDivHeight,
   setIntervalDivWidth,
   setAnnotationsToEdit,
-  setSpacyActive
+  setSpacyActive,
+  setSnapToWord,
+  setLabelsInUse
 } from "./fileViewer";
 export {
   setUploadedTags,

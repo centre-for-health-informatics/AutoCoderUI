@@ -19,7 +19,7 @@ class CustomAnnotator extends Component {
     this.annoteStyle = {
       // fontFamily: "IBM Plex Sans",
       // maxWidth: 500,
-      // lineHeight: 1.5,
+      lineHeight: 1.5
     };
   }
 
@@ -71,6 +71,31 @@ class CustomAnnotator extends Component {
     // getting start and end of selection
     let start = parseInt(selection.anchorNode.parentElement.getAttribute("data-start"), 10) + selection.anchorOffset;
     let end = parseInt(selection.focusNode.parentElement.getAttribute("data-start"), 10) + selection.focusOffset;
+
+    // if option to snap to words is enabled
+    if (this.props.snapToWord) {
+      const termination = [" ", "\t", "\n"];
+
+      // snapping start of selection
+      // if start is a whitespace, move forwards
+      while (termination.includes(this.props.textToDisplay[start])) {
+        start += 1;
+      }
+      // if start is middle of a word, move backwards
+      while (!termination.includes(this.props.textToDisplay[start - 1]) && start > 0) {
+        start -= 1;
+      }
+
+      // snapping end of selection
+      // if the user ends on a termination trigger, move the end backwards to remove it
+      while (termination.includes(this.props.textToDisplay[end - 1])) {
+        end -= 1;
+      }
+      // if the user doesn't end at a termination trigger, move the end forwards to reach one
+      while (!termination.includes(this.props.textToDisplay[end])) {
+        end += 1;
+      }
+    }
 
     // if part of a tag is start or end of selection
     if (Number.isNaN(start) || Number.isNaN(end)) {
@@ -127,7 +152,7 @@ class CustomAnnotator extends Component {
       }
       this.props.setSentences(annotations);
     } else if (this.props.annotationFocus === tagTypes.TOKENS) {
-      // sorting tokens in order to have alternating sentences in different colors
+      // sorting tokens in order to have alternating token in different colors
       annotations = annotations.sort((a, b) => {
         return a.start - b.start;
       });
@@ -262,7 +287,8 @@ const mapStateToProps = state => {
     linkedListAdd: state.fileViewer.linkedListAdd,
     intervalDivHeight: state.fileViewer.intervalDivHeight,
     intervalDivWidth: state.fileViewer.intervalDivWidth,
-    alternatingColors: state.fileViewer.alternatingColors
+    alternatingColors: state.fileViewer.alternatingColors,
+    snapToWord: state.fileViewer.snapToWord
   };
 };
 

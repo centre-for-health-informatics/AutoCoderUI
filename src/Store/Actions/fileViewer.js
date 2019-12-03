@@ -111,3 +111,17 @@ export const setAnnotationsToEdit = annotationsToEdit => {
     annotationsToEdit
   };
 };
+
+export const setSnapToWord = snapToWord => {
+  return {
+    type: actionTypes.SET_SNAP_TO_WORD,
+    snapToWord
+  };
+};
+
+export const setLabelsInUse = labelsInUse => {
+  return {
+    type: actionTypes.SET_LABELS_IN_USE,
+    labelsInUse
+  };
+};
