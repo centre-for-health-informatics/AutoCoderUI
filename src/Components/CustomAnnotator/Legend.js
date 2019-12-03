@@ -1,11 +1,8 @@
 import React from "react";
 import { connect } from "react-redux";
 import * as tagTypes from "../TagManagement/tagTypes";
-import List from "@material-ui/core/List";
 import * as actions from "../../Store/Actions/index";
 import Chip from "@material-ui/core/Chip";
-import ListItem from "@material-ui/core/ListItem";
-import { isTemplateElement } from "@babel/types";
 
 const Legend = props => {
   const makeLegendList = () => {
@@ -20,20 +17,54 @@ const Legend = props => {
     return chipList;
   };
 
-  const makeChipList = sectionsInUse => {
+  const makeChipList = itemsInUse => {
     const chipList = [];
-    for (let item of sectionsInUse) {
+    for (let item of itemsInUse) {
       chipList.push(
         <Chip
           key={"chip-" + item}
           variant="outlined"
+          clickable={true}
           size="small"
-          label={item}
-          style={{ backgroundColor: getColor(item) }}
+          label={getLabel(item)}
+          style={{ backgroundColor: getColor(item), fontWeight: getFontWeight(item) }}
+          onClick={() => handleChipClick(item)}
         />
       );
     }
     return chipList;
+  };
+
+  const getLabel = item => {
+    let tagToLabel;
+    for (let tag of props.tagTemplates) {
+      if (item === tag.id) {
+        tagToLabel = tag;
+        break;
+      }
+    }
+    if (tagToLabel.description) {
+      return tagToLabel.id + ": " + tagToLabel.description;
+    }
+    return tagToLabel.id;
+  };
+
+  const getFontWeight = item => {
+    if (props.addingTags[0] && props.addingTags[0].id === item) {
+      return "bold";
+    }
+    return "normal";
+  };
+
+  const handleChipClick = item => {
+    let tagToSelect;
+    for (let tag of props.tagTemplates) {
+      if (item === tag.id) {
+        tagToSelect = tag;
+        break;
+      }
+    }
+    props.setAddingTags([tagToSelect]);
   };
 
   const getColor = item => {
@@ -53,7 +84,7 @@ const mapStateToProps = state => {
     //   annotations: state.fileViewer.annotations,
     //   tagTemplates: state.fileViewer.tagTemplates,
     annotationFocus: state.fileViewer.annotationFocus,
-    //   addingTags: state.tagManagement.addingTags,
+    addingTags: state.tagManagement.addingTags,
     //   sections: state.fileViewer.sections,
     //   sentences: state.fileViewer.sentences,
     //   tokens: state.fileViewer.tokens,
@@ -66,7 +97,7 @@ const mapStateToProps = state => {
 
 const mapDispatchToProps = dispatch => {
   return {
-    //   setAddingTags: tags => dispatch(actions.setAddingTags(tags)),
+    setAddingTags: tags => dispatch(actions.setAddingTags(tags)),
     setAnnotationFocus: annotationFocus => dispatch(actions.setAnnotationFocus(annotationFocus))
     //   setAnnotations: annotations => dispatch(actions.setAnnotations(annotations))
   };

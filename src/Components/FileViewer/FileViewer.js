@@ -11,32 +11,38 @@ import getColors from "../../Util/colorMap";
 import LoadingIndicator from "../../Components/LoadingIndicator/LoadingIndicator";
 import CustomAnnotator from "../../Components/CustomAnnotator/CustomAnnotator";
 import Legend from "../../Components/CustomAnnotator/Legend";
+import CustomTag from "../../Components/CustomTag/CustomTag";
+import { makeStyles } from "@material-ui/core/styles";
 
-class FileViewer extends Component {
-  constructor(props) {
-    super(props);
-    this.fileInputRef = React.createRef();
-    this.fileReader = new FileReader();
-    this.fileData = {};
-
-    this.setDefaultTagTemplate();
-
-    APIUtility.API.makeAPICall(APIUtility.GET_SECTIONS).then(response => response.json());
+const useStyles = makeStyles(theme => ({
+  button: {
+    margin: theme.spacing(1)
   }
+}));
 
-  componentDidUpdate(prevProps) {
-    if (prevProps.tagTemplates !== this.props.tagTemplates) {
-      this.mapColors();
-    }
-  }
+const FileViewer = props => {
+  const classes = useStyles();
+  const fileInputRef = React.createRef();
+  const fileReader = new FileReader();
+  let fileData = {};
 
-  setDefaultTagTemplate = () => {
-    this.props.setTagTemplates(templateTags.DEFAULTS);
+  const setDefaultTagTemplate = () => {
+    props.setTagTemplates(templateTags.DEFAULTS);
   };
 
-  mapColors = () => {
+  setDefaultTagTemplate();
+
+  APIUtility.API.makeAPICall(APIUtility.GET_SECTIONS).then(response => response.json());
+
+  const componentDidUpdate = prevProps => {
+    if (prevProps.tagTemplates !== props.tagTemplates) {
+      mapColors();
+    }
+  };
+
+  const mapColors = () => {
     const tagsWithoutColors = [];
-    for (let tag of this.props.tagTemplates) {
+    for (let tag of props.tagTemplates) {
       if (tag.color === undefined || tag.color === "") {
         tagsWithoutColors.push(tag);
       }
@@ -47,174 +53,166 @@ class FileViewer extends Component {
     }
   };
 
-  openExplorer = () => {
-    if (this.props.disabled) return;
-    this.fileInputRef.current.click();
+  const openExplorer = () => {
+    if (props.disabled) return;
+    fileInputRef.current.click();
   };
 
-  readFile = file => {
+  const readFile = file => {
     if (file) {
       // reset store if user changes file
-      this.props.setAnnotations([]);
-      this.props.setFileText("");
-      this.props.setSections([]);
-      this.props.setSentences([]);
-      this.props.setTokens([]);
-      this.props.setEntities([]);
-      this.props.setSectionsInUse([]);
-      this.props.setEntitiesInUse([]);
+      props.setAnnotations([]);
+      props.setFileText("");
+      props.setSections([]);
+      props.setSentences([]);
+      props.setTokens([]);
+      props.setEntities([]);
+      props.setSectionsInUse([]);
+      props.setEntitiesInUse([]);
 
-      this.fileData.id = file.name;
+      fileData.id = file.name;
       let ext = file.name.split(".")[file.name.split(".").length - 1];
       let filename = file.name.slice(0, file.name.length - 1 - ext.length);
-      this.props.setFileReference(filename);
+      props.setFileReference(filename);
       if (ext === "txt") {
-        this.fileData.format = "plain_text";
+        fileData.format = "plain_text";
       } else if (ext === "rtf") {
-        this.fileData.format = "rich_text";
+        fileData.format = "rich_text";
       } else {
-        this.fileData.format = "other";
+        fileData.format = "other";
       }
 
-      this.fileReader.readAsText(file);
+      fileReader.readAsText(file);
 
-      this.fileReader.onloadend = () => {
-        let text = this.fileReader.result.replace(/\r\n/g, "\n"); // Replaces \r\n with \n for Windows OS
-        this.fileData.content = text;
+      fileReader.onloadend = () => {
+        let text = fileReader.result.replace(/\r\n/g, "\n"); // Replaces \r\n with \n for Windows OS
+        fileData.content = text;
 
-        this.props.setFileText(text);
+        props.setFileText(text);
 
-        if (this.props.spacyActive) {
-          this.callApi();
+        if (props.spacyActive) {
+          callApi();
         }
       };
     }
   };
 
-  callApi = () => {
-    this.props.setSpacyLoading(true);
+  const callApi = () => {
+    props.setSpacyLoading(true);
     const options = {
       method: "POST",
-      body: this.fileData
+      body: fileData
     };
 
     APIUtility.API.makeAPICall(APIUtility.UPLOAD_DOCUMENT, null, options)
       .then(response => response.json())
       .then(data => {
-        this.props.setSections([...this.props.sections, ...this.mapData(data.sections, tagTypes.SECTIONS)]);
-        this.props.setSentences([...this.props.sentences, ...this.mapData(data.sentences, tagTypes.SENTENCES)]);
-        this.props.setTokens([...this.props.tokens, ...this.mapData(data.tokens, tagTypes.TOKENS)]);
-        this.props.setEntities([...this.props.entities, ...this.mapData(data.entities, tagTypes.ENTITIES)]);
+        props.setSections([...props.sections, ...mapData(data.sections, tagTypes.SECTIONS)]);
+        props.setSentences([...props.sentences, ...mapData(data.sentences, tagTypes.SENTENCES)]);
+        props.setTokens([...props.tokens, ...mapData(data.tokens, tagTypes.TOKENS)]);
+        props.setEntities([...props.entities, ...mapData(data.entities, tagTypes.ENTITIES)]);
 
-        this.props.setSpacyLoading(false);
-        this.props.setAnnotations(this.props.sections); // default type selection
-        this.props.setAnnotationFocus(tagTypes.SECTIONS); // default type selection
+        props.setSpacyLoading(false);
+        props.setAnnotations(props.sections); // default type selection
+        props.setAnnotationFocus(tagTypes.SECTIONS); // default type selection
       })
       .catch(error => {
         console.log("ERROR:", error);
       });
   };
 
-  mapData = (data, type) => {
+  const mapData = (data, type) => {
     for (let i = 0; i < data.length; i++) {
       let dataPoint = data[i];
       dataPoint.tag = dataPoint.label;
       delete dataPoint.label;
 
       if (type === tagTypes.ENTITIES || type === tagTypes.SECTIONS) {
-        let idMatchingTags = this.props.tagTemplates.filter(item => {
+        let idMatchingTags = props.tagTemplates.filter(item => {
           return item.id === dataPoint.tag;
         });
         if (idMatchingTags.length > 0) {
           dataPoint.color = idMatchingTags[0].color;
         }
       } else {
-        dataPoint.color = this.getAlternatingColor(i);
+        dataPoint.color = getAlternatingColor(i);
       }
-      dataPoint.text = this.props.textToDisplay.slice(dataPoint.start, dataPoint.end);
+      dataPoint.text = props.textToDisplay.slice(dataPoint.start, dataPoint.end);
     }
     return data;
   };
 
-  getAlternatingColor = counter => {
+  const getAlternatingColor = counter => {
     if (counter % 2 === 0) {
-      return this.props.alternatingColors[0];
+      return props.alternatingColors[0];
     } else {
-      return this.props.alternatingColors[1];
+      return props.alternatingColors[1];
     }
   };
 
-  renderCustomAnnotator = () => {
-    if (this.props.spacyLoading) {
+  const renderCustomAnnotator = () => {
+    if (props.spacyLoading) {
       return <LoadingIndicator />;
     }
     return <CustomAnnotator />;
   };
 
-  handleUseSpacyChange = () => {
-    if (!this.props.spacyActive && this.props.textToDisplay !== "") {
-      this.callApi();
+  const handleUseSpacyChange = () => {
+    if (!props.spacyActive && props.textToDisplay !== "") {
+      callApi();
     }
-    this.props.setSpacyActive(!this.props.spacyActive);
+    props.setSpacyActive(!props.spacyActive);
   };
 
-  render() {
-    return (
+  return (
+    <div>
       <div>
-        <div>
-          <TagUploader />
-        </div>
-        <div>
-          <ImportExportAnnotations />
-        </div>
-        <div className="fileUpload">
-          <Button onClick={this.openExplorer} variant="contained" color="primary">
-            Browse for File
-          </Button>
-          <input
-            ref={this.fileInputRef}
-            style={{ display: "none" }}
-            type="file"
-            //   multiple
-            onChange={e => this.readFile(e.target.files[0])}
-          />
-        </div>
-        <div>
-          <FormControlLabel
-            control={
-              <Switch
-                size="small"
-                color="primary"
-                checked={this.props.spacyActive}
-                onChange={this.handleUseSpacyChange}
-              />
-            }
-            label="Use Spacy"
-          />
-          <FormControlLabel
-            control={
-              <Switch
-                size="small"
-                color="primary"
-                checked={this.props.snapToWord}
-                onChange={() => {
-                  this.props.setSnapToWord(!this.props.snapToWord);
-                }}
-              />
-            }
-            label="Snap to Whole Word"
-          />
-        </div>
-        <div>
-          <Legend />
-        </div>
-        <div id="docDisplay" style={{ whiteSpace: "pre-wrap" }}>
-          {this.renderCustomAnnotator()}
-        </div>
+        <TagUploader />
       </div>
-    );
-  }
-}
+      <div>
+        <ImportExportAnnotations />
+      </div>
+      <div className="fileUpload">
+        <Button onClick={openExplorer} variant="contained" color="primary" className={classes.button}>
+          Browse for File
+        </Button>
+        <CustomTag />
+        <input
+          ref={fileInputRef}
+          style={{ display: "none" }}
+          type="file"
+          //   multiple
+          onChange={e => readFile(e.target.files[0])}
+        />
+      </div>
+      <div>
+        <FormControlLabel
+          control={<Switch size="small" color="primary" checked={props.spacyActive} onChange={handleUseSpacyChange} />}
+          label="Use Spacy"
+        />
+        <FormControlLabel
+          control={
+            <Switch
+              size="small"
+              color="primary"
+              checked={props.snapToWord}
+              onChange={() => {
+                props.setSnapToWord(!props.snapToWord);
+              }}
+            />
+          }
+          label="Snap to Whole Word"
+        />
+      </div>
+      <div>
+        <Legend />
+      </div>
+      <div id="docDisplay" style={{ whiteSpace: "pre-wrap" }}>
+        {renderCustomAnnotator()}
+      </div>
+    </div>
+  );
+};
 
 const mapStateToProps = state => {
   return {
