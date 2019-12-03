@@ -3,34 +3,48 @@ import { connect } from "react-redux";
 import * as tagTypes from "../TagManagement/tagTypes";
 import List from "@material-ui/core/List";
 import * as actions from "../../Store/Actions/index";
+import Chip from "@material-ui/core/Chip";
 import ListItem from "@material-ui/core/ListItem";
+import { isTemplateElement } from "@babel/types";
 
 const Legend = props => {
   const makeLegendList = () => {
+    let chipList;
     if (props.annotationFocus === tagTypes.SECTIONS) {
-      return props.sectionsInUse.map(section => (
-          // something
-      ));
+      chipList = makeChipList(props.sectionsInUse);
     } else if (props.annotationFocus === tagTypes.ENTITIES) {
-      return;
+      chipList = makeChipList(props.entitiesInUse);
     } else {
       return;
     }
+    return chipList;
   };
 
-  const getColor = section => {
+  const makeChipList = sectionsInUse => {
+    const chipList = [];
+    for (let item of sectionsInUse) {
+      chipList.push(
+        <Chip
+          key={"chip-" + item}
+          variant="outlined"
+          size="small"
+          label={item}
+          style={{ backgroundColor: getColor(item) }}
+        />
+      );
+    }
+    return chipList;
+  };
+
+  const getColor = item => {
     for (let tag of props.tagTemplates) {
-      if (section === tag.id) {
+      if (item === tag.id) {
         return tag.color;
       }
     }
   };
 
-  return (
-    <div>
-      <List>{makeLegendList()}</List>
-    </div>
-  );
+  return <div>{makeLegendList()}</div>;
 };
 
 const mapStateToProps = state => {

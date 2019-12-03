@@ -72,9 +72,31 @@ class CustomAnnotator extends Component {
     let start = parseInt(selection.anchorNode.parentElement.getAttribute("data-start"), 10) + selection.anchorOffset;
     let end = parseInt(selection.focusNode.parentElement.getAttribute("data-start"), 10) + selection.focusOffset;
 
+    // if part of a tag is start or end of selection
+    if (Number.isNaN(start) || Number.isNaN(end)) {
+      return;
+    }
+
+    // swapping start and end if the selection was backwards
+    if (util.selectionIsBackwards(selection)) {
+      [start, end] = [end, start];
+    }
+
     // if option to snap to words is enabled
     if (this.props.snapToWord) {
       const termination = [" ", "\t", "\n"];
+
+      // if only whitespace is selected, don't highlight anything
+      let shouldReturn = true;
+      for (let i = start; i < end; i++) {
+        if (!termination.includes(this.props.textToDisplay[i])) {
+          shouldReturn = false;
+          break;
+        }
+      }
+      if (shouldReturn) {
+        return;
+      }
 
       // snapping start of selection
       // if start is a whitespace, move forwards
@@ -95,16 +117,6 @@ class CustomAnnotator extends Component {
       while (!termination.includes(this.props.textToDisplay[end])) {
         end += 1;
       }
-    }
-
-    // if part of a tag is start or end of selection
-    if (Number.isNaN(start) || Number.isNaN(end)) {
-      return;
-    }
-
-    // swapping start and end if the selection was backwards
-    if (util.selectionIsBackwards(selection)) {
-      [start, end] = [end, start];
     }
 
     // creating span object
@@ -129,15 +141,15 @@ class CustomAnnotator extends Component {
     this.prevSpan = span;
 
     if (this.props.annotationFocus === tagTypes.SECTIONS) {
-      let newSections = this.props.sectionsInUse;
+      let newSections = Array.from(this.props.sectionsInUse);
       if (newSections.includes(this.props.addingTags[0].id)) {
         const index = newSections.indexOf(this.props.addingTags[0].id);
         newSections.splice(index, 1);
       }
       newSections.unshift(this.props.addingTags[0].id);
-      this.props.setSectionsInUse(Array.from(newSections));
+      this.props.setSectionsInUse(newSections);
     } else if (this.props.annotationFocus === tagTypes.ENTITIES) {
-      let newEntities = this.props.entitiesInUse;
+      let newEntities = Array.from(this.props.entitiesInUse);
       if (newEntities.includes(this.props.addingTags[0].id)) {
         const index = newEntities.indexOf(this.props.addingTags[0].id);
         newEntities.splice(index, 1);

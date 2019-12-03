@@ -266,6 +266,14 @@ export const selectionIsBackwards = selection => {
   return backward;
 };
 
+// returns true if the user selects text backwards
+export const selectionIsBackwards2 = (start, end) => {
+  if (start > end) {
+    return true;
+  }
+  return false;
+};
+
 // checks if selection is empty
 export const selectionIsEmpty = selection => {
   let position = selection.anchorNode.compareDocumentPosition(selection.focusNode);
