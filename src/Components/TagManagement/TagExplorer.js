@@ -122,12 +122,12 @@ const useToolbarStyles = makeStyles(theme => ({
   highlight:
     theme.palette.type === "light"
       ? {
-          color: theme.palette.secondary.main,
-          backgroundColor: lighten(theme.palette.secondary.light, 0.85)
+          color: theme.palette.primary.main,
+          backgroundColor: lighten(theme.palette.primary.light, 0.85)
         }
       : {
           color: theme.palette.text.primary,
-          backgroundColor: theme.palette.secondary.dark
+          backgroundColor: theme.palette.primary.dark
         },
   title: {
     flex: "1 1 100%"
@@ -177,10 +177,13 @@ EnhancedTableToolbar.propTypes = {
 
 const useStyles = makeStyles(theme => ({
   root: {
-    width: "100%"
+    width: "100%",
+    height: "100%"
   },
   paper: {
     width: "100%",
+    height: "100%",
+    overflowY: "auto",
     marginBottom: theme.spacing(2)
   },
   table: {
@@ -208,7 +211,6 @@ function TagExplorer() {
   const [orderBy, setOrderBy] = React.useState("id");
   const [selected, setSelected] = React.useState([]);
   const [page, setPage] = React.useState(0);
-  const [dense, setDense] = React.useState(false);
   const [rowsPerPage, setRowsPerPage] = React.useState(5);
 
   const handleRequestSort = (event, property) => {
@@ -252,10 +254,6 @@ function TagExplorer() {
     setPage(0);
   };
 
-  const handleChangeDense = event => {
-    setDense(event.target.checked);
-  };
-
   const isSelected = name => selected.indexOf(name) !== -1;
 
   const emptyRows = rowsPerPage - Math.min(rowsPerPage, rows.length - page * rowsPerPage);
@@ -265,12 +263,7 @@ function TagExplorer() {
       <Paper className={classes.paper}>
         <EnhancedTableToolbar numSelected={selected.length} />
         <div className={classes.tableWrapper}>
-          <Table
-            className={classes.table}
-            aria-labelledby="tableTitle"
-            size={dense ? "small" : "medium"}
-            aria-label="enhanced table"
-          >
+          <Table className={classes.table} aria-labelledby="tableTitle" size="small" aria-label="enhanced table">
             <EnhancedTableHead
               classes={classes}
               numSelected={selected.length}
@@ -310,7 +303,7 @@ function TagExplorer() {
                   );
                 })}
               {emptyRows > 0 && (
-                <TableRow style={{ height: (dense ? 33 : 53) * emptyRows }}>
+                <TableRow style={{ height: 33 * emptyRows }}>
                   <TableCell colSpan={6} />
                 </TableRow>
               )}
@@ -327,7 +320,6 @@ function TagExplorer() {
           onChangeRowsPerPage={handleChangeRowsPerPage}
         />
       </Paper>
-      <FormControlLabel control={<Switch checked={dense} onChange={handleChangeDense} />} label="Dense padding" />
     </div>
   );
 }
