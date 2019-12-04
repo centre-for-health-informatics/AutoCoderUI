@@ -3,15 +3,11 @@ import * as APIUtility from "../../Util/API";
 import { connect } from "react-redux";
 import { Button, Switch, FormControlLabel } from "@material-ui/core";
 import * as actions from "../../Store/Actions/index";
-import TagUploader from "../../Components/TagManagement/TagUploader";
-import ImportExportAnnotations from "../../Components/ImportExportAnnotations/ImportExportAnnotations";
 import * as templateTags from "../TagManagement/defaultTags";
 import * as tagTypes from "../TagManagement/tagTypes";
 import getColors from "../../Util/colorMap";
 import LoadingIndicator from "../../Components/LoadingIndicator/LoadingIndicator";
 import CustomAnnotator from "../../Components/CustomAnnotator/CustomAnnotator";
-import Legend from "../../Components/CustomAnnotator/Legend";
-import CustomTag from "../../Components/CustomTag/CustomTag";
 import { makeStyles } from "@material-ui/core/styles";
 
 const useStyles = makeStyles(theme => ({
@@ -164,14 +160,10 @@ const FileViewer = props => {
 
   return (
     <div>
-      <div>
-        <ImportExportAnnotations />
-      </div>
       <div className="fileUpload">
         <Button onClick={openExplorer} variant="contained" color="primary" className={classes.button}>
           Browse for File
         </Button>
-        <CustomTag />
         <input
           ref={fileInputRef}
           style={{ display: "none" }}

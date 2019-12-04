@@ -166,7 +166,7 @@ const AnnotationEditor = props => {
    */
   const makeListHTML = () => {
     const listData = generateListItemData();
-
+    console.log(listData);
     return listData.map((item, index) => (
       <ListItem divider key={"listItem-" + index}>
         <div className={classes.textSpan}>{makeTextSpan(item)}</div>

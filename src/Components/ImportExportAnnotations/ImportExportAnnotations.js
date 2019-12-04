@@ -33,7 +33,7 @@ const ImportExportAnnotations = props => {
         props.setEntities(json.Entity);
         props.setTokens(json.Token);
         props.setSentences(json.Sentence);
-        props.setAnnotationFocus(tagTypes.SECTIONS);
+        props.setAnnotationFocus("");
         props.setAnnotations([]);
       };
 

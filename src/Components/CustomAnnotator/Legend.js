@@ -2,10 +2,11 @@ import React from "react";
 import { connect } from "react-redux";
 import * as tagTypes from "../TagManagement/tagTypes";
 import * as actions from "../../Store/Actions/index";
-import Chip from "@material-ui/core/Chip";
+import { List, Chip, ListItem } from "@material-ui/core";
 
 const Legend = props => {
-  const makeLegendList = () => {
+  // makes the list for the final render
+  const makeList = () => {
     let chipList;
     if (props.annotationFocus === tagTypes.SECTIONS) {
       chipList = makeChipList(props.sectionsInUse);
@@ -14,9 +15,10 @@ const Legend = props => {
     } else {
       return;
     }
-    return chipList;
+    return chipList.map((chip, index) => <ListItem key={"listItem-" + index}>{chip}</ListItem>);
   };
 
+  // creates the list of chips to be displayed in the legend
   const makeChipList = itemsInUse => {
     const chipList = [];
     for (let item of itemsInUse) {
@@ -26,7 +28,7 @@ const Legend = props => {
           variant="outlined"
           clickable={true}
           size="small"
-          label={getLabel(item)}
+          label={getLabel(item, true)}
           style={{ backgroundColor: getColor(item), fontWeight: getFontWeight(item) }}
           onClick={() => handleChipClick(item)}
         />
@@ -35,21 +37,26 @@ const Legend = props => {
     return chipList;
   };
 
-  const getLabel = item => {
-    // let tagToLabel;
-    // for (let tag of props.tagTemplates) {
-    //   if (item === tag.id) {
-    //     tagToLabel = tag;
-    //     break;
-    //   }
-    // }
-    // if (tagToLabel.description) {
-    //   return tagToLabel.id + ": " + tagToLabel.description;
-    // }
-    // return tagToLabel.id;
+  // gets the label for the chip
+  // idOnly is whether only the ID will be displayed
+  // if false, it will display the id and description (assuming description exists)
+  const getLabel = (item, idOnly) => {
+    if (!idOnly) {
+      let tagToLabel;
+      for (let tag of props.tagTemplates) {
+        if (item === tag.id) {
+          tagToLabel = tag;
+          break;
+        }
+      }
+      if (tagToLabel.description) {
+        return tagToLabel.id + ": " + tagToLabel.description;
+      }
+    }
     return item;
   };
 
+  // returns bold for currently selected tag, normal otherwise
   const getFontWeight = item => {
     if (props.addingTags[0] && props.addingTags[0].id === item) {
       return "bold";
@@ -57,6 +64,7 @@ const Legend = props => {
     return "normal";
   };
 
+  // sets active tag to the chip when clicked
   const handleChipClick = item => {
     let tagToSelect;
     for (let tag of props.tagTemplates) {
@@ -68,6 +76,7 @@ const Legend = props => {
     props.setAddingTags([tagToSelect]);
   };
 
+  // gets the colour of the chip by checking tags in store
   const getColor = item => {
     for (let tag of props.tagTemplates) {
       if (item === tag.id) {
@@ -76,7 +85,11 @@ const Legend = props => {
     }
   };
 
-  return <div>{makeLegendList()}</div>;
+  return (
+    <List dense disablePadding>
+      {makeList()}
+    </List>
+  );
 };
 
 const mapStateToProps = state => {
