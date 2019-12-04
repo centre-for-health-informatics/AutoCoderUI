@@ -5,11 +5,11 @@ import ListViewer from "../../Components/ListViewer/ListViewer";
 
 const TagViewer = props => {
   const shouldHideRemoveButton = index => {
-    return props.uploadedTags[index].disabled ? true : false;
+    return props.tagTemplates[index].disabled ? true : false;
   };
 
   const shouldHideAcceptButton = index => {
-    return props.uploadedTags[index].disabled ? false : true;
+    return props.tagTemplates[index].disabled ? false : true;
   };
 
   const disableTag = event => {
@@ -21,24 +21,24 @@ const TagViewer = props => {
   };
 
   const selectedTagsComponentMenuItems = [
-    { menuItemOnClick: props.uploadedTags.length < 2 ? null : props.enableAllTags, menuItemText: "Enable All" },
-    { menuItemOnClick: props.uploadedTags.length < 2 ? null : props.disableAllTags, menuItemText: "Disable All" }
+    { menuItemOnClick: props.tagTemplates.length < 2 ? null : props.enableAllTags, menuItemText: "Enable All" },
+    { menuItemOnClick: props.tagTemplates.length < 2 ? null : props.disableAllTags, menuItemText: "Disable All" }
   ];
 
   return (
     <ListViewer
       title="Tags"
       dontAddDotBoolean={true}
-      items={props.uploadedTags}
+      items={props.tagTemplates}
       valueName="id"
       enableFilter={true}
       filterOptionsGetLabel={item => item.id + ": " + item.description}
       descriptionName="description"
       acceptItemButton={{ title: "Enable tag", onClick: enableTag }}
       removeItemButton={{ title: "Disable tag", onClick: disableTag }}
-      allowRearrage={props.uploadedTags.length > 1}
+      allowRearrage={props.tagTemplates.length > 1}
       onSortEndCallback={updatedList => {
-        props.setUploadedTags(updatedList);
+        props.setTagTemplates(updatedList);
       }}
       shouldHideAcceptButton={shouldHideAcceptButton}
       shouldHideRemoveButton={shouldHideRemoveButton}
@@ -49,13 +49,13 @@ const TagViewer = props => {
 
 const mapStateToProps = state => {
   return {
-    uploadedTags: state.tagManagement.uploadedTags
+    tagTemplates: state.fileViewer.tagTemplates
   };
 };
 
 const mapDispatchToProps = dispatch => {
   return {
-    setUploadedTags: tags => dispatch(actions.setUploadedTags(tags)),
+    setTagTemplates: tags => dispatch(actions.setTagTemplates(tags)),
     enableTagByIndex: index => dispatch(actions.enableTagByIndex(index)),
     disableTagByIndex: index => dispatch(actions.disableTagByIndex(index)),
     enableAllTags: () => dispatch(actions.enableAllTags()),

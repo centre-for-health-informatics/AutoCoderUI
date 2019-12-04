@@ -196,6 +196,7 @@ function ListViewer(props) {
       return (
         <Autocomplete
           multiple
+          freeSolo
           filterSelectedOptions
           options={props.items}
           onChange={setFilter}
