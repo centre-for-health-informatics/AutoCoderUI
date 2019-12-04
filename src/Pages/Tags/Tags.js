@@ -12,6 +12,7 @@ import TagUploader from "../../Components/TagManagement/TagUploader";
 import * as APIUtility from "../../Util/API";
 import TagViewer from "../../Components/TagManagement/TagViewer";
 import TagExplorer from "../../Components/TagManagement/TagExplorer";
+import TagManager from "../../Components/TagManagement/TagManager";
 
 const ResponsiveReactGridLayout = WidthProvider(Responsive);
 const originalLayouts = getFromLS("tagsLayouts", "layouts") || defaultLayouts;
@@ -94,7 +95,8 @@ const Tags = props => {
         </div>
         <div key="tagList" className={highlightEditDiv}>
           {/* <TagViewer /> */}
-          <TagExplorer />
+          {/* <TagExplorer /> */}
+          <TagManager />
         </div>
         {/* <div key="useSpacy" className={highlightEditDiv}>
           <UseSpacy />
