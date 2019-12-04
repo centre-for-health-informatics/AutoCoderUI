@@ -116,6 +116,9 @@ class CustomAnnotator extends Component {
       // if the user doesn't end at a termination trigger, move the end forwards to reach one
       while (!termination.includes(this.props.textToDisplay[end])) {
         end += 1;
+        if (end === this.props.textToDisplay.length) {
+          break;
+        }
       }
     }
 
