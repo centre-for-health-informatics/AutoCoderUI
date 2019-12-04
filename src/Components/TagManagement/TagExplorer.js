@@ -15,24 +15,11 @@ import Paper from "@material-ui/core/Paper";
 import Checkbox from "@material-ui/core/Checkbox";
 import IconButton from "@material-ui/core/IconButton";
 import Tooltip from "@material-ui/core/Tooltip";
-import FormControlLabel from "@material-ui/core/FormControlLabel";
-import Switch from "@material-ui/core/Switch";
 import DeleteIcon from "@material-ui/icons/Delete";
 import FilterListIcon from "@material-ui/icons/FilterList";
 
 import * as actions from "../../Store/Actions/index";
 import { connect } from "react-redux";
-
-function createData(id, description, color, type) {
-  return { id, description, color, type };
-}
-
-const rows = [
-  createData("NEGATION_F", "NEGATION FORWARD", "9df283", "entities"),
-  createData("NEGATION_B", "NEGATION BACKWARD", "d3a3f7", "entities"),
-  createData("NEGATION_BI", "NEGATION BIDIRECTIONAL", "fcba03", "Entities"),
-  createData("CLOSURE_BUT", "BUT CLOSURE", "f277c3", "Entities")
-];
 
 function desc(a, b, orderBy) {
   if (b[orderBy] < a[orderBy]) {
@@ -59,10 +46,10 @@ function getSorting(order, orderBy) {
 }
 
 const headCells = [
-  { id: "id", numeric: false, disablePadding: true, label: "Tag ID" },
-  { id: "description", numeric: false, disablePadding: false, label: "Description" },
-  { id: "color", numeric: false, disablePadding: false, label: "Color" },
-  { id: "type", numeric: false, disablePadding: false, label: "Type" }
+  { id: "id", padding: "default", label: "Tag id" },
+  { id: "description", padding: "default", label: "Description" },
+  { id: "color", padding: "default", label: "Color" },
+  { id: "type", padding: "default", label: "Type" }
 ];
 
 function EnhancedTableHead(props) {
@@ -85,8 +72,7 @@ function EnhancedTableHead(props) {
         {headCells.map(headCell => (
           <TableCell
             key={headCell.id}
-            align={headCell.numeric ? "right" : "left"}
-            padding={headCell.disablePadding ? "none" : "default"}
+            padding={headCell.padding}
             sortDirection={orderBy === headCell.id ? order : false}
           >
             <TableSortLabel active={orderBy === headCell.id} direction={order} onClick={createSortHandler(headCell.id)}>
@@ -205,13 +191,13 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
-function TagExplorer() {
+function TagExplorer(props) {
   const classes = useStyles();
   const [order, setOrder] = React.useState("asc");
   const [orderBy, setOrderBy] = React.useState("id");
   const [selected, setSelected] = React.useState([]);
   const [page, setPage] = React.useState(0);
-  const [rowsPerPage, setRowsPerPage] = React.useState(5);
+  const [rowsPerPage, setRowsPerPage] = React.useState(10);
 
   const handleRequestSort = (event, property) => {
     const isDesc = orderBy === property && order === "desc";
@@ -219,21 +205,27 @@ function TagExplorer() {
     setOrderBy(property);
   };
 
+  /**
+   * Handles the select all checkbox from table header
+   */
   const handleSelectAllClick = event => {
     if (event.target.checked) {
-      const newSelecteds = rows.map(n => n.name);
+      const newSelecteds = props.tagTemplates.map(n => n.id);
       setSelected(newSelecteds);
       return;
     }
     setSelected([]);
   };
 
-  const handleClick = (event, name) => {
-    const selectedIndex = selected.indexOf(name);
+  /**
+   * Handles clicking on a row in table
+   */
+  const handleClick = (event, id) => {
+    const selectedIndex = selected.indexOf(id);
     let newSelected = [];
 
     if (selectedIndex === -1) {
-      newSelected = newSelected.concat(selected, name);
+      newSelected = newSelected.concat(selected, id);
     } else if (selectedIndex === 0) {
       newSelected = newSelected.concat(selected.slice(1));
     } else if (selectedIndex === selected.length - 1) {
@@ -254,9 +246,51 @@ function TagExplorer() {
     setPage(0);
   };
 
-  const isSelected = name => selected.indexOf(name) !== -1;
+  const isSelected = id => {
+    return selected.indexOf(id) > -1;
+  };
 
-  const emptyRows = rowsPerPage - Math.min(rowsPerPage, rows.length - page * rowsPerPage);
+  /**
+   * Creates a data list to power the content of the table that needs to be currently displayed.
+   * Creates the data list based on sorting and pagination.
+   */
+  const makeTableData = data => {
+    const newData = stableSort(data, getSorting(order, orderBy)).slice(
+      page * rowsPerPage,
+      page * rowsPerPage + rowsPerPage
+    );
+    return newData;
+  };
+
+  /**
+   * Given data list, renders HTML to display table rows.
+   */
+  const makeTableRowHTML = dataList => {
+    return dataList.map((row, index) => (
+      <TableRow
+        hover
+        onClick={event => handleClick(event, row.id)}
+        role="checkbox"
+        aria-checked={isSelected(row.id)}
+        tabIndex={-1}
+        key={row.id}
+        selected={isSelected(row.id)}
+      >
+        <TableCell padding="checkbox">
+          <Checkbox
+            checked={isSelected(row.id)}
+            inputProps={{ "aria-labelledby": "enhanced-table-checkbox" + index }}
+          />
+        </TableCell>
+        <TableCell component="th" id={"enhanced-table-checkbox" + index} scope="row" padding="none">
+          {row.id}
+        </TableCell>
+        <TableCell>{row.description}</TableCell>
+        <TableCell>{row.color}</TableCell>
+        <TableCell>{row.type}</TableCell>
+      </TableRow>
+    ));
+  };
 
   return (
     <div className={classes.root}>
@@ -271,49 +305,15 @@ function TagExplorer() {
               orderBy={orderBy}
               onSelectAllClick={handleSelectAllClick}
               onRequestSort={handleRequestSort}
-              rowCount={rows.length}
+              rowCount={props.tagTemplates.length}
             />
-            <TableBody>
-              {stableSort(rows, getSorting(order, orderBy))
-                .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                .map((row, index) => {
-                  const isItemSelected = isSelected(row.id);
-                  const labelId = `enhanced-table-checkbox-${index}`;
-
-                  return (
-                    <TableRow
-                      hover
-                      onClick={event => handleClick(event, row.id)}
-                      role="checkbox"
-                      aria-checked={isItemSelected}
-                      tabIndex={-1}
-                      key={row.id}
-                      selected={isItemSelected}
-                    >
-                      <TableCell padding="checkbox">
-                        <Checkbox checked={isItemSelected} inputProps={{ "aria-labelledby": labelId }} />
-                      </TableCell>
-                      <TableCell component="th" id={labelId} scope="row" padding="none">
-                        {row.id}
-                      </TableCell>
-                      <TableCell align="right">{row.description}</TableCell>
-                      <TableCell align="right">{row.color}</TableCell>
-                      <TableCell align="right">{row.type}</TableCell>
-                    </TableRow>
-                  );
-                })}
-              {emptyRows > 0 && (
-                <TableRow style={{ height: 33 * emptyRows }}>
-                  <TableCell colSpan={6} />
-                </TableRow>
-              )}
-            </TableBody>
+            <TableBody>{makeTableRowHTML(makeTableData(props.tagTemplates))}</TableBody>
           </Table>
         </div>
         <TablePagination
-          rowsPerPageOptions={[5, 10, 25]}
+          rowsPerPageOptions={[10, 25, 50, 100]}
           component="div"
-          count={rows.length}
+          count={props.tagTemplates.length}
           rowsPerPage={rowsPerPage}
           page={page}
           onChangePage={handleChangePage}
