@@ -3,6 +3,7 @@ import { connect } from "react-redux";
 import { makeStyles } from "@material-ui/core/styles";
 import Button from "@material-ui/core/Button";
 import * as actions from "../../Store/Actions/index";
+import * as tagTypes from "../TagManagement/tagTypes";
 import downloader from "../../Util/download";
 
 const useStyles = makeStyles(theme => ({
@@ -29,38 +30,40 @@ const TagUploader = props => {
       fileReader.onload = e => {
         let lines = e.target.result.replace(/\r\n/g, "\n").split("\n"); // Replace /r/n with /n for Windows OS
         let tags = readTagsFromStrings(lines);
-        props.setUploadedTags(tags);
+        props.setTagTemplates(tags);
       };
 
       fileReader.readAsText(files[0]);
     }
   };
 
+  const cleanInput = (value, defaultValue) => {
+    if (value !== undefined) {
+      value = value.trim();
+    } else {
+      value = defaultValue;
+    }
+    return value;
+  };
+
   const readTagsFromStrings = lines => {
-    const oldTags = Array.from(props.uploadedTags);
+    const oldTags = Array.from(props.tagTemplates);
     const newTags = [];
     const descriptionUpdated = []; // Keeps track of duplicate tags id with description update
-    const newEnabled = []; // Keeps track of disabled flags being changed to false
-    const newDisabled = []; // keep track of disabled flags being changed to true
+    const colorUpdated = [];
+    const typeUpdated = [];
 
     for (let i = 0; i < lines.length; i++) {
       const items = lines[i].split(",");
 
       const id = items[0];
       let description = items[1];
-      let disabled = items[2];
+      let color = items[2];
+      let type = items[3];
 
-      if (description !== undefined) {
-        description = description.trim();
-      } else {
-        description = id;
-      }
-
-      if (disabled !== undefined) {
-        disabled = disabled.trim() === "d";
-      } else {
-        disabled = false;
-      }
+      description = cleanInput(description, id);
+      color = cleanInput(color, "");
+      type = cleanInput(type, tagTypes.ENTITIES);
 
       if (id !== "") {
         // line is not empty
@@ -75,28 +78,25 @@ const TagUploader = props => {
             duplicateTag.description = description;
             descriptionUpdated.push(duplicateTag);
           }
-
-          if (disabled !== duplicateTag.disabled) {
-            // disabled boolean update
-            duplicateTag.disabled = disabled;
-            if (duplicateTag.disabled) {
-              newDisabled.push(duplicateTag);
-            } else {
-              newEnabled.push(duplicateTag);
-            }
-          }
         } else {
           // the tag does not exist in oldTags
-          oldTags.push({ id, description, disabled });
-          newTags.push({ id, description, disabled });
+          oldTags.push({ id, description, color, type });
+          newTags.push({ id, description, color, type });
         }
       }
     }
-    generateAlert(descriptionUpdated, newEnabled, newDisabled);
+    generateAlert(newTags, descriptionUpdated, colorUpdated, typeUpdated);
     return oldTags;
   };
 
-  const generateAlert = (descriptionUpdated, newEnabled, newDisabled) => {
+  const generateAlert = (newTags, descriptionUpdated, colorUpdated, typeUpdated) => {
+    if (newTags.length > 0) {
+      props.setAlertMessage({
+        message: newTags.length + " new tags have been created. ",
+        messageType: "success"
+      });
+    }
+
     if (descriptionUpdated.length > 0) {
       props.setAlertMessage({
         message: descriptionUpdated.length + " tags have updated descriptions. ",
@@ -104,16 +104,16 @@ const TagUploader = props => {
       });
     }
 
-    if (newEnabled.length > 0) {
+    if (colorUpdated.length > 0) {
       props.setAlertMessage({
-        message: newEnabled.length + " tags was updated to enabled. ",
+        message: colorUpdated.length + " tags have updated colors. ",
         messageType: "success"
       });
     }
 
-    if (newDisabled.length > 0) {
+    if (typeUpdated.length > 0) {
       props.setAlertMessage({
-        message: newDisabled.length + " tags was updated to enabled. ",
+        message: typeUpdated.length + " tags have updated types. ",
         messageType: "success"
       });
     }
@@ -121,7 +121,7 @@ const TagUploader = props => {
 
   const parseTagsToDownload = () => {
     let tagsAsText = "";
-    const tags = props.uploadedTags;
+    const tags = props.tagTemplates;
     tags.forEach(tag => {
       tagsAsText += tag.id + "," + tag.description + "," + (tag.disabled ? "d" : "") + "\n";
     });
@@ -129,7 +129,7 @@ const TagUploader = props => {
   };
 
   const clearAllTags = () => {
-    props.setUploadedTags([]);
+    props.setTagTemplates([]);
     props.setAlertMessage({
       message: "All tags cleared",
       messageType: "success"
@@ -160,13 +160,13 @@ const TagUploader = props => {
 
 const mapStateToProps = state => {
   return {
-    uploadedTags: state.tagManagement.uploadedTags
+    tagTemplates: state.fileViewer.tagTemplates
   };
 };
 
 const mapDispatchToProps = dispatch => {
   return {
-    setUploadedTags: tags => dispatch(actions.setUploadedTags(tags)),
+    setTagTemplates: tags => dispatch(actions.setTagTemplates(tags)),
     setAlertMessage: newValue => dispatch(actions.setAlertMessage(newValue))
   };
 };
