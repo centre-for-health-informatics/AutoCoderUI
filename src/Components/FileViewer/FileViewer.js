@@ -3,15 +3,11 @@ import * as APIUtility from "../../Util/API";
 import { connect } from "react-redux";
 import { Button, Switch, FormControlLabel } from "@material-ui/core";
 import * as actions from "../../Store/Actions/index";
-import TagUploader from "../../Components/TagManagement/TagUploader";
-import ImportExportAnnotations from "../../Components/ImportExportAnnotations/ImportExportAnnotations";
 import * as templateTags from "../TagManagement/defaultTags";
 import * as tagTypes from "../TagManagement/tagTypes";
 import getColors from "../../Util/colorMap";
 import LoadingIndicator from "../../Components/LoadingIndicator/LoadingIndicator";
 import CustomAnnotator from "../../Components/CustomAnnotator/CustomAnnotator";
-import Legend from "../../Components/CustomAnnotator/Legend";
-import CustomTag from "../../Components/CustomTag/CustomTag";
 import { makeStyles } from "@material-ui/core/styles";
 
 const useStyles = makeStyles(theme => ({
@@ -105,47 +101,14 @@ const FileViewer = props => {
     APIUtility.API.makeAPICall(APIUtility.UPLOAD_DOCUMENT, null, options)
       .then(response => response.json())
       .then(data => {
-        props.setSections([...props.sections, ...mapData(data.sections, tagTypes.SECTIONS)]);
-        props.setSentences([...props.sentences, ...mapData(data.sentences, tagTypes.SENTENCES)]);
-        props.setTokens([...props.tokens, ...mapData(data.tokens, tagTypes.TOKENS)]);
-        props.setEntities([...props.entities, ...mapData(data.entities, tagTypes.ENTITIES)]);
+        props.updateLegendAfterLoadingSpacy(data);
 
-        props.setSpacyLoading(false);
-        props.setAnnotations(props.sections); // default type selection
         props.setAnnotationFocus(tagTypes.SECTIONS); // default type selection
+        props.setSpacyLoading(false);
       })
       .catch(error => {
         console.log("ERROR:", error);
       });
-  };
-
-  const mapData = (data, type) => {
-    for (let i = 0; i < data.length; i++) {
-      let dataPoint = data[i];
-      dataPoint.tag = dataPoint.label;
-      delete dataPoint.label;
-
-      if (type === tagTypes.ENTITIES || type === tagTypes.SECTIONS) {
-        let idMatchingTags = props.tagTemplates.filter(item => {
-          return item.id === dataPoint.tag;
-        });
-        if (idMatchingTags.length > 0) {
-          dataPoint.color = idMatchingTags[0].color;
-        }
-      } else {
-        dataPoint.color = getAlternatingColor(i);
-      }
-      dataPoint.text = props.textToDisplay.slice(dataPoint.start, dataPoint.end);
-    }
-    return data;
-  };
-
-  const getAlternatingColor = counter => {
-    if (counter % 2 === 0) {
-      return props.alternatingColors[0];
-    } else {
-      return props.alternatingColors[1];
-    }
   };
 
   const renderCustomAnnotator = () => {
@@ -156,22 +119,18 @@ const FileViewer = props => {
   };
 
   const handleUseSpacyChange = () => {
-    if (!props.spacyActive && props.textToDisplay !== "") {
-      callApi();
-    }
+    // if (!props.spacyActive && props.textToDisplay !== "") {
+    //   callApi();
+    // }
     props.setSpacyActive(!props.spacyActive);
   };
 
   return (
     <div>
-      <div>
-        <ImportExportAnnotations />
-      </div>
       <div className="fileUpload">
         <Button onClick={openExplorer} variant="contained" color="primary" className={classes.button}>
           Browse for File
         </Button>
-        <CustomTag />
         <input
           ref={fileInputRef}
           style={{ display: "none" }}
@@ -218,7 +177,9 @@ const mapStateToProps = state => {
     spacyLoading: state.fileViewer.spacyLoading,
     tagTemplates: state.fileViewer.tagTemplates,
     alternatingColors: state.fileViewer.alternatingColors,
-    snapToWord: state.fileViewer.snapToWord
+    snapToWord: state.fileViewer.snapToWord,
+    sectionsInUse: state.fileViewer.sectionsInUse,
+    entitiesInUse: state.fileViewer.entitiesInUse
   };
 };
 
@@ -238,7 +199,8 @@ const mapDispatchToProps = dispatch => {
     setFileReference: fileReference => dispatch(actions.setFileReference(fileReference)),
     setSnapToWord: snapToWord => dispatch(actions.setSnapToWord(snapToWord)),
     setSectionsInUse: sectionsInUse => dispatch(actions.setSectionsInUse(sectionsInUse)),
-    setEntitiesInUse: entitiesInUse => dispatch(actions.setEntitiesInUse(entitiesInUse))
+    setEntitiesInUse: entitiesInUse => dispatch(actions.setEntitiesInUse(entitiesInUse)),
+    updateLegendAfterLoadingSpacy: data => dispatch(actions.updateLegendAfterLoadingSpacy(data))
   };
 };
 

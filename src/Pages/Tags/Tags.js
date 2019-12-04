@@ -96,6 +96,9 @@ const Tags = props => {
           {/* <TagViewer /> */}
           <TagExplorer />
         </div>
+        {/* <div key="useSpacy" className={highlightEditDiv}>
+          <UseSpacy />
+        </div> */}
       </ResponsiveReactGridLayout>
     </div>
   );

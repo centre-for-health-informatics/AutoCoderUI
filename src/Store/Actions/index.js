@@ -30,3 +30,4 @@ export {
   disableAllTags,
   setAddingTags
 } from "./tagManagement";
+export { updateLegendAfterLoadingSpacy } from "./asyncActions";
