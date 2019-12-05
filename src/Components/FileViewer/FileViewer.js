@@ -118,13 +118,6 @@ const FileViewer = props => {
     return <CustomAnnotator />;
   };
 
-  const handleUseSpacyChange = () => {
-    // if (!props.spacyActive && props.textToDisplay !== "") {
-    //   callApi();
-    // }
-    props.setSpacyActive(!props.spacyActive);
-  };
-
   return (
     <div>
       <div className="fileUpload">
@@ -140,10 +133,6 @@ const FileViewer = props => {
         />
       </div>
       <div>
-        <FormControlLabel
-          control={<Switch size="small" color="primary" checked={props.spacyActive} onChange={handleUseSpacyChange} />}
-          label="Use Spacy"
-        />
         <FormControlLabel
           control={
             <Switch
