@@ -10,18 +10,7 @@ import LoadingIndicator from "../../Components/LoadingIndicator/LoadingIndicator
 import CustomAnnotator from "../../Components/CustomAnnotator/CustomAnnotator";
 import { makeStyles } from "@material-ui/core/styles";
 
-const useStyles = makeStyles(theme => ({
-  button: {
-    margin: theme.spacing(1)
-  }
-}));
-
 const FileViewer = props => {
-  const classes = useStyles();
-  const fileInputRef = React.createRef();
-  const fileReader = new FileReader();
-  let fileData = {};
-
   const setDefaultTagTemplate = () => {
     props.setTagTemplates(templateTags.DEFAULTS);
   };
@@ -47,70 +36,6 @@ const FileViewer = props => {
     }
   };
 
-  const openExplorer = () => {
-    if (props.disabled) return;
-    fileInputRef.current.click();
-  };
-
-  const readFile = file => {
-    if (file) {
-      // reset store if user changes file
-      props.setAnnotations([]);
-      props.setFileText("");
-      props.setSections([]);
-      props.setSentences([]);
-      props.setTokens([]);
-      props.setEntities([]);
-      props.setSectionsInUse([]);
-      props.setEntitiesInUse([]);
-
-      fileData.id = file.name;
-      let ext = file.name.split(".")[file.name.split(".").length - 1];
-      let filename = file.name.slice(0, file.name.length - 1 - ext.length);
-      props.setFileReference(filename);
-      if (ext === "txt") {
-        fileData.format = "plain_text";
-      } else if (ext === "rtf") {
-        fileData.format = "rich_text";
-      } else {
-        fileData.format = "other";
-      }
-
-      fileReader.readAsText(file);
-
-      fileReader.onloadend = () => {
-        let text = fileReader.result.replace(/\r\n/g, "\n"); // Replaces \r\n with \n for Windows OS
-        fileData.content = text;
-
-        props.setFileText(text);
-
-        if (props.spacyActive) {
-          callApi();
-        }
-      };
-    }
-  };
-
-  const callApi = () => {
-    props.setSpacyLoading(true);
-    const options = {
-      method: "POST",
-      body: fileData
-    };
-
-    APIUtility.API.makeAPICall(APIUtility.UPLOAD_DOCUMENT, null, options)
-      .then(response => response.json())
-      .then(data => {
-        props.updateLegendAfterLoadingSpacy(data);
-
-        props.setAnnotationFocus(tagTypes.SECTIONS); // default type selection
-        props.setSpacyLoading(false);
-      })
-      .catch(error => {
-        console.log("ERROR:", error);
-      });
-  };
-
   const renderCustomAnnotator = () => {
     if (props.spacyLoading) {
       return <LoadingIndicator />;
@@ -120,18 +45,6 @@ const FileViewer = props => {
 
   return (
     <div>
-      <div className="fileUpload">
-        <Button onClick={openExplorer} variant="contained" color="primary" className={classes.button}>
-          Browse for File
-        </Button>
-        <input
-          ref={fileInputRef}
-          style={{ display: "none" }}
-          type="file"
-          //   multiple
-          onChange={e => readFile(e.target.files[0])}
-        />
-      </div>
       <div>
         <FormControlLabel
           control={
@@ -154,6 +67,7 @@ const FileViewer = props => {
   );
 };
 
+// TODO: remove unnecessary props (from functionality being moved to other components)
 const mapStateToProps = state => {
   return {
     textToDisplay: state.fileViewer.fileViewerText,
@@ -172,6 +86,7 @@ const mapStateToProps = state => {
   };
 };
 
+// TODO: remove unnecessary props (from functionality being moved to other components)
 const mapDispatchToProps = dispatch => {
   return {
     setFileText: text => dispatch(actions.setFileText(text)),

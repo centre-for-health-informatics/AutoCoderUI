@@ -14,7 +14,8 @@ import "react-resizable/css/styles.css";
 import TagSelector from "../../Components/TagManagement/TagSelector";
 import FileViewer from "../../Components/FileViewer/FileViewer";
 import Legend from "../../Components/CustomAnnotator/Legend";
-import ImportExportAnnotations from "../../Components/ImportExportAnnotations/ImportExportAnnotations";
+import ImportExportAnnotations from "../../Components/ManageFiles/ManageFiles";
+import ManageFiles from "../../Components/ManageFiles/ManageFiles";
 
 const ResponsiveReactGridLayout = WidthProvider(Responsive);
 const originalLayouts = getFromLS("annotateLayouts", "layouts") || defaultLayouts;
@@ -97,7 +98,7 @@ const Annotate = props => {
           <TagSelector />
         </div>
         <div key="import-export" className={highlightEditDiv}>
-          <ImportExportAnnotations />
+          <ManageFiles />
         </div>
         <div key="document" className={highlightEditDiv} style={{ overflowY: "auto" }}>
           <FileViewer />
