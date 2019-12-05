@@ -106,7 +106,7 @@ const mapStateToProps = state => {
 
 const mapDispatchToProps = dispatch => {
   return {
-    setTagTemplates: tags => dispatch(actions.setTagTemplates(tags)),
+    setTagTemplates: tags => dispatch(actions.setTagTemplatesWithCallback(tags)),
     enableTagByIndex: index => dispatch(actions.enableTagByIndex(index)),
     disableTagByIndex: index => dispatch(actions.disableTagByIndex(index)),
     enableAllTags: () => dispatch(actions.enableAllTags()),

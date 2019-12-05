@@ -63,7 +63,9 @@ const mapData = (data, type, alternatingColors, tagTemplates) => {
   return data;
 };
 
-export const setTagTemplatesWithCallback = tags => dispatch => {
-  dispatch(actions.setTagTemplates(tags));
-  return Promise.resolve();
+export const setTagTemplatesWithCallback = tagTemplates => {
+  return (dispatch, getState) => {
+    dispatch(actions.setTagTemplates(tagTemplates));
+    return Promise.resolve(getState());
+  };
 };
