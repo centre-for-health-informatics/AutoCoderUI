@@ -94,15 +94,8 @@ const Legend = props => {
 
 const mapStateToProps = state => {
   return {
-    //   fileViewerText: state.fileViewer.fileViewerText,
-    //   annotations: state.fileViewer.annotations,
-    //   tagTemplates: state.fileViewer.tagTemplates,
     annotationFocus: state.fileViewer.annotationFocus,
     addingTags: state.tagManagement.addingTags,
-    //   sections: state.fileViewer.sections,
-    //   sentences: state.fileViewer.sentences,
-    //   tokens: state.fileViewer.tokens,
-    //   entities: state.fileViewer.entities
     sectionsInUse: state.fileViewer.sectionsInUse,
     entitiesInUse: state.fileViewer.entitiesInUse,
     tagTemplates: state.fileViewer.tagTemplates
@@ -113,7 +106,6 @@ const mapDispatchToProps = dispatch => {
   return {
     setAddingTags: tags => dispatch(actions.setAddingTags(tags)),
     setAnnotationFocus: annotationFocus => dispatch(actions.setAnnotationFocus(annotationFocus))
-    //   setAnnotations: annotations => dispatch(actions.setAnnotations(annotations))
   };
 };
 

@@ -11,6 +11,7 @@ import Loading from "../Loading/Loading";
 import TagUploader from "../../Components/TagManagement/TagUploader";
 import * as APIUtility from "../../Util/API";
 import TagManager from "../../Components/TagManagement/TagManager";
+import GeneralSettings from "../../Components/GeneralSettings/GeneralSettings";
 
 const ResponsiveReactGridLayout = WidthProvider(Responsive);
 const originalLayouts = getFromLS("tagsLayouts", "layouts") || defaultLayouts;
@@ -94,9 +95,9 @@ const Tags = props => {
         <div key="tagList" className={highlightEditDiv}>
           <TagManager />
         </div>
-        {/* <div key="useSpacy" className={highlightEditDiv}>
-          <UseSpacy />
-        </div> */}
+        <div key="generalSettings" className={highlightEditDiv}>
+          <GeneralSettings />
+        </div>
       </ResponsiveReactGridLayout>
     </div>
   );
