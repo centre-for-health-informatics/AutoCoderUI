@@ -30,7 +30,9 @@ const TagUploader = props => {
       fileReader.onload = e => {
         let lines = e.target.result.replace(/\r\n/g, "\n").split("\n"); // Replace /r/n with /n for Windows OS
         let tags = readTagsFromStrings(lines);
-        props.setTagTemplates(tags);
+        props.setTagTemplates(tags).then(() => {
+          console.log(props.tagTemplates);
+        });
       };
 
       fileReader.readAsText(files[0]);
@@ -166,7 +168,8 @@ const mapStateToProps = state => {
 
 const mapDispatchToProps = dispatch => {
   return {
-    setTagTemplates: tags => dispatch(actions.setTagTemplates(tags)),
+    // setTagTemplates: tags => dispatch(actions.setTagTemplates(tags)),
+    setTagTemplates: tags => dispatch(actions.setTagTemplatesWithCallback(tags)),
     setAlertMessage: newValue => dispatch(actions.setAlertMessage(newValue))
   };
 };
