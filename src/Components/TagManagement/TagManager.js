@@ -22,6 +22,9 @@ import ViewColumn from "@material-ui/icons/ViewColumn";
 import * as actions from "../../Store/Actions/index";
 import { connect } from "react-redux";
 import * as tagTypes from "./tagTypes";
+import { ThemeProvider } from "@material-ui/core";
+
+import TagUploader from "./TagUploader";
 
 const tableIcons = {
   Add: forwardRef((props, ref) => <AddBox {...props} ref={ref} />),
@@ -44,55 +47,75 @@ const tableIcons = {
 };
 
 function TagManager(props) {
+  const renderColor = rowData => {
+    return rowData.color;
+  };
+
   const columns = [
     { title: "Id", field: "id" },
     { title: "Description", field: "description" },
-    { title: "Color", field: "color" },
+    { title: "Color", field: "color", render: renderColor },
     { title: "Type", field: "type", lookup: { 1: tagTypes.ENTITIES, 2: tagTypes.SECTIONS } }
   ];
 
+  const onRowAdd = newData => {
+    return new Promise(resolve => {
+      setTimeout(() => {
+        props.setTagTemplates([...props.tagTemplates, newData]);
+        resolve();
+      }, 600);
+    });
+  };
+
+  const onRowUpdate = (newData, oldData) => {
+    return new Promise(resolve => {
+      setTimeout(() => {
+        if (oldData) {
+          const data = [...props.tagTemplates];
+          data[data.indexOf(oldData)] = newData;
+          props.setTagTemplates(data);
+        }
+        resolve();
+      }, 600);
+    });
+  };
+
+  const onRowDelete = oldData => {
+    return new Promise(resolve => {
+      setTimeout(() => {
+        const data = [...props.tagTemplates];
+        data.splice(data.indexOf(oldData), 1);
+        props.setTagTemplates(data);
+        resolve();
+      }, 600);
+    });
+  };
+
   return (
     <MaterialTable
+      //   components={{ Toolbar: props => <TagUploader /> }}
       icons={tableIcons}
       title="Tags"
       columns={columns}
       data={props.tagTemplates}
       editable={{
-        onRowAdd: newData =>
-          new Promise(resolve => {
-            setTimeout(() => {
-              resolve();
-              setState(prevState => {
-                const data = [...prevState.data];
-                data.push(newData);
-                return { ...prevState, data };
-              });
-            }, 600);
-          }),
-        onRowUpdate: (newData, oldData) =>
-          new Promise(resolve => {
-            setTimeout(() => {
-              resolve();
-              if (oldData) {
-                setState(prevState => {
-                  const data = [...prevState.data];
-                  data[data.indexOf(oldData)] = newData;
-                  return { ...prevState, data };
-                });
-              }
-            }, 600);
-          }),
-        onRowDelete: oldData =>
-          new Promise(resolve => {
-            setTimeout(() => {
-              resolve();
-              setState(prevState => {
-                const data = [...prevState.data];
-                data.splice(data.indexOf(oldData), 1);
-                return { ...prevState, data };
-              });
-            }, 600);
-          })
+        onRowAdd: onRowAdd,
+        onRowUpdate: onRowUpdate,
+        onRowDelete: onRowDelete
+      }}
+      options={{
+        toolbar: true,
+        filtering: true,
+        grouping: false,
+        exportButton: true,
+        exportAllData: true,
+        search: false,
+        padding: "dense",
+        headerStyle: { padding: 0 },
+        rowStyle: { padding: 0 },
+        filterCellStyle: {
+          padding: 0
+        }
       }}
     />
   );
