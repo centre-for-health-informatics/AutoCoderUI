@@ -137,7 +137,6 @@ class CustomAnnotator extends Component {
     // linking annotations if applicable
     if (this.props.linkedListAdd) {
       this.prevSpan.next = span;
-      span.prev = this.prevSpan;
       this.props.setLinkedListAdd(false);
     }
 
@@ -208,7 +207,22 @@ class CustomAnnotator extends Component {
   // handles clicking on an interval to open AnnotationEditor popup
   handleIntervalClick = (event, start, end) => {
     let annotationsInInterval = this.props.annotations.filter(s => s.start <= start && s.end >= end);
-    this.props.setAnnotationsToEdit(annotationsInInterval);
+    const annotationsToPass = [];
+    let hasPrev = true;
+    for (let annotation of annotationsInInterval) {
+      while (hasPrev) {
+        hasPrev = false;
+        for (let otherAnnotation of this.props.annotations) {
+          if (otherAnnotation.next === annotation) {
+            annotation = otherAnnotation;
+            hasPrev = true;
+            break;
+          }
+        }
+      }
+      annotationsToPass.push(annotation);
+    }
+    this.props.setAnnotationsToEdit(annotationsToPass);
     this.setState({ anchorEl: event.currentTarget });
   };
 
@@ -287,13 +301,7 @@ class CustomAnnotator extends Component {
   // retreives all annotations linked to an annotation that is being removed
   getLinkedAnnotations = annotation => {
     const annotationsToRemove = [annotation];
-    let previousAnnotation = annotation.prev;
     let nextAnnotation = annotation.next;
-    // previous annotations
-    while (previousAnnotation) {
-      annotationsToRemove.push(previousAnnotation);
-      previousAnnotation = previousAnnotation.prev;
-    }
     // next annotations
     while (nextAnnotation) {
       annotationsToRemove.push(nextAnnotation);
