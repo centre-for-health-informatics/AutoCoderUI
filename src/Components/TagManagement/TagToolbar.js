@@ -3,7 +3,7 @@ import { connect } from "react-redux";
 import { makeStyles } from "@material-ui/core/styles";
 import Button from "@material-ui/core/Button";
 import * as actions from "../../Store/Actions/index";
-import * as tagTypes from "../TagManagement/tagTypes";
+import * as tagTypes from "./tagTypes";
 import downloader from "../../Util/download";
 
 const useStyles = makeStyles(theme => ({
@@ -12,7 +12,7 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
-const TagUploader = props => {
+const TagToolbar = props => {
   const classes = useStyles();
   const fileInputRef = React.createRef();
 
@@ -134,6 +134,8 @@ const TagUploader = props => {
       message: "All tags cleared",
       messageType: "success"
     });
+
+    console.log(props);
   };
 
   return (
@@ -171,4 +173,4 @@ const mapDispatchToProps = dispatch => {
   };
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(TagUploader);
+export default connect(mapStateToProps, mapDispatchToProps)(TagToolbar);
