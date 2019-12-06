@@ -62,6 +62,7 @@ const TagSelector = props => {
       newSelection = "";
     }
 
+    props.setSpansRendered(false);
     props.setAnnotationFocus(newSelection);
 
     switch (newSelection) {
@@ -221,7 +222,9 @@ const mapDispatchToProps = dispatch => {
   return {
     setAddingTags: tags => dispatch(actions.setAddingTags(tags)),
     setAnnotationFocus: annotationFocus => dispatch(actions.setAnnotationFocus(annotationFocus)),
-    setAnnotations: annotations => dispatch(actions.setAnnotations(annotations))
+    setAnnotations: annotations => dispatch(actions.setAnnotations(annotations)),
+    setSpansRendered: spansRendered => dispatch(actions.setSpansRendered(spansRendered)),
+    setLinkedListAdd: linkedListAdd => dispatch(actions.setLinkedListAdd(linkedListAdd))
   };
 };
 

@@ -20,7 +20,8 @@ export {
   setSnapToWord,
   setSectionsInUse,
   setEntitiesInUse,
-  setAddingCustomTag
+  setAddingCustomTag,
+  setSpansRendered
 } from "./fileViewer";
 export {
   setUploadedTags,
