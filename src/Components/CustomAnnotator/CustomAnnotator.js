@@ -46,9 +46,7 @@ class CustomAnnotator extends Component {
   handleKeyPress = e => {
     let key = e.key;
     if (key.toLowerCase() === "a" && this.prevSpan) {
-      this.props.setLinkedListAdd(true);
-    } else {
-      this.props.setLinkedListAdd(false);
+      this.props.setLinkedListAdd(!this.props.linkedListAdd);
     }
   };
 

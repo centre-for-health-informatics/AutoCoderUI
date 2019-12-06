@@ -223,7 +223,8 @@ const mapDispatchToProps = dispatch => {
     setAddingTags: tags => dispatch(actions.setAddingTags(tags)),
     setAnnotationFocus: annotationFocus => dispatch(actions.setAnnotationFocus(annotationFocus)),
     setAnnotations: annotations => dispatch(actions.setAnnotations(annotations)),
-    setSpansRendered: spansRendered => dispatch(actions.setSpansRendered(spansRendered))
+    setSpansRendered: spansRendered => dispatch(actions.setSpansRendered(spansRendered)),
+    setLinkedListAdd: linkedListAdd => dispatch(actions.setLinkedListAdd(linkedListAdd))
   };
 };
 
