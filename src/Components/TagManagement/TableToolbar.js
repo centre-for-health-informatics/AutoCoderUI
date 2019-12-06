@@ -11,10 +11,12 @@ import withStyles from "@material-ui/core/styles/withStyles";
 import { lighten } from "@material-ui/core/styles/colorManipulator";
 import classNames from "classnames";
 import { CsvBuilder } from "filefy";
-import PropTypes, { oneOf } from "prop-types";
+import PropTypes from "prop-types";
 import * as React from "react";
 import { connect } from "react-redux";
 import * as actions from "../../Store/Actions/index";
+import * as tagTypes from "./tagTypes";
+import { file } from "@babel/types";
 
 export class MTableToolbar extends React.Component {
   constructor(props) {
@@ -23,6 +25,7 @@ export class MTableToolbar extends React.Component {
       columnsButtonAnchorEl: null,
       exportButtonAnchorEl: null
     };
+    this.fileInputRef = React.createRef();
   }
 
   defaultExportCsv = () => {
@@ -44,6 +47,85 @@ export class MTableToolbar extends React.Component {
       .setColumns(columns.map(columnDef => columnDef.title))
       .addRows(data)
       .exportFile();
+  };
+
+  importCsv = () => {
+    if (this.props.disabled) {
+      return;
+    }
+    console.log(this.fileInputRef);
+
+    this.fileInputRef.current.click();
+  };
+
+  readFile = files => {
+    if (files[0]) {
+      let fileReader = new FileReader();
+      fileReader.onload = e => {
+        let lines = e.target.result.replace(/\r\n/g, "\n").split("\n");
+        let tags = this.readTagsFromStrings(lines);
+        this.props.setTagTemplates(tags);
+      };
+
+      fileReader.readAsText(files[0]);
+    }
+  };
+
+  readTagsFromStrings = lines => {
+    const oldTags = Array.from(this.props.tagTemplates);
+    const newTags = [];
+    const descriptionUpdated = [];
+    const colorUpdated = [];
+    const typeUpdated = [];
+
+    for (let i = 0; i < lines.length; i++) {
+      const items = lines[i].split(",");
+
+      const id = items[0];
+      let description = items[1];
+      let color = items[2];
+      let type = items[3];
+
+      description = this.cleanInput(description, id);
+      color = this.cleanInput(color, "");
+      type = this.cleanInput(type, tagTypes.ENTITIES);
+
+      if (id !== "") {
+        // line is not empty
+
+        let duplicateTag = oldTags.find(tag => tag.id === id);
+
+        if (duplicateTag !== undefined) {
+          // tag id already exist in oldTags
+
+          if (description !== duplicateTag.description) {
+            // description update
+            duplicateTag.description = description;
+            descriptionUpdated.push(duplicateTag);
+          }
+        } else {
+          // the tag does not exist in oldTags
+          oldTags.push({ id, description, color, type });
+          newTags.push({ id, description, color, type });
+        }
+      }
+    }
+    return oldTags;
+  };
+
+  cleanInput = (value, defaultValue) => {
+    if (value !== undefined) {
+      // Remove start and end white spaces
+      value = value.trim();
+
+      // Remove start and end quotes
+      if (value[0] === '"' && value[-1] === '"') {
+        value = value[(1, -1)];
+      }
+    } else {
+      value = defaultValue;
+    }
+    return value;
   };
 
   exportCsv = () => {
@@ -208,13 +290,17 @@ export class MTableToolbar extends React.Component {
     console.log(this.props);
     return (
       <Tooltip title={"Upload tags"}>
-        <IconButton
-          color="inherit"
-          //   onClick={event => this.setState({ exportButtonAnchorEl: event.currentTarget })}
-          aria-label={"Upload tags"}
-        >
-          <this.props.icons.Upload />
-        </IconButton>
+        <div>
+          <IconButton color="inherit" onClick={this.importCsv} aria-label={"Upload tags"}>
+            <this.props.icons.Upload />
+          </IconButton>
+          <input
+            ref={this.fileInputRef}
+            style={{ display: "none" }}
+            type="file"
+            onChange={e => this.readFile(e.target.files)}
+          />
+        </div>
       </Tooltip>
     );
   };

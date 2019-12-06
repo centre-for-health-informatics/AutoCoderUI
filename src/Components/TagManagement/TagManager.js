@@ -24,9 +24,6 @@ import ViewColumn from "@material-ui/icons/ViewColumn";
 import * as actions from "../../Store/Actions/index";
 import { connect } from "react-redux";
 import * as tagTypes from "./tagTypes";
-import { ThemeProvider } from "@material-ui/core";
-
-import TagToolbar from "./TagToolbar";
 
 const tableIcons = {
   Upload: forwardRef((props, ref) => <UploadIcon {...props} ref={ref} />),
