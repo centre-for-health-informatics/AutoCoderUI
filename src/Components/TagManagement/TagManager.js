@@ -1,8 +1,10 @@
 import React from "react";
 import MaterialTable from "material-table";
+import TableToolbar from "./TableToolbar";
 
 import { forwardRef } from "react";
 
+import UploadIcon from "@material-ui/icons/Backup";
 import AddBox from "@material-ui/icons/AddBox";
 import ArrowDownward from "@material-ui/icons/ArrowDownward";
 import Check from "@material-ui/icons/Check";
@@ -24,9 +26,10 @@ import { connect } from "react-redux";
 import * as tagTypes from "./tagTypes";
 import { ThemeProvider } from "@material-ui/core";
 
-import TagUploader from "./TagUploader";
+import TagToolbar from "./TagToolbar";
 
 const tableIcons = {
+  Upload: forwardRef((props, ref) => <UploadIcon {...props} ref={ref} />),
   Add: forwardRef((props, ref) => <AddBox {...props} ref={ref} />),
   Check: forwardRef((props, ref) => <Check {...props} ref={ref} />),
   Clear: forwardRef((props, ref) => <Clear {...props} ref={ref} />),
@@ -93,7 +96,9 @@ function TagManager(props) {
 
   return (
     <MaterialTable
-      //   components={{ Toolbar: props => <TagUploader /> }}
+      components={{
+        Toolbar: props => <TableToolbar {...props} />
+      }}
       icons={tableIcons}
       title="Tags"
       columns={columns}
@@ -113,9 +118,7 @@ function TagManager(props) {
         padding: "dense",
         headerStyle: { padding: 0 },
         rowStyle: { padding: 0 },
-        filterCellStyle: {
-          padding: 0
-        }
+        filterCellStyle: { padding: 0 }
       }}
     />
   );
@@ -129,11 +132,7 @@ const mapStateToProps = state => {
 
 const mapDispatchToProps = dispatch => {
   return {
-    setTagTemplates: tags => dispatch(actions.setTagTemplatesWithCallback(tags)),
-    enableTagByIndex: index => dispatch(actions.enableTagByIndex(index)),
-    disableTagByIndex: index => dispatch(actions.disableTagByIndex(index)),
-    enableAllTags: () => dispatch(actions.enableAllTags()),
-    disableAllTags: () => dispatch(actions.disableAllTags())
+    setTagTemplates: tags => dispatch(actions.setTagTemplatesWithCallback(tags))
   };
 };
 
