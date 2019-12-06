@@ -20,7 +20,8 @@ const initialState = {
   snapToWord: true,
   sectionsInUse: [],
   entitiesInUse: [],
-  addingCustomTag: false
+  addingCustomTag: false,
+  spansRendered: false
 };
 
 const reducer = (state = initialState, action) => {
@@ -65,6 +66,8 @@ const reducer = (state = initialState, action) => {
       return { ...state, entitiesInUse: action.entitiesInUse };
     case actionTypes.SET_ADDING_CUSTOM_TAG:
       return { ...state, addingCustomTag: action.addingCustomTag };
+    case actionTypes.SET_SPANS_RENDERED:
+      return { ...state, spansRendered: action.spansRendered };
     default:
       return state;
   }

@@ -4,6 +4,11 @@ import IntervalTree from "@flatten-js/interval-tree";
 const backgroundColor = "transparent";
 
 export const Interval = props => {
+  if (props.index === props.intervals.length - 1) {
+    if (!props.spansRendered) {
+      props.setSpansRendered(true);
+    }
+  }
   // if the interval needs to be marked, return a mark instead
   if (props.mark) {
     return <Mark {...props} />;
@@ -29,7 +34,6 @@ export const Interval = props => {
       >
         {props.content}
       </span>
-      <span id={props.start + "-end"} />
     </React.Fragment>
   );
 };
@@ -56,43 +60,45 @@ export const Mark = props => {
         {props.content}
         {/* {props.tag && <span style={{ fontSize: "0.7em", fontWeight: 500, marginLeft: 6 }}>{props.tag}</span>} */}
       </mark>
-      <span id={props.start + "-end"} />
     </React.Fragment>
   );
 };
 
 // Method to draw a line between linked annotations
-export const drawLine = annotation => {
+export const drawLine = (annotation, i) => {
   // only draw a line if the annotation has a next property (linked annotation)
   if (annotation.next) {
     // getting offsets for the other components on the page above the annotations
     let xOffset = document.getElementById("docDisplay").getBoundingClientRect().left;
     let yOffset = document.getElementById("docDisplay").getBoundingClientRect().top;
 
-    // setting coordinates of the line start and end to the empty spans before and after intervals
-    // first coordinate is the end of the first annotation and second is the start of the second annotation
-    let x1 = document.getElementById(annotation.end + "-start").getBoundingClientRect().left - xOffset;
-    let x2 = document.getElementById(annotation.next.start + "-start").getBoundingClientRect().left - xOffset;
-    let y1 =
-      document.getElementById(annotation.end + "-start").getBoundingClientRect().top -
-      yOffset +
-      document.getElementById(annotation.end + "-start").getBoundingClientRect().height / 2;
-    let y2 =
-      document.getElementById(annotation.next.start + "-start").getBoundingClientRect().top -
-      yOffset +
-      document.getElementById(annotation.next.start + "-start").getBoundingClientRect().height / 2;
+    // Setting coordinates of the line start and end to the empty spans before and after intervals.
+    // First coordinate is the end of the first annotation and second is the start of the second annotation.
+    // -9999999 for when a user makes linked annotations and then switches to a different page or radio button,
+    // then switches back.
+    // This function happens too quickly for the intervals to all be created, so the getElementById returns null
+    // and getBoundingClientRect of a null object causes the system to crash.
+    // Need to update store to redraw the proper lines once the elements have been created successfully.
+    let x1 = document.getElementById(annotation.end + "-start")
+      ? document.getElementById(annotation.end + "-start").getBoundingClientRect().left - xOffset
+      : -9999999;
+    let x2 = document.getElementById(annotation.next.start + "-start")
+      ? document.getElementById(annotation.next.start + "-start").getBoundingClientRect().left - xOffset
+      : -9999999;
+    let y1 = document.getElementById(annotation.end + "-start")
+      ? document.getElementById(annotation.end + "-start").getBoundingClientRect().top -
+        yOffset +
+        document.getElementById(annotation.end + "-start").getBoundingClientRect().height / 2
+      : -9999999;
+    let y2 = document.getElementById(annotation.next.start + "-start")
+      ? document.getElementById(annotation.next.start + "-start").getBoundingClientRect().top -
+        yOffset +
+        document.getElementById(annotation.next.start + "-start").getBoundingClientRect().height / 2
+      : -9999999;
+
     // returning a dashed line
     return (
-      <line
-        key={("x1:" + x1 + ",y1:" + y1 + ",x2:", x2 + ",y2:" + y2 + ",tag:" + annotation.tag)}
-        strokeWidth="4px"
-        strokeDasharray="4"
-        stroke={annotation.color}
-        x1={x1}
-        y1={y1}
-        x2={x2}
-        y2={y2}
-      />
+      <line key={i} strokeWidth="4px" strokeDasharray="4" stroke={annotation.color} x1={x1} y1={y1} x2={x2} y2={y2} />
     );
   }
 };

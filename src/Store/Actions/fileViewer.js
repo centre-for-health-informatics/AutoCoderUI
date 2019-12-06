@@ -139,3 +139,10 @@ export const setAddingCustomTag = addingCustomTag => {
     addingCustomTag
   };
 };
+
+export const setSpansRendered = spansRendered => {
+  return {
+    type: actionTypes.SET_SPANS_RENDERED,
+    spansRendered
+  };
+};

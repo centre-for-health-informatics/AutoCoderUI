@@ -310,17 +310,30 @@ class CustomAnnotator extends Component {
     return annotationsToRemove;
   };
 
+  renderLines = () => {
+    if (this.props.spansRendered) {
+      const lines = this.props.annotations.map((annotation, i) =>
+        util.drawLine(annotation, i, this.props.xOffset, this.props.yOffset)
+      );
+      return lines;
+    }
+  };
+
   render() {
     // create intervals and render interval elements defined in utility and draw lines between linked intervals
     const intervals = util.createIntervals(this.props.textToDisplay, this.props.annotations);
     return (
       <div>
         <div style={(this.annoteStyle, { position: "absolute" })} ref={this.rootRef} id="intervalsDiv">
-          {intervals.map(interval => (
+          {intervals.map((interval, i) => (
             <util.Interval
               key={interval.start + "-" + interval.end}
               {...interval}
               onClick={event => this.handleIntervalClick(event, interval.start, interval.end)}
+              setSpansRendered={this.props.setSpansRendered}
+              spansRendered={this.props.spansRendered}
+              index={i}
+              intervals={intervals}
             />
           ))}
         </div>
@@ -342,12 +355,8 @@ class CustomAnnotator extends Component {
         >
           <AnnotationEditor itemsToEdit={this.props.annotationsToEdit} removeAnnotation={this.removeAnnotation} />
         </Popover>
-        <svg
-          style={({ position: "absolute" }, { zIndex: -1 })}
-          height={this.props.intervalDivHeight}
-          width={this.props.intervalDivWidth}
-        >
-          {this.props.annotations.map(annotation => util.drawLine(annotation))}
+        <svg style={{ zIndex: -1 }} height={this.props.intervalDivHeight} width={this.props.intervalDivWidth}>
+          {this.renderLines()}
         </svg>
       </div>
     );
@@ -367,7 +376,8 @@ const mapStateToProps = state => {
     alternatingColors: state.fileViewer.alternatingColors,
     snapToWord: state.fileViewer.snapToWord,
     sectionsInUse: state.fileViewer.sectionsInUse,
-    entitiesInUse: state.fileViewer.entitiesInUse
+    entitiesInUse: state.fileViewer.entitiesInUse,
+    spansRendered: state.fileViewer.spansRendered
   };
 };
 
@@ -385,7 +395,8 @@ const mapDispatchToProps = dispatch => {
     setAddingTags: tag => dispatch(actions.setAddingTags(tag)),
     setAnnotationsToEdit: annotationsToEdit => dispatch(actions.setAnnotationsToEdit(annotationsToEdit)),
     setSectionsInUse: sectionsInUse => dispatch(actions.setSectionsInUse(sectionsInUse)),
-    setEntitiesInUse: entitiesInUse => dispatch(actions.setEntitiesInUse(entitiesInUse))
+    setEntitiesInUse: entitiesInUse => dispatch(actions.setEntitiesInUse(entitiesInUse)),
+    setSpansRendered: spansRendered => dispatch(actions.setSpansRendered(spansRendered))
   };
 };
 
