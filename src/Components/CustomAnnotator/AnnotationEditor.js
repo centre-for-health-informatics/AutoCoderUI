@@ -83,7 +83,7 @@ const AnnotationEditor = props => {
   const generateListItemData = () => {
     const uniqueTextIntervals = [];
     for (let i = 0; i < props.itemsToEdit.length; i++) {
-      if (props.itemsToEdit[i].next !== undefined || props.itemsToEdit[i].prev !== undefined) {
+      if (props.itemsToEdit[i].next !== undefined) {
         // Handle multi-part labels, find and add head item of the multi-part label
         const newMultiPartTextInterval = getMultiPartLabelHeadItemData(props.itemsToEdit[i]); // creates a new multipart data item
         const duplicateMultiTextInterval = findDuplicateMultiPartAnnotation(
@@ -137,17 +137,11 @@ const AnnotationEditor = props => {
    * Given an annotation item from part of a multi-part label, returns the annotation item data
    */
   const getMultiPartLabelHeadItemData = annot => {
-    let head = annot;
-    // get first part of the multi-part annotation
-    while (head.prev !== undefined) {
-      head = head.prev;
-    }
-
     // Creates a data item using the head annotation
-    const textIntervalDataItem = makeListItemDataFromAnnotation(head);
+    const textIntervalDataItem = makeListItemDataFromAnnotation(annot);
 
     // Add subsequent parts of the multipart annotation to the data item
-    let cursor = head.next;
+    let cursor = annot.next;
     while (cursor !== undefined) {
       textIntervalDataItem.spans.push({
         start: cursor.start,
