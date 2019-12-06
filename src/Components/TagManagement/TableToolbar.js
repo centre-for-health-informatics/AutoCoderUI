@@ -1,6 +1,5 @@
 import Checkbox from "@material-ui/core/Checkbox";
 import IconButton from "@material-ui/core/IconButton";
-import UploadIcon from "@material-ui/icons/Backup";
 import InputAdornment from "@material-ui/core/InputAdornment";
 import Menu from "@material-ui/core/Menu";
 import MenuItem from "@material-ui/core/MenuItem";
@@ -56,7 +55,7 @@ export class MTableToolbar extends React.Component {
     this.setState({ exportButtonAnchorEl: null });
   };
 
-  renderSearch() {
+  renderSearch = () => {
     const localization = { ...MTableToolbar.defaultProps.localization, ...this.props.localization };
     if (this.props.search) {
       return (
@@ -91,9 +90,9 @@ export class MTableToolbar extends React.Component {
     } else {
       return null;
     }
-  }
+  };
 
-  renderDefaultActions() {
+  renderDefaultActions = () => {
     const localization = { ...MTableToolbar.defaultProps.localization, ...this.props.localization };
     const { classes } = this.props;
 
@@ -170,9 +169,9 @@ export class MTableToolbar extends React.Component {
         </span>
       </div>
     );
-  }
+  };
 
-  renderSelectedActions() {
+  renderSelectedActions = () => {
     return (
       <React.Fragment>
         <this.props.components.Actions
@@ -182,9 +181,9 @@ export class MTableToolbar extends React.Component {
         />
       </React.Fragment>
     );
-  }
+  };
 
-  renderActions() {
+  renderActions = () => {
     const { classes } = this.props;
 
     return (
@@ -196,16 +195,16 @@ export class MTableToolbar extends React.Component {
         </div>
       </div>
     );
-  }
+  };
 
-  renderToolbarTitle(title) {
+  renderToolbarTitle = title => {
     const { classes } = this.props;
     const toolBarTitle = typeof title === "string" ? <Typography variant="h6">{title}</Typography> : title;
 
     return <div className={classes.title}>{toolBarTitle}</div>;
-  }
+  };
 
-  renderUploadCSV() {
+  renderUploadCSV = () => {
     console.log(this.props);
     return (
       <Tooltip title={"Upload tags"}>
@@ -218,7 +217,21 @@ export class MTableToolbar extends React.Component {
         </IconButton>
       </Tooltip>
     );
-  }
+  };
+
+  handleShowFilters = () => {
+    this.props.setShowFilters(!this.props.showFilters);
+  };
+
+  renderShowFilters = () => {
+    return (
+      <Tooltip title={"Show/hide filters"}>
+        <IconButton color="inherit" onClick={this.handleShowFilters} aria-label={"Show/hide filters"}>
+          <this.props.icons.Search />
+        </IconButton>
+      </Tooltip>
+    );
+  };
 
   render() {
     const { classes } = this.props;
@@ -240,6 +253,7 @@ export class MTableToolbar extends React.Component {
         {this.props.searchFieldAlignment === "left" && this.renderSearch()}
         {this.props.toolbarButtonAlignment === "left" && this.renderActions()}
         <div className={classes.spacer} />
+        {this.renderShowFilters()}
         {this.renderUploadCSV()}
         {this.props.searchFieldAlignment === "right" && this.renderSearch()}
         {this.props.toolbarButtonAlignment === "right" && this.renderActions()}

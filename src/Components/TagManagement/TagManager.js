@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import MaterialTable from "material-table";
 import TableToolbar from "./TableToolbar";
 
@@ -50,6 +50,8 @@ const tableIcons = {
 };
 
 function TagManager(props) {
+  const [showFilters, setShowFilters] = useState(false);
+
   const renderColor = rowData => {
     return rowData.color;
   };
@@ -97,7 +99,7 @@ function TagManager(props) {
   return (
     <MaterialTable
       components={{
-        Toolbar: props => <TableToolbar {...props} />
+        Toolbar: props => <TableToolbar {...props} showFilters={showFilters} setShowFilters={setShowFilters} />
       }}
       icons={tableIcons}
       title="Tags"
@@ -110,7 +112,7 @@ function TagManager(props) {
       }}
       options={{
         toolbar: true,
-        filtering: true,
+        filtering: showFilters,
         grouping: false,
         exportButton: true,
         exportAllData: true,
