@@ -57,7 +57,10 @@ function TagManager(props) {
     { title: "Id", field: "id" },
     { title: "Description", field: "description" },
     { title: "Color", field: "color", render: renderColor },
-    { title: "Type", field: "type", lookup: { 1: tagTypes.ENTITIES, 2: tagTypes.SECTIONS } }
+    {
+      title: "Type",
+      field: "type"
+    }
   ];
 
   const onRowAdd = newData => {

@@ -1,10 +1,10 @@
 import * as tagTypes from "./tagTypes";
 
 export const DEFAULTS = [
-  { id: "NEG_F", description: "NEGATION_FORWARD", color: "#9df283", disabled: false, type: tagTypes.ENTITIES },
-  { id: "NEG_B", description: "NEGATION_BACKWARD", color: "#d3a3f7", disabled: false, type: tagTypes.ENTITIES },
-  { id: "NEG_BI", description: "NEGATION_BIDIRECTIONAL", color: "#fcba03", disabled: false, type: tagTypes.ENTITIES },
-  { id: "CLOS_B", description: "CLOSURE_BUT", color: "#f277c3", disabled: false, type: tagTypes.ENTITIES },
+  { id: "NEG_F", description: "NEGATION_FORWARD", color: "#9df283", disabled: false, type: "Logic" },
+  { id: "NEG_B", description: "NEGATION_BACKWARD", color: "#d3a3f7", disabled: false, type: "Logic" },
+  { id: "NEG_BI", description: "NEGATION_BIDIRECTIONAL", color: "#fcba03", disabled: false, type: "Logic" },
+  { id: "CLOS_B", description: "CLOSURE_BUT", color: "#f277c3", disabled: false, type: "Logic" },
   { id: "meds", description: "", color: "", disabled: false, type: tagTypes.SECTIONS },
   { id: "other_dx", description: "", color: "", disabled: false, type: tagTypes.SECTIONS },
   { id: "fam_hist", description: "", color: "", disabled: false, type: tagTypes.SECTIONS },

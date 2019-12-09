@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { connect } from "react-redux";
 import * as actions from "../../Store/Actions/index";
 import * as tagTypes from "./tagTypes";
@@ -55,14 +55,14 @@ const useStyles = makeStyles(() => ({
 const TagSelector = props => {
   const classes = useStyles();
 
+  // useEffect(() => {
+  //   //TODO: map tagTypes dynamically
+  // }, []);
+
   const handleTypeChange = event => {
     let newSelection = event.target.value;
-    if (newSelection === props.annotationFocus) {
-      // unselecting the currently selected value
-      newSelection = "";
-    }
 
-    props.setSpansRendered(false);
+    props.setSpansRendered(false); // flag used to prevent CustomAnotator from drawing lines pre-maturely due to race conditions
     props.setAnnotationFocus(newSelection);
 
     switch (newSelection) {
@@ -72,27 +72,29 @@ const TagSelector = props => {
       case tagTypes.SENTENCES:
         props.setAnnotations(props.sentences);
         break;
-      case tagTypes.ENTITIES:
-        props.setAnnotations(props.entities);
-        break;
       case tagTypes.TOKENS:
         props.setAnnotations(props.tokens);
         break;
-      case tagTypes.ICD_CODES:
-        //TODO
-        console.log("Not implemented");
-        break;
+
       default:
-        console.log("No annotation type selected.");
+        props.setAnnotations(props.entities);
     }
 
     props.setAddingTags([]);
   };
 
   const getCurrentTagOptions = () => {
-    const options = props.tagTemplates.filter(tag => {
-      return tag.type === props.annotationFocus;
-    });
+    let options;
+
+    if (props.annotationFocus !== "NA") {
+      options = props.tagTemplates.filter(tag => {
+        return tag.type.toLowerCase() === props.annotationFocus.toLowerCase();
+      });
+    } else {
+      options = props.tagTemplates.filter(tag => {
+        return tag.type === "" || tag.type === null || tag.type === undefined;
+      });
+    }
     return options;
   };
 
@@ -115,16 +117,12 @@ const TagSelector = props => {
     switch (props.annotationFocus) {
       case tagTypes.SECTIONS:
         return false;
-      case tagTypes.ENTITIES:
-        return false;
       case tagTypes.SENTENCES:
         return true;
       case tagTypes.TOKENS:
         return true;
-      case tagTypes.ICD_CODES:
-        return false;
       default:
-        return true;
+        return false;
     }
   };
 
@@ -146,6 +144,39 @@ const TagSelector = props => {
     }
   };
 
+  const makeCustomTypesRadioButtons = () => {
+    const customTagTypes = new Set();
+
+    props.tagTemplates.forEach(tagTemplate => {
+      if (
+        tagTemplate.type !== tagTypes.TOKENS &&
+        tagTemplate.type !== tagTypes.SECTIONS &&
+        tagTypes !== tagTypes.SENTENCES
+      ) {
+        if (tagTemplate.type && tagTemplate.type !== "") {
+          customTagTypes.add(tagTemplate.type);
+        } else {
+          customTagTypes.add("NA");
+        }
+      }
+    });
+
+    const html = [];
+
+    customTagTypes.forEach((tagType, index) =>
+      html.push(
+        <FormControlLabel
+          key={"custom-radio-select" + index}
+          value={tagType}
+          control={<Radio />}
+          label={tagType}
+          labelPlacement="end"
+        />
+      )
+    );
+    return html;
+  };
+
   return (
     <div className={classes.root}>
       <div className={classes.radioButtonForm}>
@@ -165,17 +196,12 @@ const TagSelector = props => {
               labelPlacement="end"
             />
             <FormControlLabel
-              value={tagTypes.ENTITIES}
-              control={<Radio />}
-              label={tagTypes.ENTITIES}
-              labelPlacement="end"
-            />
-            <FormControlLabel
               value={tagTypes.TOKENS}
               control={<Radio />}
               label={tagTypes.TOKENS}
               labelPlacement="end"
             />
+            {makeCustomTypesRadioButtons()}
           </RadioGroup>
         </FormControl>
       </div>

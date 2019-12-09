@@ -18,7 +18,7 @@ class CustomAnnotator extends Component {
 
     this.annoteStyle = {
       // fontFamily: "IBM Plex Sans",
-      // maxWidth: 500,
+      maxWidth: 800,
       lineHeight: 1.5
     };
   }
