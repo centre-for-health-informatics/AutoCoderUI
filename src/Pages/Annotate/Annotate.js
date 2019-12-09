@@ -43,16 +43,16 @@ const Annotate = props => {
 
   const highlightEditDiv = isLayoutModifiable ? "grid-border edit-border" : "grid-border";
 
-  // Verify token
-  // useEffect(() => {
-  //   APIUtility.API.verifyLSToken(() => setIsLoading(false));
-  // }, []);
-
   useEffect(() => {
     return () => {
       props.setAnnotationFocus("");
       props.setAnnotations([]);
     };
+  }, []);
+
+  // equivalent to componentDidUpdate. used to verify that the token is valid
+  useEffect(() => {
+    APIUtility.API.verifyLSToken(() => setIsLoading(false));
   }, []);
 
   // // Display alert message
@@ -67,17 +67,18 @@ const Annotate = props => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [props.alertMessage]);
 
-  // if (isLoading) {
-  //   return <Loading />;
-  // }
+  if (isLoading) {
+    return <Loading />;
+  }
 
   // if (props.isServerDown) {
   //   return <Redirect to="/server-down" />;
   // }
 
-  // if (!props.isAuthorized) {
-  //   return <Redirect to="/sign-in" />;
-  // }
+  if (!props.isAuthorized) {
+    console.log("Annotate", props.isAuthorized);
+    return <Redirect to="/sign-in" />;
+  }
 
   return (
     <div>
@@ -120,9 +121,9 @@ const Annotate = props => {
 
 const mapStateToProps = state => {
   return {
-    alertMessage: state.alert.alertMessage
-    // isAuthorized: state.authentication.isAuthorized,
-    // isServerDown: state.authentication.isServerDown
+    alertMessage: state.alert.alertMessage,
+    isAuthorized: state.authentication.isAuthorized,
+    isServerDown: state.authentication.isServerDown
   };
 };
 

@@ -60,13 +60,14 @@ const Tags = props => {
     return <Loading />;
   }
 
-  if (props.isServerDown) {
-    return <Redirect to="/server-down" />;
-  }
-
-  // if (!props.isAuthorized) {
-  //   return <Redirect to="/sign-in" />;
+  // if (props.isServerDown) {
+  //   return <Redirect to="/server-down" />;
   // }
+
+  if (!props.isAuthorized) {
+    console.log("Tags:", props.isAuthorized);
+    return <Redirect to="/sign-in" />;
+  }
 
   return (
     <div>
@@ -105,9 +106,9 @@ const Tags = props => {
 
 const mapStateToProps = state => {
   return {
-    alertMessage: state.alert.alertMessage
-    // isAuthorized: state.authentication.isAuthorized,
-    // isServerDown: state.authentication.isServerDown
+    alertMessage: state.alert.alertMessage,
+    isAuthorized: state.authentication.isAuthorized,
+    isServerDown: state.authentication.isServerDown
   };
 };
 

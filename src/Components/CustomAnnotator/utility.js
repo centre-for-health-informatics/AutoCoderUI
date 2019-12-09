@@ -46,7 +46,7 @@ export const Mark = props => {
   // This line is to easily distinguish which line of text the annotations are for.
   return (
     <React.Fragment>
-      <span id={props.start + "-start"} />
+      <span id={props.start + "-start"} style={{ whiteSpace: "nowrap" }} />
       <mark
         style={{
           backgroundImage: props.gradient,

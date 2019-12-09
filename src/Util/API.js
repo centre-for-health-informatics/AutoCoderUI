@@ -147,6 +147,7 @@ export class API {
       options.headers = {};
     }
     options.headers["Authorization"] = bearer;
+
     return this._fetchFromAPI(url, options);
   }
 
@@ -177,6 +178,7 @@ export class API {
         if (response.status !== 200) {
           console.log("RESPONSE ERROR", url, response);
         }
+        console.log(response);
         return response;
       })
       .catch(error => {

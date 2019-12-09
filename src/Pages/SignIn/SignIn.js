@@ -72,7 +72,7 @@ function SignIn(props) {
   };
 
   if (props.isAuthorized) {
-    return <Redirect to="/" />;
+    return <Redirect to="/annotate" />;
   }
 
   return (
