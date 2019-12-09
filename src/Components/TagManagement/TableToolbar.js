@@ -79,11 +79,12 @@ export class MTableToolbar extends React.Component {
     for (let i = 0; i < lines.length; i++) {
       const items = lines[i].split(",");
 
-      const id = items[0];
+      let id = items[0];
       let description = items[1];
       let color = items[2];
       let type = items[3];
 
+      id = this.cleanInput(id, id);
       description = this.cleanInput(description, id);
       color = this.cleanInput(color, "");
       type = this.cleanInput(type, tagTypes.ENTITIES);
@@ -114,12 +115,13 @@ export class MTableToolbar extends React.Component {
   cleanInput = (value, defaultValue) => {
     if (value !== undefined) {
       // Remove start and end white spaces
-      value = value.trim();
+      value = value.trim().replace(/"([^"]+(?="))"/g, "$1");
 
-      // Remove start and end quotes
-      if (value[0] === '"' && value[-1] === '"') {
-        value = value[(1, -1)];
-      }
+      // // Remove start and end quotes
+      // if (value[0] === '"' && value[-1] === '"') {
+      //   value = value.trim('"');
+      //   console.log(value);
+      // }
     } else {
       value = defaultValue;
     }
