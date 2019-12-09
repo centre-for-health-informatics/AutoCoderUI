@@ -178,7 +178,7 @@ export class API {
         if (response.status !== 200) {
           console.log("RESPONSE ERROR", url, response);
         }
-        console.log(response);
+
         return response;
       })
       .catch(error => {

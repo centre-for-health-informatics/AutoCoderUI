@@ -10,10 +10,8 @@ const Legend = props => {
     let chipList;
     if (props.annotationFocus === tagTypes.SECTIONS) {
       chipList = makeChipList(props.sectionsInUse);
-    } else if (props.annotationFocus === tagTypes.ENTITIES) {
-      chipList = makeChipList(props.entitiesInUse);
     } else {
-      return;
+      chipList = makeChipList(props.entitiesInUse);
     }
     return chipList.map((chip, index) => <ListItem key={"listItem-" + index}>{chip}</ListItem>);
   };

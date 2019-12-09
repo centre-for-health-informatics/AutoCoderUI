@@ -18,7 +18,7 @@ class CustomAnnotator extends Component {
 
     this.annoteStyle = {
       // fontFamily: "IBM Plex Sans",
-      // maxWidth: 500,
+      // maxWidth: 800,
       lineHeight: 1.5
     };
   }
@@ -56,7 +56,8 @@ class CustomAnnotator extends Component {
   handleMouseUp = () => {
     // can't set a section or entity annotation without a tag
     if (
-      !(this.props.annotationFocus === tagTypes.TOKENS || this.props.annotationFocus === tagTypes.SENTENCES) &&
+      this.props.annotationFocus !== tagTypes.TOKENS &&
+      this.props.annotationFocus !== tagTypes.SENTENCES &&
       this.props.addingTags.length === 0
     ) {
       return;
@@ -143,6 +144,7 @@ class CustomAnnotator extends Component {
 
     this.prevSpan = span;
 
+    // Handling updating Legend lists
     if (this.props.annotationFocus === tagTypes.SECTIONS) {
       let newSections = Array.from(this.props.sectionsInUse);
       if (newSections.includes(this.props.addingTags[0].id)) {
@@ -151,7 +153,8 @@ class CustomAnnotator extends Component {
       }
       newSections.unshift(this.props.addingTags[0].id);
       this.props.setSectionsInUse(newSections);
-    } else if (this.props.annotationFocus === tagTypes.ENTITIES) {
+    } else {
+      // custom entity types
       let newEntities = Array.from(this.props.entitiesInUse);
       if (newEntities.includes(this.props.addingTags[0].id)) {
         const index = newEntities.indexOf(this.props.addingTags[0].id);
@@ -167,9 +170,7 @@ class CustomAnnotator extends Component {
 
   // this is called whenever the user selects text to annotate or clicks on an annotation to remove it
   handleAnnotate = annotations => {
-    if (this.props.annotationFocus === tagTypes.ENTITIES) {
-      this.props.setEntities(annotations);
-    } else if (this.props.annotationFocus === tagTypes.SECTIONS) {
+    if (this.props.annotationFocus === tagTypes.SECTIONS) {
       this.props.setSections(annotations);
     } else if (this.props.annotationFocus === tagTypes.SENTENCES) {
       // sorting sentences in order to have alternating sentences in different colors
@@ -197,10 +198,8 @@ class CustomAnnotator extends Component {
         }
       }
       this.props.setTokens(annotations);
-    } else if (this.props.annotationFocus === "ICD Codes") {
-      // TO DO: Implement this
-      // this.setState({ annotations });
-      // this.props.setICDCodes(annotations);
+    } else {
+      this.props.setEntities(annotations);
     }
     this.props.setAnnotations(annotations);
   };
@@ -237,7 +236,7 @@ class CustomAnnotator extends Component {
    * Called upon to remove annotations
    */
   removeAnnotation = annotationToRemove => {
-    if (this.props.annotationFocus === tagTypes.SECTIONS || this.props.annotationFocus === tagTypes.ENTITIES) {
+    if (this.props.annotationFocus !== tagTypes.TOKENS && this.props.annotationFocus !== tagTypes.SENTENCES) {
       // removing from legend if it was the last tag of that type
       const label = annotationToRemove.tag;
       let labelCount = 0;
@@ -258,7 +257,7 @@ class CustomAnnotator extends Component {
               ...this.props.sectionsInUse.slice(index + 1)
             ]);
           }
-        } else if (this.props.annotationFocus === tagTypes.ENTITIES) {
+        } else {
           const index = this.props.entitiesInUse.indexOf(label);
           if (index >= 0) {
             this.props.setEntitiesInUse([

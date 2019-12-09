@@ -16,7 +16,6 @@ import * as React from "react";
 import { connect } from "react-redux";
 import * as actions from "../../Store/Actions/index";
 import * as tagTypes from "./tagTypes";
-import { file } from "@babel/types";
 
 export class MTableToolbar extends React.Component {
   constructor(props) {
@@ -53,7 +52,6 @@ export class MTableToolbar extends React.Component {
     if (this.props.disabled) {
       return;
     }
-    console.log(this.fileInputRef);
 
     this.fileInputRef.current.click();
   };
@@ -287,7 +285,6 @@ export class MTableToolbar extends React.Component {
   };
 
   renderUploadCSV = () => {
-    console.log(this.props);
     return (
       <Tooltip title={"Upload tags"}>
         <div>
