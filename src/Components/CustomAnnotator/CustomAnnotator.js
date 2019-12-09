@@ -29,6 +29,9 @@ class CustomAnnotator extends Component {
     document.onkeypress = e => {
       this.handleKeyPress(e);
     };
+    window.addEventListener("resize", () => {
+      this.handleAnnotate([...this.props.annotations]);
+    });
   }
 
   componentWillUnmount() {
@@ -53,7 +56,7 @@ class CustomAnnotator extends Component {
   handleMouseUp = () => {
     // can't set a section or entity annotation without a tag
     if (
-      (this.props.annotationFocus === tagTypes.ENTITIES || this.props.annotationFocus === tagTypes.SECTIONS) &&
+      !(this.props.annotationFocus === tagTypes.TOKENS || this.props.annotationFocus === tagTypes.SENTENCES) &&
       this.props.addingTags.length === 0
     ) {
       return;
@@ -321,7 +324,7 @@ class CustomAnnotator extends Component {
     // create intervals and render interval elements defined in utility and draw lines between linked intervals
     const intervals = util.createIntervals(this.props.textToDisplay, this.props.annotations);
     return (
-      <div>
+      <div id={"customerAnnotator" + this.props.id}>
         <div style={(this.annoteStyle, { position: "absolute" })} ref={this.rootRef} id="intervalsDiv">
           {intervals.map((interval, i) => (
             <util.Interval

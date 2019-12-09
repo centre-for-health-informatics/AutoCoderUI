@@ -105,7 +105,7 @@ const Annotate = props => {
         <div key="tagSelector" className={highlightEditDiv}>
           <TagSelector />
         </div>
-        <div key="import-export" className={highlightEditDiv}>
+        <div key="manageFiles" className={highlightEditDiv}>
           <ManageFiles />
         </div>
         <div key="document" className={highlightEditDiv} style={{ overflowY: "auto" }}>
