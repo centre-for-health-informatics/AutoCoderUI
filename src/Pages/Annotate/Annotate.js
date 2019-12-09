@@ -48,6 +48,13 @@ const Annotate = props => {
   //   APIUtility.API.verifyLSToken(() => setIsLoading(false));
   // }, []);
 
+  useEffect(() => {
+    return () => {
+      props.setAnnotationFocus("");
+      props.setAnnotations([]);
+    };
+  }, []);
+
   // // Display alert message
   useEffect(() => {
     if (props.alertMessage) {
@@ -121,7 +128,9 @@ const mapStateToProps = state => {
 
 const mapDispatchToProps = dispatch => {
   return {
-    setAlertMessage: newValue => dispatch(actions.setAlertMessage(newValue))
+    setAlertMessage: newValue => dispatch(actions.setAlertMessage(newValue)),
+    setAnnotationFocus: annotationFocus => dispatch(actions.setAnnotationFocus(annotationFocus)),
+    setAnnotations: annotations => dispatch(actions.setAnnotations(annotations))
   };
 };
 
