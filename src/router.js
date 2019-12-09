@@ -14,11 +14,11 @@ const router = (
     <AlertProvider template={AlertTemplate}>
       <BrowserRouter>
         <Switch>
-          <Route path="/" component={Annotate} />
-          <Route path="/annotate" component={Annotate} />
-          <Route path="/sandbox" component={Sandbox} />
-          <Route path="/tags" component={Tags} />
-          <Route path="/sign-in" component={SignIn} />
+          <Route exact path="/" component={Annotate} />
+          <Route exact path="/annotate" component={Annotate} />
+          <Route exact path="/sandbox" component={Sandbox} />
+          <Route exact path="/tags" component={Tags} />
+          <Route exact path="/sign-in" component={SignIn} />
         </Switch>
       </BrowserRouter>
     </AlertProvider>
