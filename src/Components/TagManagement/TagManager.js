@@ -76,6 +76,15 @@ function TagManager(props) {
   };
 
   const onRowUpdate = (newData, oldData) => {
+    console.log(newData);
+    console.log(oldData);
+
+    for (let i = 0; i < props.sections.length; i++) {
+      if (props.sections[i].tag === oldData.id) {
+        props.sections[i].tag = newData.id;
+      }
+    }
+
     return new Promise(resolve => {
       // setTimeout(() => {
       if (oldData) {
