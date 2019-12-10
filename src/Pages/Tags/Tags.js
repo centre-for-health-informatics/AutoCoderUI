@@ -8,7 +8,6 @@ import { connect } from "react-redux";
 import { useAlert, positions } from "react-alert";
 import { Redirect } from "react-router";
 import Loading from "../Loading/Loading";
-import TagToolbar from "../../Components/TagManagement/TagToolbar";
 import * as APIUtility from "../../Util/API";
 import TagManager from "../../Components/TagManagement/TagManager";
 import GeneralSettings from "../../Components/GeneralSettings/GeneralSettings";
@@ -90,9 +89,6 @@ const Tags = props => {
         isResizable={isLayoutModifiable}
         onLayoutChange={(layout, layouts) => onLayoutChange(layouts)}
       >
-        <div key="tagUploader" className={highlightEditDiv}>
-          <TagToolbar />
-        </div>
         <div key="tagList" className={highlightEditDiv}>
           <TagManager />
         </div>
