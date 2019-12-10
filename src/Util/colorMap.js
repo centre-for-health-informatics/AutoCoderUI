@@ -12,7 +12,7 @@ const getColors = number => {
       "#f1aec3",
       "#dfb3d4",
       "#cdb7e4"
-    ];
+    ].sort((a, b) => 0.5 - Math.random());
   }
   const colormapper = require("colormap");
 
