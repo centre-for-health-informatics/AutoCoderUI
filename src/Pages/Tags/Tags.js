@@ -11,6 +11,7 @@ import Loading from "../Loading/Loading";
 import * as APIUtility from "../../Util/API";
 import TagManager from "../../Components/TagManagement/TagManager";
 import GeneralSettings from "../../Components/GeneralSettings/GeneralSettings";
+import { mapColors, setDefaultTags } from "../../Components/TagManagement/tagUtil";
 
 const ResponsiveReactGridLayout = WidthProvider(Responsive);
 const originalLayouts = getFromLS("tagsLayouts", "layouts") || defaultLayouts;
@@ -38,12 +39,18 @@ const Tags = props => {
 
   const highlightEditDiv = isLayoutModifiable ? "grid-border edit-border" : "grid-border";
 
-  // Verify token
+  // ComponentDidMount
   useEffect(() => {
     APIUtility.API.verifyLSToken(() => setIsLoading(false));
+    setDefaultTags(props.setTagTemplates, props.tagTemplates);
   }, []);
 
-  // // Display alert message
+  // Map colors
+  useEffect(() => {
+    mapColors(props.tagTemplates);
+  }, [props.tagTemplates]);
+
+  // Display alert message
   useEffect(() => {
     if (props.alertMessage) {
       alert.show(props.alertMessage.message, {
@@ -102,6 +109,7 @@ const Tags = props => {
 
 const mapStateToProps = state => {
   return {
+    tagTemplates: state.fileViewer.tagTemplates,
     alertMessage: state.alert.alertMessage,
     isAuthorized: state.authentication.isAuthorized,
     isServerDown: state.authentication.isServerDown
@@ -110,6 +118,7 @@ const mapStateToProps = state => {
 
 const mapDispatchToProps = dispatch => {
   return {
+    setTagTemplates: tagTemplates => dispatch(actions.setTagTemplates(tagTemplates)),
     setAlertMessage: newValue => dispatch(actions.setAlertMessage(newValue))
   };
 };
