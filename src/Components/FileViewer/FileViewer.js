@@ -51,8 +51,7 @@ const mapStateToProps = state => {
     tagTemplates: state.fileViewer.tagTemplates,
     alternatingColors: state.fileViewer.alternatingColors,
     snapToWord: state.fileViewer.snapToWord,
-    sectionsInUse: state.fileViewer.sectionsInUse,
-    entitiesInUse: state.fileViewer.entitiesInUse
+    sectionsInUse: state.fileViewer.sectionsInUse
   };
 };
 
@@ -73,7 +72,6 @@ const mapDispatchToProps = dispatch => {
     setFileReference: fileReference => dispatch(actions.setFileReference(fileReference)),
     setSnapToWord: snapToWord => dispatch(actions.setSnapToWord(snapToWord)),
     setSectionsInUse: sectionsInUse => dispatch(actions.setSectionsInUse(sectionsInUse)),
-    setEntitiesInUse: entitiesInUse => dispatch(actions.setEntitiesInUse(entitiesInUse)),
     updateLegendAfterLoadingSpacy: data => dispatch(actions.updateLegendAfterLoadingSpacy(data))
   };
 };
