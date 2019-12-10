@@ -1,41 +1,11 @@
 import React, { useEffect } from "react";
-import * as APIUtility from "../../Util/API";
 import { connect } from "react-redux";
-import { Button, Switch, FormControlLabel } from "@material-ui/core";
+import { Switch, FormControlLabel } from "@material-ui/core";
 import * as actions from "../../Store/Actions/index";
-import * as templateTags from "../TagManagement/defaultTags";
-import * as tagTypes from "../TagManagement/tagTypes";
-import getColors from "../../Util/colorMap";
 import LoadingIndicator from "../../Components/LoadingIndicator/LoadingIndicator";
 import CustomAnnotator from "../../Components/CustomAnnotator/CustomAnnotator";
-import { makeStyles } from "@material-ui/core/styles";
 
 const FileViewer = props => {
-  const setDefaultTagTemplate = () => {
-    props.setTagTemplates(templateTags.DEFAULTS);
-  };
-
-  setDefaultTagTemplate();
-
-  APIUtility.API.makeAPICall(APIUtility.GET_SECTIONS).then(response => response.json());
-
-  useEffect(() => {
-    mapColors();
-  }, [props.tagTemplates]);
-
-  const mapColors = () => {
-    const tagsWithoutColors = [];
-    for (let tag of props.tagTemplates) {
-      if (tag.color === undefined || tag.color === "") {
-        tagsWithoutColors.push(tag);
-      }
-    }
-    const newColors = getColors(tagsWithoutColors.length);
-    for (let i = 0; i < tagsWithoutColors.length; i++) {
-      tagsWithoutColors[i].color = newColors[i];
-    }
-  };
-
   const renderCustomAnnotator = () => {
     if (props.spacyLoading) {
       return <LoadingIndicator />;
