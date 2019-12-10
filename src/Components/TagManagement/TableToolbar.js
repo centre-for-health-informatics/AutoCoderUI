@@ -16,13 +16,16 @@ import * as React from "react";
 import { connect } from "react-redux";
 import * as actions from "../../Store/Actions/index";
 import * as tagTypes from "./tagTypes";
+import { addDefaultTags } from "./tagUtil";
 
 export class MTableToolbar extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
       columnsButtonAnchorEl: null,
-      exportButtonAnchorEl: null
+      exportButtonAnchorEl: null,
+      loadDefaultButtonAnchorEl: null,
+      removeAllTagsButtonAnchorEl: null
     };
     this.fileInputRef = React.createRef();
   }
@@ -355,6 +358,64 @@ export class MTableToolbar extends React.Component {
     );
   };
 
+  renderLoadDefaults = () => {
+    return (
+      <span>
+        <Tooltip title={"Load default tags"}>
+          <IconButton
+            color="inherit"
+            onClick={event => this.setState({ loadDefaultButtonAnchorEl: event.currentTarget })}
+            aria-label={"Load default tags"}
+          >
+            <this.props.icons.LoadDefaults />
+          </IconButton>
+        </Tooltip>
+        <Menu
+          anchorEl={this.state.loadDefaultButtonAnchorEl}
+          open={Boolean(this.state.loadDefaultButtonAnchorEl)}
+          onClose={() => this.setState({ loadDefaultButtonAnchorEl: null })}
+        >
+          <MenuItem key="Load default tags" onClick={this.handleLoadDefaultTags}>
+            Load default tags
+          </MenuItem>
+        </Menu>
+      </span>
+    );
+  };
+
+  handleLoadDefaultTags = () => {
+    addDefaultTags(this.props.setTagTemplates, this.props.tagTemplates);
+  };
+
+  renderRemoveAll = () => {
+    return (
+      <span>
+        <Tooltip title={"Remove all tags"}>
+          <IconButton
+            color="inherit"
+            onClick={event => this.setState({ removeAllTagsButtonAnchorEl: event.currentTarget })}
+            aria-label={"Remove all tags"}
+          >
+            <this.props.icons.DeleteAll />
+          </IconButton>
+        </Tooltip>
+        <Menu
+          anchorEl={this.state.removeAllTagsButtonAnchorEl}
+          open={Boolean(this.state.removeAllTagsButtonAnchorEl)}
+          onClose={() => this.setState({ removeAllTagsButtonAnchorEl: null })}
+        >
+          <MenuItem key="Remove all tags" onClick={this.handleRemoveAllTags}>
+            Remove all tags
+          </MenuItem>
+        </Menu>
+      </span>
+    );
+  };
+
+  handleRemoveAllTags = () => {
+    this.props.setTagTemplates([]);
+  };
+
   render() {
     const { classes } = this.props;
     const localization = { ...MTableToolbar.defaultProps.localization, ...this.props.localization };
@@ -375,10 +436,12 @@ export class MTableToolbar extends React.Component {
         {this.props.searchFieldAlignment === "left" && this.renderSearch()}
         {this.props.toolbarButtonAlignment === "left" && this.renderActions()}
         <div className={classes.spacer} />
-        {this.renderShowFilters()}
         {this.renderUploadCSV()}
-        {this.props.searchFieldAlignment === "right" && this.renderSearch()}
         {this.props.toolbarButtonAlignment === "right" && this.renderActions()}
+        {this.renderShowFilters()}
+        {this.renderLoadDefaults()}
+        {this.props.searchFieldAlignment === "right" && this.renderSearch()}
+        {this.renderRemoveAll()}
       </Toolbar>
     );
   }

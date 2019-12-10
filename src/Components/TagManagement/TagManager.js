@@ -4,6 +4,8 @@ import TableToolbar from "./TableToolbar";
 
 import { forwardRef } from "react";
 
+import LoadDefaultsIcon from "@material-ui/icons/RestorePageOutlined";
+import DeleteAllIcon from "@material-ui/icons/DeleteForeverOutlined";
 import UploadIcon from "@material-ui/icons/Backup";
 import AddBox from "@material-ui/icons/AddBox";
 import ArrowDownward from "@material-ui/icons/ArrowDownward";
@@ -23,9 +25,10 @@ import ViewColumn from "@material-ui/icons/ViewColumn";
 
 import * as actions from "../../Store/Actions/index";
 import { connect } from "react-redux";
-import * as tagTypes from "./tagTypes";
 
 const tableIcons = {
+  LoadDefaults: forwardRef((props, ref) => <LoadDefaultsIcon {...props} ref={ref} />),
+  DeleteAll: forwardRef((props, ref) => <DeleteAllIcon {...props} ref={ref} />),
   Upload: forwardRef((props, ref) => <UploadIcon {...props} ref={ref} />),
   Add: forwardRef((props, ref) => <AddBox {...props} ref={ref} />),
   Check: forwardRef((props, ref) => <Check {...props} ref={ref} />),
