@@ -1,4 +1,19 @@
 const getColors = number => {
+  if (number <= 11) {
+    return [
+      "#9df283",
+      "#d3a3f7",
+      "#fcba03",
+      "#f277c3",
+      "#accdef",
+      "#f4bda1",
+      "#c0c4ab",
+      "#8ccab5",
+      "#f1aec3",
+      "#dfb3d4",
+      "#cdb7e4"
+    ];
+  }
   const colormapper = require("colormap");
 
   const colors = colormapper({
