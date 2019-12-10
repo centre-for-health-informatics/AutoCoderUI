@@ -55,10 +55,6 @@ const useStyles = makeStyles(() => ({
 const TagSelector = props => {
   const classes = useStyles();
 
-  // useEffect(() => {
-  //   //TODO: map tagTypes dynamically
-  // }, []);
-
   const handleTypeChange = event => {
     let newSelection = event.target.value;
 
@@ -115,8 +111,12 @@ const TagSelector = props => {
         return "Search " + tagTypes.SECTIONS;
       case tagTypes.ENTITIES:
         return "Search " + tagTypes.ENTITIES;
-      default:
+      case tagTypes.SENTENCES:
         return "";
+      case tagTypes.TOKENS:
+        return "";
+      default:
+        return "Search " + props.annotationFocus;
     }
   };
 

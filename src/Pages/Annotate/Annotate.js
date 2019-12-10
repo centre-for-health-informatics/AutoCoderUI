@@ -14,8 +14,8 @@ import "react-resizable/css/styles.css";
 import TagSelector from "../../Components/TagManagement/TagSelector";
 import FileViewer from "../../Components/FileViewer/FileViewer";
 import Legend from "../../Components/CustomAnnotator/Legend";
-import ImportExportAnnotations from "../../Components/ManageFiles/ManageFiles";
 import ManageFiles from "../../Components/ManageFiles/ManageFiles";
+import { mapColors, setDefaultTags } from "../../Components/TagManagement/tagUtil";
 
 const ResponsiveReactGridLayout = WidthProvider(Responsive);
 const originalLayouts = getFromLS("annotateLayouts", "layouts") || defaultLayouts;
@@ -43,6 +43,7 @@ const Annotate = props => {
 
   const highlightEditDiv = isLayoutModifiable ? "grid-border edit-border" : "grid-border";
 
+  // ComponentWillUnmount
   useEffect(() => {
     return () => {
       props.setAnnotationFocus("");
@@ -50,10 +51,16 @@ const Annotate = props => {
     };
   }, []);
 
-  // equivalent to componentDidUpdate. used to verify that the token is valid
+  // ComponentDidMount
   useEffect(() => {
     APIUtility.API.verifyLSToken(() => setIsLoading(false));
+    setDefaultTags(props.setTagTemplates, props.tagTemplates);
   }, []);
+
+  // Map colors
+  useEffect(() => {
+    mapColors(props.tagTemplates);
+  }, [props.tagTemplates]);
 
   // // Display alert message
   useEffect(() => {
@@ -121,6 +128,7 @@ const Annotate = props => {
 
 const mapStateToProps = state => {
   return {
+    tagTemplates: state.fileViewer.tagTemplates,
     alertMessage: state.alert.alertMessage,
     isAuthorized: state.authentication.isAuthorized,
     isServerDown: state.authentication.isServerDown
@@ -129,6 +137,7 @@ const mapStateToProps = state => {
 
 const mapDispatchToProps = dispatch => {
   return {
+    setTagTemplates: tagTemplates => dispatch(actions.setTagTemplates(tagTemplates)),
     setAlertMessage: newValue => dispatch(actions.setAlertMessage(newValue)),
     setAnnotationFocus: annotationFocus => dispatch(actions.setAnnotationFocus(annotationFocus)),
     setAnnotations: annotations => dispatch(actions.setAnnotations(annotations))
