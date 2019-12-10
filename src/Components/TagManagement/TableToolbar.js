@@ -79,11 +79,12 @@ export class MTableToolbar extends React.Component {
     for (let i = 0; i < lines.length; i++) {
       const items = lines[i].split(",");
 
-      const id = items[0];
+      let id = items[0];
       let description = items[1];
       let color = items[2];
       let type = items[3];
 
+      id = this.cleanInput(id, id);
       description = this.cleanInput(description, id);
       color = this.cleanInput(color, "");
       type = this.cleanInput(type, tagTypes.ENTITIES);
@@ -101,6 +102,18 @@ export class MTableToolbar extends React.Component {
             duplicateTag.description = description;
             descriptionUpdated.push(duplicateTag);
           }
+
+          if (color !== duplicateTag.color) {
+            // color update
+            duplicateTag.color = color;
+            colorUpdated.push(duplicateTag);
+          }
+
+          if (type !== duplicateTag.type) {
+            // type change
+            duplicateTag.type = type;
+            typeUpdated.push(duplicateTag);
+          }
         } else {
           // the tag does not exist in oldTags
           oldTags.push({ id, description, color, type });
@@ -108,22 +121,48 @@ export class MTableToolbar extends React.Component {
         }
       }
     }
+    this.generateAlert(newTags, descriptionUpdated, colorUpdated, typeUpdated);
     return oldTags;
   };
 
   cleanInput = (value, defaultValue) => {
-    if (value !== undefined) {
-      // Remove start and end white spaces
-      value = value.trim();
-
-      // Remove start and end quotes
-      if (value[0] === '"' && value[-1] === '"') {
-        value = value[(1, -1)];
-      }
+    if (value !== undefined && value !== "") {
+      // Remove start and end white spaces and remove double quotes
+      value = value.trim().replace(/"([^"]*(?="))"/g, "$1");
     } else {
       value = defaultValue;
     }
     return value;
+  };
+
+  generateAlert = (newTags, descriptionUpdated, colorUpdated, typeUpdated) => {
+    if (newTags.length > 0) {
+      this.props.setAlertMessage({
+        message: newTags.length + " new tags have been created. ",
+        messageType: "success"
+      });
+    }
+
+    if (descriptionUpdated.length > 0) {
+      this.props.setAlertMessage({
+        message: descriptionUpdated.length + " tags have updated descriptions. ",
+        messageType: "success"
+      });
+    }
+
+    if (colorUpdated.length > 0) {
+      this.props.setAlertMessage({
+        message: colorUpdated.length + " tags have updated colors. ",
+        messageType: "success"
+      });
+    }
+
+    if (typeUpdated.length > 0) {
+      this.props.setAlertMessage({
+        message: typeUpdated.length + " tags have updated types. ",
+        messageType: "success"
+      });
+    }
   };
 
   exportCsv = () => {
@@ -438,7 +477,8 @@ const mapStateToProps = state => {
 
 const mapDispatchToProps = dispatch => {
   return {
-    setTagTemplates: tags => dispatch(actions.setTagTemplatesWithCallback(tags))
+    setTagTemplates: tags => dispatch(actions.setTagTemplatesWithCallback(tags)),
+    setAlertMessage: newValue => dispatch(actions.setAlertMessage(newValue))
   };
 };
 
