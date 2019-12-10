@@ -128,13 +128,14 @@ class CustomAnnotator extends Component {
     const span = {
       start,
       end,
-      text: this.props.textToDisplay.slice(start, end),
+      // text: this.props.textToDisplay.slice(start, end),
       tag: this.props.addingTags.length > 0 ? this.props.addingTags[0].id : "",
-      color: this.props.addingTags.length > 0 ? this.props.addingTags[0].color : ""
+      color: this.props.addingTags.length > 0 ? this.props.addingTags[0].color : "",
+      type: this.props.annotationFocus
     };
 
     // adding span to annotations
-    this.handleAnnotate([...this.props.annotations, span]);
+    this.handleAnnotate(this.props.annotations, span);
 
     // linking annotations if applicable
     if (this.props.linkedListAdd) {
@@ -153,6 +154,8 @@ class CustomAnnotator extends Component {
       }
       newSections.unshift(this.props.addingTags[0].id);
       this.props.setSectionsInUse(newSections);
+    } else if (this.props.annotationFocus === tagTypes.TOKENS || this.props.annotationFocus === tagTypes.SENTENCES) {
+      // do nothing
     } else {
       // custom entity types
       let newEntities = Array.from(this.props.entitiesInUse);
@@ -169,11 +172,12 @@ class CustomAnnotator extends Component {
   };
 
   // this is called whenever the user selects text to annotate or clicks on an annotation to remove it
-  handleAnnotate = annotations => {
+  handleAnnotate = (annotations, span) => {
     if (this.props.annotationFocus === tagTypes.SECTIONS) {
-      this.props.setSections(annotations);
+      this.props.setSections([...annotations, span]);
     } else if (this.props.annotationFocus === tagTypes.SENTENCES) {
       // sorting sentences in order to have alternating sentences in different colors
+      annotations = [...annotations, span];
       annotations = annotations.sort((a, b) => {
         return a.start - b.start;
       });
@@ -187,6 +191,7 @@ class CustomAnnotator extends Component {
       this.props.setSentences(annotations);
     } else if (this.props.annotationFocus === tagTypes.TOKENS) {
       // sorting tokens in order to have alternating token in different colors
+      annotations = [...annotations, span];
       annotations = annotations.sort((a, b) => {
         return a.start - b.start;
       });
@@ -199,9 +204,13 @@ class CustomAnnotator extends Component {
       }
       this.props.setTokens(annotations);
     } else {
-      this.props.setEntities(annotations);
+      console.log(this.props.entities);
+      this.props.setEntities([...this.props.entities, span]);
     }
-    this.props.setAnnotations(annotations);
+    this.props.setAnnotations([
+      ...this.props.annotations.filter(annotation => annotation.type === this.props.annotationFocus),
+      span
+    ]);
   };
 
   // handles clicking on an interval to open AnnotationEditor popup
@@ -243,9 +252,9 @@ class CustomAnnotator extends Component {
       for (let annotation of this.props.annotations) {
         if (annotation.tag === label) {
           labelCount += 1;
-        }
-        if (annotation.next) {
-          labelCount -= 1;
+          if (annotation.next) {
+            labelCount -= 1;
+          }
         }
       }
       if (labelCount === 1) {
@@ -257,6 +266,11 @@ class CustomAnnotator extends Component {
               ...this.props.sectionsInUse.slice(index + 1)
             ]);
           }
+        } else if (
+          this.props.annotationFocus === tagTypes.SENTENCES ||
+          this.props.annotationFocus === tagTypes.TOKENS
+        ) {
+          // do nothing
         } else {
           const index = this.props.entitiesInUse.indexOf(label);
           if (index >= 0) {
@@ -276,7 +290,7 @@ class CustomAnnotator extends Component {
     const newAnnotationsToEdit = this.removeItemsFromArrayByRef(annotationsToRemove, annotationsToEdit);
 
     this.props.setAnnotationsToEdit(newAnnotationsToEdit);
-    this.handleAnnotate(newAnnotations);
+    this.props.setAnnotations(newAnnotations);
   };
 
   /**
@@ -321,6 +335,8 @@ class CustomAnnotator extends Component {
 
   render() {
     // create intervals and render interval elements defined in utility and draw lines between linked intervals
+    console.log(this.props.annotationFocus);
+    console.log(this.props.annotations);
     const intervals = util.createIntervals(this.props.textToDisplay, this.props.annotations);
     return (
       <div id={"customerAnnotator" + this.props.id}>
@@ -367,6 +383,7 @@ const mapStateToProps = state => {
   return {
     annotationsToEdit: state.fileViewer.annotationsToEdit,
     annotations: state.fileViewer.annotations,
+    entities: state.fileViewer.entities,
     annotationFocus: state.fileViewer.annotationFocus,
     addingTags: state.tagManagement.addingTags,
     textToDisplay: state.fileViewer.fileViewerText,

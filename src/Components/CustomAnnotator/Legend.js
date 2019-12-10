@@ -7,9 +7,11 @@ import { List, Chip, ListItem } from "@material-ui/core";
 const Legend = props => {
   // makes the list for the final render
   const makeList = () => {
-    let chipList;
+    let chipList = [];
     if (props.annotationFocus === tagTypes.SECTIONS) {
       chipList = makeChipList(props.sectionsInUse);
+    } else if (props.annotationFocus === tagTypes.SENTENCES || props.annotationFocus === tagTypes.TOKENS) {
+      // do nothing
     } else {
       chipList = makeChipList(props.entitiesInUse);
     }
