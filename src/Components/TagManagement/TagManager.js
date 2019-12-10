@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import MaterialTable from "material-table";
 import TableToolbar from "./TableToolbar";
-
+import ColorPicker from "../ColorPicker/ColorPicker";
 import { forwardRef } from "react";
 
 import LoadDefaultsIcon from "@material-ui/icons/RestorePageOutlined";
@@ -53,7 +53,20 @@ function TagManager(props) {
   const [showFilters, setShowFilters] = useState(false);
 
   const renderColor = rowData => {
-    return rowData.color;
+    return (
+      <ColorPicker
+        color={rowData.color}
+        setColor={color => {
+          modifyColor(rowData, color);
+        }}
+      />
+    );
+  };
+
+  const modifyColor = (tag, color) => {
+    const tags = Array.from(props.tagTemplates);
+    tags[tags.indexOf(tag)].color = color;
+    props.setTagTemplates(tags);
   };
 
   const columns = [
