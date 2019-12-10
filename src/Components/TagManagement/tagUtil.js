@@ -8,6 +8,7 @@ export const mapColors = tags => {
       tagsWithoutColors.push(tag);
     }
   }
+
   const newColors = getColors(tagsWithoutColors.length);
   for (let i = 0; i < tagsWithoutColors.length; i++) {
     // add color
