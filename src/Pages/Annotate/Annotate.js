@@ -25,6 +25,8 @@ const Annotate = props => {
   const [isLayoutModifiable, setLayoutModifiable] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const alert = useAlert();
+  props.setEntitiesInUse([]);
+  props.setSectionsInUse([]);
 
   const onLayoutChange = layouts => {
     setLayouts(layouts);
@@ -83,7 +85,6 @@ const Annotate = props => {
   // }
 
   if (!props.isAuthorized) {
-    console.log("Annotate", props.isAuthorized);
     return <Redirect to="/sign-in" />;
   }
 
@@ -140,7 +141,9 @@ const mapDispatchToProps = dispatch => {
     setTagTemplates: tagTemplates => dispatch(actions.setTagTemplates(tagTemplates)),
     setAlertMessage: newValue => dispatch(actions.setAlertMessage(newValue)),
     setAnnotationFocus: annotationFocus => dispatch(actions.setAnnotationFocus(annotationFocus)),
-    setAnnotations: annotations => dispatch(actions.setAnnotations(annotations))
+    setAnnotations: annotations => dispatch(actions.setAnnotations(annotations)),
+    setEntitiesInUse: entitiesInUse => dispatch(actions.setEntitiesInUse(entitiesInUse)),
+    setSectionsInUse: sectionsInUse => dispatch(actions.setSectionsInUse(sectionsInUse))
   };
 };
 

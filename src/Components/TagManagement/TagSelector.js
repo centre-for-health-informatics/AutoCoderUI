@@ -258,7 +258,8 @@ const mapDispatchToProps = dispatch => {
     setAnnotations: annotations => dispatch(actions.setAnnotations(annotations)),
     setSpansRendered: spansRendered => dispatch(actions.setSpansRendered(spansRendered)),
     setLinkedListAdd: linkedListAdd => dispatch(actions.setLinkedListAdd(linkedListAdd)),
-    setEntitiesInUse: entitiesInUse => dispatch(actions.setEntitiesInUse(entitiesInUse))
+    setEntitiesInUse: entitiesInUse => dispatch(actions.setEntitiesInUse(entitiesInUse)),
+    setSectionsInUse: sectionsInUse => dispatch(actions.setSectionsInUse(sectionsInUse))
   };
 };
 

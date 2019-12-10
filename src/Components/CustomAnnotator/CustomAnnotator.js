@@ -5,6 +5,7 @@ import * as tagTypes from "../TagManagement/tagTypes";
 import * as util from "./utility";
 import AnnotationEditor from "./AnnotationEditor";
 import Popover from "@material-ui/core/Popover";
+
 class CustomAnnotator extends Component {
   constructor(props) {
     super(props);
@@ -30,7 +31,7 @@ class CustomAnnotator extends Component {
       this.handleKeyPress(e);
     };
     window.addEventListener("resize", () => {
-      this.handleAnnotate([...this.props.annotations]);
+      this.props.setAnnotations([...this.props.annotations]);
     });
   }
 
@@ -204,7 +205,6 @@ class CustomAnnotator extends Component {
       }
       this.props.setTokens(annotations);
     } else {
-      console.log(this.props.entities);
       this.props.setEntities([...this.props.entities, span]);
     }
     this.props.setAnnotations([
@@ -335,8 +335,6 @@ class CustomAnnotator extends Component {
 
   render() {
     // create intervals and render interval elements defined in utility and draw lines between linked intervals
-    console.log(this.props.annotationFocus);
-    console.log(this.props.annotations);
     const intervals = util.createIntervals(this.props.textToDisplay, this.props.annotations);
     return (
       <div id={"customerAnnotator" + this.props.id}>
