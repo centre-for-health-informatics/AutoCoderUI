@@ -21,7 +21,10 @@ const initialState = {
   sectionsInUse: [],
   entitiesInUse: [],
   addingCustomTag: false,
-  spansRendered: false
+  spansRendered: false,
+  txtList: [],
+  jsonList: [],
+  annotationsList: []
 };
 
 const reducer = (state = initialState, action) => {
@@ -68,6 +71,12 @@ const reducer = (state = initialState, action) => {
       return { ...state, addingCustomTag: action.addingCustomTag };
     case actionTypes.SET_SPANS_RENDERED:
       return { ...state, spansRendered: action.spansRendered };
+    case actionTypes.SET_TXT_LIST:
+      return { ...state, txtList: action.txtList };
+    case actionTypes.SET_JSON_LIST:
+      return { ...state, jsonList: action.jsonList };
+    case actionTypes.SET_ANNOTATIONS_LIST:
+      return { ...state, annotationsList: action.annotationsList };
     default:
       return state;
   }

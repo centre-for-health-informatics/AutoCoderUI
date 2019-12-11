@@ -2,10 +2,9 @@ import React from "react";
 import { connect } from "react-redux";
 import * as APIUtility from "../../Util/API";
 import * as actions from "../../Store/Actions/index";
-import Button from "@material-ui/core/Button";
-import { makeStyles } from "@material-ui/core/styles";
 import downloader from "../../Util/download";
 import * as tagTypes from "../TagManagement/tagTypes";
+import { List, ListItem, Button, makeStyles } from "@material-ui/core";
 
 const useStyles = makeStyles(theme => ({
   button: {
@@ -17,7 +16,6 @@ const ManageFiles = props => {
   const classes = useStyles();
   const fileInputRefImport = React.createRef();
   const fileInputRefBrowse = React.createRef();
-  let fileData = {};
 
   const openExplorerBrowse = () => {
     if (props.disabled) {
@@ -33,7 +31,7 @@ const ManageFiles = props => {
     fileInputRefImport.current.click();
   };
 
-  const callApi = () => {
+  const callApi = fileData => {
     props.setSpacyLoading(true);
     const options = {
       method: "POST",
@@ -45,7 +43,7 @@ const ManageFiles = props => {
       .then(data => {
         props.updateLegendAfterLoadingSpacy(data);
 
-        props.setAnnotationFocus(tagTypes.SECTIONS); // default type selection
+        props.setAnnotationFocus("");
         props.setSpacyLoading(false);
       })
       .catch(error => {
@@ -71,23 +69,79 @@ const ManageFiles = props => {
     }
   };
 
-  const readFileBrowse = fileList => {
-    console.log(fileList);
-    if (fileList[0]) {
+  // opens files for the user to annotate.
+  // .txt files are shown in a list of files available for annotation
+  // .json files are mapped to .txt files with the same name to display previously exported annotations
+  const openFiles = fileList => {
+    const txtList = [];
+    const jsonList = [];
+    const annotationsList = [];
+    for (let file of fileList) {
+      const ext = file.name.split(".")[file.name.split(".").length - 1];
+      if (ext === "txt" && !fileAlreadyOpen(file, props.txtList)) {
+        txtList.push(file);
+        let annotationsObject = {};
+        annotationsObject.name = file.name.slice(0, file.name.length - 1 - ext.length);
+        populateAnnotationsObject(annotationsObject, fileList);
+        annotationsList.push(annotationsObject);
+      } else if (ext === "json" && !fileAlreadyOpen(file, props.jsonList)) {
+        jsonList.push(file);
+      }
+    }
+    props.setJsonList([...props.jsonList, ...jsonList]);
+    props.setTxtList([...props.txtList, ...txtList]);
+    props.setAnnotationsList([...props.annotationsList, ...annotationsList]);
+  };
+
+  const populateAnnotationsObject = (annotationsObject, fileList) => {
+    const allJson = Array.from([
+      ...props.jsonList,
+      ...Array.from(fileList).filter(file => file.name.endsWith(".json"))
+    ]);
+    for (let file of allJson) {
+      if (file.name === annotationsObject.name + "_Annotations.json") {
+        let fileReader = new FileReader();
+        fileReader.onload = e => {
+          const json = JSON.parse(e.target.result);
+          annotationsObject.sections = json.Section;
+          annotationsObject.entities = json.Entity;
+          annotationsObject.tokens = json.Token;
+          annotationsObject.sentences = json.Sentence;
+        };
+        fileReader.readAsText(file);
+        break;
+      }
+    }
+  };
+
+  // used to check if a file has already been opened to avoid opening the same file twice
+  const fileAlreadyOpen = (file, openedFiles) => {
+    for (let openFile of openedFiles) {
+      if (openFile.name === file.name) {
+        return true;
+      }
+    }
+    return false;
+  };
+
+  const readFile = (file, index) => {
+    if (file) {
       let fileReader = new FileReader();
-      // reset store if user changes file
+      // reset store if file changes
       props.setAnnotations([]);
       props.setFileText("");
-      props.setSections([]);
-      props.setSentences([]);
-      props.setTokens([]);
-      props.setEntities([]);
-      props.setSectionsInUse([]);
-      props.setEntitiesInUse([]);
+      props.setSections(props.annotationsList[index].sections || []);
+      props.setSentences(props.annotationsList[index].sentences || []);
+      props.setTokens(props.annotationsList[index].tokens || []);
+      props.setEntities(props.annotationsList[index].entities || []);
+      // props.setSectionsInUse([]);
+      // props.setEntitiesInUse([]);
+      props.setAnnotationFocus("");
 
-      fileData.id = fileList[0].name;
-      let ext = fileList[0].name.split(".")[fileList[0].name.split(".").length - 1];
-      let filename = fileList[0].name.slice(0, fileList[0].name.length - 1 - ext.length);
+      let fileData = {};
+      fileData.id = file.name;
+      let ext = file.name.split(".")[file.name.split(".").length - 1];
+      let filename = file.name.slice(0, file.name.length - 1 - ext.length);
       props.setFileReference(filename);
       if (ext === "txt") {
         fileData.format = "plain_text";
@@ -97,7 +151,7 @@ const ManageFiles = props => {
         fileData.format = "other";
       }
 
-      fileReader.readAsText(fileList[0]);
+      fileReader.readAsText(file);
 
       fileReader.onloadend = () => {
         let text = fileReader.result.replace(/\r\n/g, "\n"); // Replaces \r\n with \n for Windows OS
@@ -106,9 +160,16 @@ const ManageFiles = props => {
         props.setFileText(text);
 
         if (props.spacyActive) {
-          callApi();
+          callApi(fileData);
         }
       };
+
+      // for (let jsonFile of props.jsonList) {
+      //   if (jsonFile.name === filename + "_Annotations.json") {
+      //     readFileImport(jsonFile);
+      //     break;
+      //   }
+      // }
     }
   };
 
@@ -126,39 +187,46 @@ const ManageFiles = props => {
     openExplorerImport();
   };
 
-  const openNextFile = () => {
-    // open next file
+  const switchFile = index => {
+    readFile(props.txtList[index], index);
+  };
+
+  const makeFileList = () => {
+    return props.txtList.map((file, index) => (
+      <ListItem key={file.name} onClick={() => switchFile(index)} style={{ cursor: "pointer" }}>
+        {file.name}
+      </ListItem>
+    ));
   };
 
   return (
     <div>
-      <div>
-        <Button onClick={openExplorerBrowse} variant="contained" color="primary" className={classes.button}>
-          Browse for Files
-        </Button>
-        <input
-          ref={fileInputRefBrowse}
-          style={{ display: "none" }}
-          type="file"
-          multiple
-          onChange={e => readFileBrowse(e.target.files)}
-        />
-        <Button onClick={openNextFile} variant="contained" color="primary" className={classes.button}>
-          Save and Open Next File
-        </Button>
-        <Button onClick={exportAnnotations} variant="contained" color="primary" className={classes.button}>
-          Export Annotations
-        </Button>
-        <Button onClick={importAnnotations} variant="contained" color="primary" className={classes.button}>
-          Import Annotations
-        </Button>
-        <input
-          ref={fileInputRefImport}
-          style={{ display: "none" }}
-          type="file"
-          onChange={e => readFileImport(e.target.files[0])}
-        />
-      </div>
+      <Button onClick={openExplorerBrowse} variant="contained" color="primary" className={classes.button}>
+        Browse for Files
+      </Button>
+      <input
+        ref={fileInputRefBrowse}
+        style={{ display: "none" }}
+        type="file"
+        multiple
+        onChange={e => openFiles(e.target.files)}
+      />
+      <Button onClick={exportAnnotations} variant="contained" color="primary" className={classes.button}>
+        Export Annotations
+      </Button>
+      <Button onClick={importAnnotations} variant="contained" color="primary" className={classes.button}>
+        Import Annotations
+      </Button>
+      <input
+        ref={fileInputRefImport}
+        style={{ display: "none" }}
+        type="file"
+        onChange={e => readFileImport(e.target.files[0])}
+      />
+      <p>Opened files:</p>
+      <List dense disablePadding>
+        {makeFileList()}
+      </List>
     </div>
   );
 };
@@ -170,7 +238,10 @@ const mapStateToProps = state => {
     sentences: state.fileViewer.sentences,
     tokens: state.fileViewer.tokens,
     entities: state.fileViewer.entities,
-    spacyActive: state.fileViewer.spacyActive
+    spacyActive: state.fileViewer.spacyActive,
+    jsonList: state.fileViewer.jsonList,
+    txtList: state.fileViewer.txtList,
+    annotationsList: state.fileViewer.annotationsList
   };
 };
 
@@ -187,7 +258,11 @@ const mapDispatchToProps = dispatch => {
     setEntitiesInUse: entitiesInUse => dispatch(actions.setEntitiesInUse(entitiesInUse)),
     setAnnotationFocus: annotationFocus => dispatch(actions.setAnnotationFocus(annotationFocus)),
     setSpacyLoading: spacyLoading => dispatch(actions.setSpacyLoading(spacyLoading)),
-    updateLegendAfterLoadingSpacy: data => dispatch(actions.updateLegendAfterLoadingSpacy(data))
+    updateLegendAfterLoadingSpacy: data => dispatch(actions.updateLegendAfterLoadingSpacy(data)),
+    setJsonList: jsonList => dispatch(actions.setJsonList(jsonList)),
+    setTxtList: txtList => dispatch(actions.setTxtList(txtList)),
+    setAnnotationsList: annotationsList => dispatch(actions.setAnnotationsList(annotationsList))
+    // setAlertMessage: newValue => dispatch(actions.setAlertMessage(newValue))
   };
 };
 

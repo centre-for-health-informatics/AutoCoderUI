@@ -146,3 +146,24 @@ export const setSpansRendered = spansRendered => {
     spansRendered
   };
 };
+
+export const setTxtList = txtList => {
+  return {
+    type: actionTypes.SET_TXT_LIST,
+    txtList
+  };
+};
+
+export const setJsonList = jsonList => {
+  return {
+    type: actionTypes.SET_JSON_LIST,
+    jsonList
+  };
+};
+
+export const setAnnotationsList = annotationsList => {
+  return {
+    type: actionTypes.SET_ANNOTATIONS_LIST,
+    annotationsList
+  };
+};

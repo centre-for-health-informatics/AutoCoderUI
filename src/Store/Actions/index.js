@@ -21,7 +21,10 @@ export {
   setSectionsInUse,
   setEntitiesInUse,
   setAddingCustomTag,
-  setSpansRendered
+  setSpansRendered,
+  setTxtList,
+  setJsonList,
+  setAnnotationsList
 } from "./fileViewer";
 export {
   setUploadedTags,
