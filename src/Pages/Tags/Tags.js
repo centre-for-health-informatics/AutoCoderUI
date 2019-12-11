@@ -42,7 +42,8 @@ const Tags = props => {
   // ComponentDidMount
   useEffect(() => {
     APIUtility.API.verifyLSToken(() => setIsLoading(false));
-    setDefaultTags(props.setTagTemplates, props.tagTemplates);
+    setDefaultTags(props.setTagTemplates, props.initialTagsAdded);
+    props.setInitialTagsAdded(true);
   }, []);
 
   // Map colors
@@ -112,14 +113,16 @@ const mapStateToProps = state => {
     tagTemplates: state.fileViewer.tagTemplates,
     alertMessage: state.alert.alertMessage,
     isAuthorized: state.authentication.isAuthorized,
-    isServerDown: state.authentication.isServerDown
+    isServerDown: state.authentication.isServerDown,
+    initialTagsAdded: state.tagManagement.initialTagsAdded
   };
 };
 
 const mapDispatchToProps = dispatch => {
   return {
     setTagTemplates: tagTemplates => dispatch(actions.setTagTemplates(tagTemplates)),
-    setAlertMessage: newValue => dispatch(actions.setAlertMessage(newValue))
+    setAlertMessage: newValue => dispatch(actions.setAlertMessage(newValue)),
+    setInitialTagsAdded: initialTagsAdded => dispatch(actions.setInitialTagsAdded(initialTagsAdded))
   };
 };
 

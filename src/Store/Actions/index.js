@@ -29,6 +29,7 @@ export {
   disableTagByIndex,
   enableAllTags,
   disableAllTags,
-  setAddingTags
+  setAddingTags,
+  setInitialTagsAdded
 } from "./tagManagement";
 export { updateLegendAfterLoadingSpacy, setTagTemplatesWithCallback } from "./asyncActions";

@@ -56,7 +56,8 @@ const Annotate = props => {
   // ComponentDidMount
   useEffect(() => {
     APIUtility.API.verifyLSToken(() => setIsLoading(false));
-    setDefaultTags(props.setTagTemplates, props.tagTemplates);
+    setDefaultTags(props.setTagTemplates, props.initialTagsAdded);
+    props.setInitialTagsAdded(true);
   }, []);
 
   // Map colors
@@ -73,7 +74,6 @@ const Annotate = props => {
         type: props.alertMessage.messageType
       });
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [props.alertMessage]);
 
   if (isLoading) {
@@ -132,7 +132,8 @@ const mapStateToProps = state => {
     tagTemplates: state.fileViewer.tagTemplates,
     alertMessage: state.alert.alertMessage,
     isAuthorized: state.authentication.isAuthorized,
-    isServerDown: state.authentication.isServerDown
+    isServerDown: state.authentication.isServerDown,
+    initialTagsAdded: state.tagManagement.initialTagsAdded
   };
 };
 
@@ -143,7 +144,8 @@ const mapDispatchToProps = dispatch => {
     setAnnotationFocus: annotationFocus => dispatch(actions.setAnnotationFocus(annotationFocus)),
     setAnnotations: annotations => dispatch(actions.setAnnotations(annotations)),
     setEntitiesInUse: entitiesInUse => dispatch(actions.setEntitiesInUse(entitiesInUse)),
-    setSectionsInUse: sectionsInUse => dispatch(actions.setSectionsInUse(sectionsInUse))
+    setSectionsInUse: sectionsInUse => dispatch(actions.setSectionsInUse(sectionsInUse)),
+    setInitialTagsAdded: initialTagsAdded => dispatch(actions.setInitialTagsAdded(initialTagsAdded))
   };
 };
 

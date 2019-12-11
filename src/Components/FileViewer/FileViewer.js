@@ -63,7 +63,6 @@ const mapDispatchToProps = dispatch => {
     setSentences: sentences => dispatch(actions.setSentences(sentences)),
     setTokens: tokens => dispatch(actions.setTokens(tokens)),
     setEntities: entities => dispatch(actions.setEntities(entities)),
-    // setICDCodes: icdCodes => dispatch
     setSpacyLoading: spacyLoading => dispatch(actions.setSpacyLoading(spacyLoading)),
     setSpacyActive: spacyActive => dispatch(actions.setSpacyActive(spacyActive)),
     setAnnotations: annotations => dispatch(actions.setAnnotations(annotations)),

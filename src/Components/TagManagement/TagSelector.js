@@ -64,6 +64,11 @@ const TagSelector = props => {
     switch (newSelection) {
       case tagTypes.SECTIONS:
         props.setAnnotations(props.sections);
+        const sectionsInUse = new Set();
+        for (let annotation of props.sections) {
+          sectionsInUse.add(annotation.tag);
+        }
+        props.setSectionsInUse(Array.from(sectionsInUse));
         break;
       case tagTypes.SENTENCES:
         props.setAnnotations(props.sentences);

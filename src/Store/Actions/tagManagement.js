@@ -39,3 +39,10 @@ export const setAddingTags = tags => {
     tags
   };
 };
+
+export const setInitialTagsAdded = initialTagsAdded => {
+  return {
+    type: actionTypes.SET_INITIAL_TAGS_ADDED,
+    initialTagsAdded
+  };
+};

@@ -45,8 +45,8 @@ export const addDefaultTags = (setTagTemplates, tagTemplates) => {
 /**
  * Function that loads default tags upon initialization, requires setter and getter functions for accessing Redux store as arguments.
  */
-export const setDefaultTags = (setTagTemplates, tagTemplates) => {
-  if (tagTemplates === null || tagTemplates === undefined || tagTemplates.length === 0) {
+export const setDefaultTags = (setTagTemplates, initialTagsAdded) => {
+  if (!initialTagsAdded) {
     setTagTemplates(templateTags.DEFAULTS);
   }
 };

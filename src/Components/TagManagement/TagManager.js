@@ -3,6 +3,7 @@ import MaterialTable from "material-table";
 import TableToolbar from "./TableToolbar";
 import ColorPicker from "../ColorPicker/ColorPicker";
 import { forwardRef } from "react";
+import * as tagTypes from "./tagTypes";
 
 import LoadDefaultsIcon from "@material-ui/icons/RestorePageOutlined";
 import DeleteAllIcon from "@material-ui/icons/DeleteForeverOutlined";
@@ -64,9 +65,9 @@ function TagManager(props) {
   };
 
   const modifyColor = (tag, color) => {
-    const tags = Array.from(props.tagTemplates);
-    tags[tags.indexOf(tag)].color = color;
-    props.setTagTemplates(tags);
+    let newTag = JSON.parse(JSON.stringify(tag));
+    newTag.color = color;
+    onRowUpdate(newTag, tag);
   };
 
   const columns = [
@@ -91,13 +92,10 @@ function TagManager(props) {
   const onRowUpdate = (newData, oldData) => {
     console.log(newData);
     console.log(oldData);
+    // updating existing annotations
+    updateAnnotations(newData, oldData);
 
-    for (let i = 0; i < props.sections.length; i++) {
-      if (props.sections[i].tag === oldData.id) {
-        props.sections[i].tag = newData.id;
-      }
-    }
-
+    // updating tag templates
     return new Promise(resolve => {
       // setTimeout(() => {
       if (oldData) {
@@ -110,34 +108,76 @@ function TagManager(props) {
     });
   };
 
-  const onRowDelete = oldData => {
-    // removing annotations from sections if a section is deleted
-    let indicesToRemove = [];
-    let sections = Array.from(props.sections);
-    for (let i = 0; i < props.sections.length; i++) {
-      if (props.sections[i].tag === oldData.id) {
-        indicesToRemove.push(i);
-      }
+  const updateAnnotations = (newData, oldData) => {
+    // changing tag and color of annotations
+    if (oldData.type === tagTypes.SECTIONS) {
+      updateAnnotationSimple(newData, oldData, props.sections, props.setSections);
+    } else {
+      updateAnnotationSimple(newData, oldData, props.entities, props.setEntities);
     }
-    indicesToRemove.sort();
-    while (indicesToRemove.length) {
-      sections.splice(indicesToRemove.pop(), 1);
-    }
-    props.setSections(sections);
 
-    // removing annotations from entities if an entity is deleted
-    indicesToRemove = [];
-    let entities = Array.from(props.entities);
-    for (let i = 0; i < props.entities.length; i++) {
-      if (props.entities[i].tag === oldData.id) {
-        indicesToRemove.push(i);
+    // if type changes - move annotations to other type
+    // and then change whatever else changed
+    if (newData.type !== oldData.type) {
+      updateAnnotationsTypeChange(newData, oldData);
+    }
+  };
+
+  const updateAnnotationsTypeChange = (newData, oldData) => {
+    if (oldData.type === tagTypes.SECTIONS) {
+      // changing from section to entity
+      switchAnnotationType(props.sections, oldData, props.entities, props.setEntities, newData);
+      removeAnnotationsForDeletedTags(props.sections, props.setSections, oldData);
+    } else {
+      // changing from entity
+      if (newData.type === tagTypes.SECTIONS) {
+        // changing from entity to section
+        switchAnnotationType(props.entities, oldData, props.sections, props.setSections, newData);
+        removeAnnotationsForDeletedTags(props.entities, props.setEntities, oldData);
+      } else {
+        // changing from entity to different entity type
+        for (let annotation of props.entities) {
+          if (annotation.type === oldData.type && annotation.tag === oldData.id) {
+            annotation.type = newData.type;
+          }
+        }
       }
     }
-    indicesToRemove.sort();
-    while (indicesToRemove.length) {
-      entities.splice(indicesToRemove.pop(), 1);
+  };
+
+  const switchAnnotationType = (oldAnnotations, oldData, newAnnotations, newSetter, newData) => {
+    const copy = JSON.parse(JSON.stringify(oldAnnotations));
+    const copiesToKeep = [];
+    for (let annotation of copy) {
+      if (annotation.tag === oldData.id) {
+        annotation.type = newData.type;
+        copiesToKeep.push(annotation);
+      }
     }
-    props.setEntities(entities);
+    newSetter([...newAnnotations, ...copiesToKeep]);
+  };
+
+  /**
+   * used for setting the tag and color of existing annotations when a tag is changed
+   */
+  const updateAnnotationSimple = (newData, oldData, itemsToUpdate, functionToSetItems) => {
+    let items = Array.from(itemsToUpdate);
+    for (let item of items) {
+      if (item.tag === oldData.id) {
+        item.tag = newData.id;
+        item.color = newData.color;
+      }
+    }
+    functionToSetItems(items);
+  };
+
+  const onRowDelete = oldData => {
+    // removing annotations for appropriate type
+    if (oldData.type === tagTypes.SECTIONS) {
+      removeAnnotationsForDeletedTags(props.sections, props.setSections, oldData);
+    } else {
+      removeAnnotationsForDeletedTags(props.entities, props.setEntities, oldData);
+    }
 
     // returning promise
     return new Promise(resolve => {
@@ -148,6 +188,23 @@ function TagManager(props) {
       resolve();
       // }, 600);
     });
+  };
+
+  const removeAnnotationsForDeletedTags = (itemsToUpdate, functionToSetItems, oldData) => {
+    console.log(itemsToUpdate);
+    let indicesToRemove = [];
+    let items = Array.from(itemsToUpdate);
+    for (let i = 0; i < items.length; i++) {
+      if (items[i].tag === oldData.id && items[i].type === oldData.type) {
+        console.log(items[i]);
+        indicesToRemove.push(i);
+      }
+    }
+    indicesToRemove.sort();
+    while (indicesToRemove.length) {
+      items.splice(indicesToRemove.pop(), 1);
+    }
+    functionToSetItems(items);
   };
 
   return (
