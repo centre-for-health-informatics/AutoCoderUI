@@ -5,6 +5,9 @@ import * as actions from "../../Store/Actions/index";
 import downloader from "../../Util/download";
 import * as tagTypes from "../TagManagement/tagTypes";
 import { List, ListItem, Button, makeStyles } from "@material-ui/core";
+import { saveAs } from "file-saver";
+
+var JSZip = require("jszip");
 
 const useStyles = makeStyles(theme => ({
   button: {
@@ -80,10 +83,10 @@ const ManageFiles = props => {
         let fileReader = new FileReader();
         fileReader.onload = e => {
           const json = JSON.parse(e.target.result);
-          annotationsObject[tagTypes.SECTIONS] = json.Section;
-          annotationsObject[tagTypes.ENTITIES] = json.Entity;
-          annotationsObject[tagTypes.TOKENS] = json.Token;
-          annotationsObject[tagTypes.SENTENCES] = json.Sentence;
+          annotationsObject[tagTypes.SECTIONS] = json[tagTypes.SECTIONS];
+          annotationsObject[tagTypes.ENTITIES] = json[tagTypes.ENTITIES];
+          annotationsObject[tagTypes.TOKENS] = json[tagTypes.TOKENS];
+          annotationsObject[tagTypes.SENTENCES] = json[tagTypes.SENTENCES];
         };
         fileReader.readAsText(file);
         break;
@@ -142,13 +145,23 @@ const ManageFiles = props => {
   };
 
   const exportAnnotations = () => {
-    let annotations = {};
-    annotations.Section = props.sections;
-    annotations.Sentence = props.sentences;
-    annotations.Entity = props.entities;
-    annotations.Token = props.tokens;
+    let zip = new JSZip();
 
-    downloader(props.fileReference + "_Annotations.json", JSON.stringify(annotations));
+    for (let annotation of props.annotationsList) {
+      zip.file(annotation.name + "_Annotations.json", JSON.stringify(annotation));
+    }
+
+    zip.generateAsync({ type: "blob" }).then(content => {
+      saveAs(content, "annotations.zip");
+    });
+
+    // let annotations = {};
+    // annotations.Section = props.sections;
+    // annotations.Sentence = props.sentences;
+    // annotations.Entity = props.entities;
+    // annotations.Token = props.tokens;
+
+    // downloader(props.fileReference + "_Annotations.json", JSON.stringify(annotations));
   };
 
   const switchFile = index => {
