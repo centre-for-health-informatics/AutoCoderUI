@@ -31,6 +31,7 @@ export const SET_SPANS_RENDERED = "SET_SPANS_RENDERED";
 export const SET_TXT_LIST = "SET_TXT_LIST";
 export const SET_JSON_LIST = "SET_JSON_LIST";
 export const SET_ANNOTATIONS_LIST = "SET_ANNOTATIONS_LIST";
+export const SET_FILE_INDEX = "SET_FILE_INDEX";
 
 // Tag Management
 export const SET_UPLOADED_TAGS = "SET_UPLOADED_TAGS";

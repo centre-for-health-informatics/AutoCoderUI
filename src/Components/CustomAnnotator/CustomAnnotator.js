@@ -129,7 +129,6 @@ class CustomAnnotator extends Component {
     const span = {
       start,
       end,
-      // text: this.props.textToDisplay.slice(start, end),
       tag: this.props.addingTags.length > 0 ? this.props.addingTags[0].id : "",
       color: this.props.addingTags.length > 0 ? this.props.addingTags[0].color : "",
       type: this.props.annotationFocus
@@ -174,8 +173,10 @@ class CustomAnnotator extends Component {
 
   // this is called whenever the user selects text to annotate or clicks on an annotation to remove it
   handleAnnotate = (annotations, span) => {
+    let annotationObject = JSON.parse(JSON.stringify(this.props.annotationsList[this.props.fileIndex]));
     if (this.props.annotationFocus === tagTypes.SECTIONS) {
       this.props.setSections([...annotations, span]);
+      annotationObject[tagTypes.SECTIONS] = [...annotations, span];
     } else if (this.props.annotationFocus === tagTypes.SENTENCES) {
       // sorting sentences in order to have alternating sentences in different colors
       annotations = [...annotations, span];
@@ -190,6 +191,7 @@ class CustomAnnotator extends Component {
         }
       }
       this.props.setSentences(annotations);
+      annotationObject[tagTypes.SENTENCES] = annotations;
     } else if (this.props.annotationFocus === tagTypes.TOKENS) {
       // sorting tokens in order to have alternating token in different colors
       annotations = [...annotations, span];
@@ -204,13 +206,18 @@ class CustomAnnotator extends Component {
         }
       }
       this.props.setTokens(annotations);
+      annotationObject[tagTypes.TOKENS] = annotations;
     } else {
       this.props.setEntities([...this.props.entities, span]);
+      annotationObject[tagTypes.ENTITIES] = [...this.props.entities, span];
     }
     this.props.setAnnotations([
       ...this.props.annotations.filter(annotation => annotation.type === this.props.annotationFocus),
       span
     ]);
+    const annotationsList = Array.from(this.props.annotationsList);
+    annotationsList[this.props.fileIndex] = annotationObject;
+    this.props.setAnnotationsList(annotationsList);
   };
 
   // handles clicking on an interval to open AnnotationEditor popup
@@ -392,7 +399,9 @@ const mapStateToProps = state => {
     snapToWord: state.fileViewer.snapToWord,
     sectionsInUse: state.fileViewer.sectionsInUse,
     entitiesInUse: state.fileViewer.entitiesInUse,
-    spansRendered: state.fileViewer.spansRendered
+    spansRendered: state.fileViewer.spansRendered,
+    fileIndex: state.fileViewer.fileIndex,
+    annotationsList: state.fileViewer.annotationsList
   };
 };
 
@@ -411,6 +420,7 @@ const mapDispatchToProps = dispatch => {
     setAnnotationsToEdit: annotationsToEdit => dispatch(actions.setAnnotationsToEdit(annotationsToEdit)),
     setSectionsInUse: sectionsInUse => dispatch(actions.setSectionsInUse(sectionsInUse)),
     setEntitiesInUse: entitiesInUse => dispatch(actions.setEntitiesInUse(entitiesInUse)),
+    setAnnotationsList: annotationsList => dispatch(actions.setAnnotationsList(annotationsList)),
     setSpansRendered: spansRendered => dispatch(actions.setSpansRendered(spansRendered))
   };
 };

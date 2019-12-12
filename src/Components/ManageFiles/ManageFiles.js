@@ -8,13 +8,15 @@ import { List, ListItem, Button, makeStyles } from "@material-ui/core";
 
 const useStyles = makeStyles(theme => ({
   button: {
-    margin: theme.spacing(1)
+    margin: theme.spacing(0.3)
+  },
+  root: {
+    padding: theme.spacing(0.5)
   }
 }));
 
 const ManageFiles = props => {
   const classes = useStyles();
-  const fileInputRefImport = React.createRef();
   const fileInputRefBrowse = React.createRef();
 
   const openExplorerBrowse = () => {
@@ -22,13 +24,6 @@ const ManageFiles = props => {
       return;
     }
     fileInputRefBrowse.current.click();
-  };
-
-  const openExplorerImport = () => {
-    if (props.disabled) {
-      return;
-    }
-    fileInputRefImport.current.click();
   };
 
   const callApi = fileData => {
@@ -49,24 +44,6 @@ const ManageFiles = props => {
       .catch(error => {
         console.log("ERROR:", error);
       });
-  };
-
-  const readFileImport = file => {
-    if (file) {
-      let fileReader = new FileReader();
-
-      fileReader.onload = e => {
-        const json = JSON.parse(e.target.result);
-        props.setSections(json.Section);
-        props.setEntities(json.Entity);
-        props.setTokens(json.Token);
-        props.setSentences(json.Sentence);
-        props.setAnnotationFocus("");
-        props.setAnnotations([]);
-      };
-
-      fileReader.readAsText(file);
-    }
   };
 
   // opens files for the user to annotate.
@@ -103,10 +80,10 @@ const ManageFiles = props => {
         let fileReader = new FileReader();
         fileReader.onload = e => {
           const json = JSON.parse(e.target.result);
-          annotationsObject.sections = json.Section;
-          annotationsObject.entities = json.Entity;
-          annotationsObject.tokens = json.Token;
-          annotationsObject.sentences = json.Sentence;
+          annotationsObject[tagTypes.SECTIONS] = json.Section;
+          annotationsObject[tagTypes.ENTITIES] = json.Entity;
+          annotationsObject[tagTypes.TOKENS] = json.Token;
+          annotationsObject[tagTypes.SENTENCES] = json.Sentence;
         };
         fileReader.readAsText(file);
         break;
@@ -130,12 +107,10 @@ const ManageFiles = props => {
       // reset store if file changes
       props.setAnnotations([]);
       props.setFileText("");
-      props.setSections(props.annotationsList[index].sections || []);
-      props.setSentences(props.annotationsList[index].sentences || []);
-      props.setTokens(props.annotationsList[index].tokens || []);
-      props.setEntities(props.annotationsList[index].entities || []);
-      // props.setSectionsInUse([]);
-      // props.setEntitiesInUse([]);
+      props.setSections(props.annotationsList[index][tagTypes.SECTIONS] || []);
+      props.setSentences(props.annotationsList[index][tagTypes.SENTENCES] || []);
+      props.setTokens(props.annotationsList[index][tagTypes.TOKENS] || []);
+      props.setEntities(props.annotationsList[index][tagTypes.ENTITIES] || []);
       props.setAnnotationFocus("");
 
       let fileData = {};
@@ -163,13 +138,6 @@ const ManageFiles = props => {
           callApi(fileData);
         }
       };
-
-      // for (let jsonFile of props.jsonList) {
-      //   if (jsonFile.name === filename + "_Annotations.json") {
-      //     readFileImport(jsonFile);
-      //     break;
-      //   }
-      // }
     }
   };
 
@@ -183,24 +151,33 @@ const ManageFiles = props => {
     downloader(props.fileReference + "_Annotations.json", JSON.stringify(annotations));
   };
 
-  const importAnnotations = () => {
-    openExplorerImport();
-  };
-
   const switchFile = index => {
     readFile(props.txtList[index], index);
+    props.setFileIndex(index);
+    props.setEntitiesInUse([]);
   };
 
   const makeFileList = () => {
     return props.txtList.map((file, index) => (
-      <ListItem key={file.name} onClick={() => switchFile(index)} style={{ cursor: "pointer" }}>
+      <ListItem
+        key={file.name}
+        onClick={() => switchFile(index)}
+        style={{ cursor: "pointer", fontWeight: getFontWeight(index) }}
+      >
         {file.name}
       </ListItem>
     ));
   };
 
+  const getFontWeight = index => {
+    if (index === props.fileIndex) {
+      return "bold";
+    }
+    return "normal";
+  };
+
   return (
-    <div>
+    <div className={classes.root}>
       <Button onClick={openExplorerBrowse} variant="contained" color="primary" className={classes.button}>
         Browse for Files
       </Button>
@@ -214,15 +191,6 @@ const ManageFiles = props => {
       <Button onClick={exportAnnotations} variant="contained" color="primary" className={classes.button}>
         Export Annotations
       </Button>
-      <Button onClick={importAnnotations} variant="contained" color="primary" className={classes.button}>
-        Import Annotations
-      </Button>
-      <input
-        ref={fileInputRefImport}
-        style={{ display: "none" }}
-        type="file"
-        onChange={e => readFileImport(e.target.files[0])}
-      />
       <p>Opened files:</p>
       <List dense disablePadding>
         {makeFileList()}
@@ -241,7 +209,8 @@ const mapStateToProps = state => {
     spacyActive: state.fileViewer.spacyActive,
     jsonList: state.fileViewer.jsonList,
     txtList: state.fileViewer.txtList,
-    annotationsList: state.fileViewer.annotationsList
+    annotationsList: state.fileViewer.annotationsList,
+    fileIndex: state.fileViewer.fileIndex
   };
 };
 
@@ -261,7 +230,8 @@ const mapDispatchToProps = dispatch => {
     updateLegendAfterLoadingSpacy: data => dispatch(actions.updateLegendAfterLoadingSpacy(data)),
     setJsonList: jsonList => dispatch(actions.setJsonList(jsonList)),
     setTxtList: txtList => dispatch(actions.setTxtList(txtList)),
-    setAnnotationsList: annotationsList => dispatch(actions.setAnnotationsList(annotationsList))
+    setAnnotationsList: annotationsList => dispatch(actions.setAnnotationsList(annotationsList)),
+    setFileIndex: fileIndex => dispatch(actions.setFileIndex(fileIndex))
     // setAlertMessage: newValue => dispatch(actions.setAlertMessage(newValue))
   };
 };

@@ -24,7 +24,8 @@ const initialState = {
   spansRendered: false,
   txtList: [],
   jsonList: [],
-  annotationsList: []
+  annotationsList: [],
+  fileIndex: -1
 };
 
 const reducer = (state = initialState, action) => {
@@ -77,6 +78,8 @@ const reducer = (state = initialState, action) => {
       return { ...state, jsonList: action.jsonList };
     case actionTypes.SET_ANNOTATIONS_LIST:
       return { ...state, annotationsList: action.annotationsList };
+    case actionTypes.SET_FILE_INDEX:
+      return { ...state, fileIndex: action.fileIndex };
     default:
       return state;
   }

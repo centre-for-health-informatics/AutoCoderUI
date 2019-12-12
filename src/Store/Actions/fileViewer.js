@@ -167,3 +167,10 @@ export const setAnnotationsList = annotationsList => {
     annotationsList
   };
 };
+
+export const setFileIndex = fileIndex => {
+  return {
+    type: actionTypes.SET_FILE_INDEX,
+    fileIndex
+  };
+};
