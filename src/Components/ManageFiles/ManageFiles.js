@@ -2,7 +2,6 @@ import React from "react";
 import { connect } from "react-redux";
 import * as APIUtility from "../../Util/API";
 import * as actions from "../../Store/Actions/index";
-import downloader from "../../Util/download";
 import * as tagTypes from "../TagManagement/tagTypes";
 import { List, ListItem, Button, makeStyles } from "@material-ui/core";
 import { saveAs } from "file-saver";
@@ -22,6 +21,7 @@ const ManageFiles = props => {
   const classes = useStyles();
   const fileInputRefBrowse = React.createRef();
 
+  // opens file explorer
   const openExplorerBrowse = () => {
     if (props.disabled) {
       return;
@@ -29,6 +29,7 @@ const ManageFiles = props => {
     fileInputRefBrowse.current.click();
   };
 
+  // calls API to receive annotations from Spacy
   const callApi = fileData => {
     props.setSpacyLoading(true);
     const options = {
@@ -39,8 +40,7 @@ const ManageFiles = props => {
     APIUtility.API.makeAPICall(APIUtility.UPLOAD_DOCUMENT, null, options)
       .then(response => response.json())
       .then(data => {
-        props.updateLegendAfterLoadingSpacy(data);
-
+        props.updateAnnotationsAfterLoadingSpacy(data);
         props.setAnnotationFocus("");
         props.setSpacyLoading(false);
       })
@@ -53,37 +53,58 @@ const ManageFiles = props => {
   // .txt files are shown in a list of files available for annotation
   // .json files are mapped to .txt files with the same name to display previously exported annotations
   const openFiles = fileList => {
+    // creating empty lists
     const txtList = [];
     const jsonList = [];
     const annotationsList = [];
     for (let file of fileList) {
       const ext = file.name.split(".")[file.name.split(".").length - 1];
+      // for text files that aren't already opened
       if (ext === "txt" && !fileAlreadyOpen(file, props.txtList)) {
         txtList.push(file);
+        // creating annotation object and pushing into a list
         let annotationsObject = {};
         annotationsObject.name = file.name.slice(0, file.name.length - 1 - ext.length);
         populateAnnotationsObject(annotationsObject, fileList);
         annotationsList.push(annotationsObject);
+        // for json files that aren't already opened
       } else if (ext === "json" && !fileAlreadyOpen(file, props.jsonList)) {
         jsonList.push(file);
       }
     }
+    // combining lists with store
     props.setJsonList([...props.jsonList, ...jsonList]);
     props.setTxtList([...props.txtList, ...txtList]);
     props.setAnnotationsList([...props.annotationsList, ...annotationsList]);
+
+    // adding tags that exist in annotations but not in the session
+    addMissingTags(annotationsList);
   };
 
+  // adds missing tags from imported annotations
+  // need to do async stuff... can potentially not pass annotationsList and just use props?
+  const addMissingTags = annotationsList => {
+    console.log(annotationsList);
+    for (let list of annotationsList) {
+      console.log(list);
+      console.log(list.Sections);
+    }
+  };
+
+  // Used to populate annotations from imported json files
   const populateAnnotationsObject = (annotationsObject, fileList) => {
+    // combining newly and previously imported json files
     const allJson = Array.from([
       ...props.jsonList,
       ...Array.from(fileList).filter(file => file.name.endsWith(".json"))
     ]);
     for (let file of allJson) {
+      // if the file matches a json file, load annotations from the json file
       if (file.name === annotationsObject.name + "_Annotations.json") {
         let fileReader = new FileReader();
         fileReader.onload = e => {
           const json = JSON.parse(e.target.result);
-          annotationsObject[tagTypes.SECTIONS] = json[tagTypes.SECTIONS];
+          annotationsObject.Sections = json[tagTypes.SECTIONS];
           annotationsObject[tagTypes.ENTITIES] = json[tagTypes.ENTITIES];
           annotationsObject[tagTypes.TOKENS] = json[tagTypes.TOKENS];
           annotationsObject[tagTypes.SENTENCES] = json[tagTypes.SENTENCES];
@@ -104,18 +125,19 @@ const ManageFiles = props => {
     return false;
   };
 
+  // reads a file when it is selected from the list of uploaded file
   const readFile = (file, index) => {
     if (file) {
       let fileReader = new FileReader();
       // reset store if file changes
       props.setAnnotations([]);
-      props.setFileText("");
       props.setSections(props.annotationsList[index][tagTypes.SECTIONS] || []);
       props.setSentences(props.annotationsList[index][tagTypes.SENTENCES] || []);
       props.setTokens(props.annotationsList[index][tagTypes.TOKENS] || []);
       props.setEntities(props.annotationsList[index][tagTypes.ENTITIES] || []);
       props.setAnnotationFocus("");
 
+      // creating fileData - used to call API
       let fileData = {};
       fileData.id = file.name;
       let ext = file.name.split(".")[file.name.split(".").length - 1];
@@ -137,13 +159,29 @@ const ManageFiles = props => {
 
         props.setFileText(text);
 
-        if (props.spacyActive) {
+        // if "use spacy" is checked and there are no existing annotations for the file
+        if (props.spacyActive && annotationsEmpty(index)) {
           callApi(fileData);
         }
       };
     }
   };
 
+  const annotationsEmpty = index => {
+    let annotationsObject = props.annotationsList[index];
+    if (
+      annotationsObject[tagTypes.SECTIONS] ||
+      annotationsObject[tagTypes.ENTITIES] ||
+      annotationsObject[tagTypes.SENTENCES] ||
+      annotationsObject[tagTypes.TOKENS]
+    ) {
+      return false;
+    }
+    return true;
+  };
+
+  // exports annotations for each opened file into json files
+  // creates zip file with all json files inside and downloads it
   const exportAnnotations = () => {
     let zip = new JSZip();
 
@@ -154,22 +192,16 @@ const ManageFiles = props => {
     zip.generateAsync({ type: "blob" }).then(content => {
       saveAs(content, "annotations.zip");
     });
-
-    // let annotations = {};
-    // annotations.Section = props.sections;
-    // annotations.Sentence = props.sentences;
-    // annotations.Entity = props.entities;
-    // annotations.Token = props.tokens;
-
-    // downloader(props.fileReference + "_Annotations.json", JSON.stringify(annotations));
   };
 
+  // handles a user clicking on another file that has been uploaded
   const switchFile = index => {
     readFile(props.txtList[index], index);
     props.setFileIndex(index);
     props.setEntitiesInUse([]);
   };
 
+  // Creates the list of files to display
   const makeFileList = () => {
     return props.txtList.map((file, index) => (
       <ListItem
@@ -182,6 +214,7 @@ const ManageFiles = props => {
     ));
   };
 
+  // returns bold for the currently selected file, normal otherwise
   const getFontWeight = index => {
     if (index === props.fileIndex) {
       return "bold";
@@ -240,7 +273,7 @@ const mapDispatchToProps = dispatch => {
     setEntitiesInUse: entitiesInUse => dispatch(actions.setEntitiesInUse(entitiesInUse)),
     setAnnotationFocus: annotationFocus => dispatch(actions.setAnnotationFocus(annotationFocus)),
     setSpacyLoading: spacyLoading => dispatch(actions.setSpacyLoading(spacyLoading)),
-    updateLegendAfterLoadingSpacy: data => dispatch(actions.updateLegendAfterLoadingSpacy(data)),
+    updateAnnotationsAfterLoadingSpacy: data => dispatch(actions.updateAnnotationsAfterLoadingSpacy(data)),
     setJsonList: jsonList => dispatch(actions.setJsonList(jsonList)),
     setTxtList: txtList => dispatch(actions.setTxtList(txtList)),
     setAnnotationsList: annotationsList => dispatch(actions.setAnnotationsList(annotationsList)),

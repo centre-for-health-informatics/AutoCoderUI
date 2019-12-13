@@ -173,8 +173,10 @@ class CustomAnnotator extends Component {
 
   // this is called whenever the user selects text to annotate or clicks on an annotation to remove it
   handleAnnotate = (annotations, span) => {
+    // copying annotation object from annotationsList
     let annotationObject = JSON.parse(JSON.stringify(this.props.annotationsList[this.props.fileIndex]));
     if (this.props.annotationFocus === tagTypes.SECTIONS) {
+      // setting annotations to sections for current file, as well as for the annotationList
       this.props.setSections([...annotations, span]);
       annotationObject[tagTypes.SECTIONS] = [...annotations, span];
     } else if (this.props.annotationFocus === tagTypes.SENTENCES) {
@@ -190,6 +192,7 @@ class CustomAnnotator extends Component {
           annotations[i].color = this.props.alternatingColors[1];
         }
       }
+      // setting annotations to sentences for current file, as well as for the annotationList
       this.props.setSentences(annotations);
       annotationObject[tagTypes.SENTENCES] = annotations;
     } else if (this.props.annotationFocus === tagTypes.TOKENS) {
@@ -205,16 +208,20 @@ class CustomAnnotator extends Component {
           annotations[i].color = this.props.alternatingColors[1];
         }
       }
+      // setting annotations to tokens for current file, as well as for the annotationList
       this.props.setTokens(annotations);
       annotationObject[tagTypes.TOKENS] = annotations;
     } else {
+      // setting annotations to entities for current file, as well as for the annotationList
       this.props.setEntities([...this.props.entities, span]);
       annotationObject[tagTypes.ENTITIES] = [...this.props.entities, span];
     }
+    // setting annotations to all annotations that match the selected type
     this.props.setAnnotations([
       ...this.props.annotations.filter(annotation => annotation.type === this.props.annotationFocus),
       span
     ]);
+    // updating annotationsList
     const annotationsList = Array.from(this.props.annotationsList);
     annotationsList[this.props.fileIndex] = annotationObject;
     this.props.setAnnotationsList(annotationsList);
@@ -228,6 +235,7 @@ class CustomAnnotator extends Component {
     for (let annotation of annotationsInInterval) {
       while (hasPrev) {
         hasPrev = false;
+        // checking to see whether another annotation has the currently selected annotation as "next"
         for (let otherAnnotation of this.props.annotations) {
           if (otherAnnotation.next === annotation) {
             annotation = otherAnnotation;
@@ -264,8 +272,10 @@ class CustomAnnotator extends Component {
           }
         }
       }
+      // if there is only one annotation with a label and it is removed, the legend should remove that label
       if (labelCount === 1) {
         if (this.props.annotationFocus === tagTypes.SECTIONS) {
+          // removing label from sections
           const index = this.props.sectionsInUse.indexOf(label);
           if (index >= 0) {
             this.props.setSectionsInUse([
@@ -277,8 +287,9 @@ class CustomAnnotator extends Component {
           this.props.annotationFocus === tagTypes.SENTENCES ||
           this.props.annotationFocus === tagTypes.TOKENS
         ) {
-          // do nothing
+          // do nothing - legend is only for sections and entities
         } else {
+          // removing label from entities
           const index = this.props.entitiesInUse.indexOf(label);
           if (index >= 0) {
             this.props.setEntitiesInUse([
@@ -290,6 +301,7 @@ class CustomAnnotator extends Component {
       }
     }
 
+    // setting annotations and annotationsToEdit
     let annotationsToRemove = this.getLinkedAnnotations(annotationToRemove);
     const annotations = Array.from(this.props.annotations);
     const annotationsToEdit = Array.from(this.props.annotationsToEdit);
@@ -319,7 +331,7 @@ class CustomAnnotator extends Component {
     return arr;
   };
 
-  // retreives all annotations linked to an annotation that is being removed
+  // retrieves all annotations linked to an annotation that is being removed
   getLinkedAnnotations = annotation => {
     const annotationsToRemove = [annotation];
     let nextAnnotation = annotation.next;
@@ -331,6 +343,7 @@ class CustomAnnotator extends Component {
     return annotationsToRemove;
   };
 
+  // method used to render the dashed lines between linked annotations
   renderLines = () => {
     if (this.props.spansRendered) {
       const lines = this.props.annotations.map((annotation, i) =>

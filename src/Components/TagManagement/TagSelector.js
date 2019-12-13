@@ -73,9 +73,9 @@ const TagSelector = props => {
       case tagTypes.SENTENCES:
         props.setAnnotations(props.sentences);
         break;
-      case tagTypes.TOKENS:
-        props.setAnnotations(props.tokens);
-        break;
+      // case tagTypes.TOKENS:
+      //   props.setAnnotations(props.tokens);
+      //   break;
 
       default:
         props.setAnnotations(props.entities.filter(annotation => annotation.type === newSelection));
@@ -118,8 +118,8 @@ const TagSelector = props => {
         return "Search " + tagTypes.ENTITIES;
       case tagTypes.SENTENCES:
         return "";
-      case tagTypes.TOKENS:
-        return "";
+      // case tagTypes.TOKENS:
+      //   return "";
       default:
         return "Search " + props.annotationFocus;
     }
@@ -131,8 +131,8 @@ const TagSelector = props => {
         return false;
       case tagTypes.SENTENCES:
         return true;
-      case tagTypes.TOKENS:
-        return true;
+      // case tagTypes.TOKENS:
+      //   return true;
       default:
         return false;
     }
@@ -207,12 +207,12 @@ const TagSelector = props => {
               label={tagTypes.SENTENCES}
               labelPlacement="end"
             />
-            <FormControlLabel
+            {/* <FormControlLabel
               value={tagTypes.TOKENS}
               control={<Radio />}
               label={tagTypes.TOKENS}
               labelPlacement="end"
-            />
+            /> */}
             {makeCustomTypesRadioButtons()}
           </RadioGroup>
         </FormControl>

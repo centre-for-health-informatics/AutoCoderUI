@@ -30,7 +30,7 @@ export const addDefaultTags = (setTagTemplates, tagTemplates) => {
     for (let tag of templateTags.DEFAULTS) {
       let tagWithSameId = existingTags.find(item => tag.id === item.id);
       if (tagWithSameId !== undefined) {
-        // overwirte tag with same id
+        // overwrite tag with same id
         existingTags[existingTags.indexOf(tagWithSameId)] = tag;
       } else {
         // add new tag from default template

@@ -71,7 +71,7 @@ const mapDispatchToProps = dispatch => {
     setFileReference: fileReference => dispatch(actions.setFileReference(fileReference)),
     setSnapToWord: snapToWord => dispatch(actions.setSnapToWord(snapToWord)),
     setSectionsInUse: sectionsInUse => dispatch(actions.setSectionsInUse(sectionsInUse)),
-    updateLegendAfterLoadingSpacy: data => dispatch(actions.updateLegendAfterLoadingSpacy(data))
+    updateAnnotationsAfterLoadingSpacy: data => dispatch(actions.updateAnnotationsAfterLoadingSpacy(data))
   };
 };
 

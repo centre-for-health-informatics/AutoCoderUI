@@ -2,47 +2,31 @@ import * as actions from "./index";
 import * as tagTypes from "../../Components/TagManagement/tagTypes";
 
 // sets store with annotations when spacy loads, and gets the tags for the legend
-export const updateLegendAfterLoadingSpacy = data => {
+export const updateAnnotationsAfterLoadingSpacy = data => {
   return (dispatch, getState) => {
-    // copying current annotations
-    // done in case there is the option to merge user-made annotation with spacy annotations
-    const sections = Array.from(getState().fileViewer.sections);
-    const sentences = Array.from(getState().fileViewer.sentences);
-    const tokens = Array.from(getState().fileViewer.tokens);
-    const entities = Array.from(getState().fileViewer.entities);
-
     // store objects used to create the annotations
     const alternatingColors = getState().fileViewer.alternatingColors;
     const tagTemplates = getState().fileViewer.tagTemplates;
 
-    // setting four types of annotations
-    dispatch(
-      actions.setSections([...sections, ...mapData(data.sections, tagTypes.SECTIONS, alternatingColors, tagTemplates)])
-    );
-    dispatch(
-      actions.setSentences([
-        ...sentences,
-        ...mapData(data.sentences, tagTypes.SENTENCES, alternatingColors, tagTemplates)
-      ])
-    );
-    dispatch(actions.setTokens([...tokens, ...mapData(data.tokens, tagTypes.TOKENS, alternatingColors, tagTemplates)]));
-    dispatch(
-      actions.setEntities([...entities, ...mapData(data.entities, tagTypes.ENTITIES, alternatingColors, tagTemplates)])
-    );
-    // setting active annotations to sections
-    dispatch(actions.setAnnotations(getState().fileViewer.sections));
+    const sections = mapData(data.sections, tagTypes.SECTIONS, alternatingColors, tagTemplates);
+    const sentences = mapData(data.sentences, tagTypes.SENTENCES, alternatingColors, tagTemplates);
+    const tokens = mapData(data.tokens, tagTypes.TOKENS, alternatingColors, tagTemplates);
+    const entities = mapData(data.entities, tagTypes.ENTITIES, alternatingColors, tagTemplates);
 
-    // finding set of sections and entities to display in the legend
-    let sectionsSet = new Set();
-    for (let annotation of getState().fileViewer.sections) {
-      sectionsSet.add(annotation.tag);
-    }
-    dispatch(actions.setSectionsInUse(Array.from(sectionsSet)));
-    let entitiesSet = new Set();
-    for (let annotation of getState().fileViewer.entities) {
-      entitiesSet.add(annotation.tag);
-    }
-    dispatch(actions.setEntitiesInUse(Array.from(entitiesSet)));
+    let annotationsListCopy = JSON.parse(JSON.stringify(getState().fileViewer.annotationsList));
+    let annotationsObject = annotationsListCopy[getState().fileViewer.fileIndex];
+    annotationsObject[tagTypes.SECTIONS] = sections;
+    annotationsObject[tagTypes.SENTENCES] = sentences;
+    annotationsObject[tagTypes.ENTITIES] = entities;
+    annotationsObject[tagTypes.TOKENS] = tokens;
+
+    dispatch(actions.setAnnotationsList(annotationsListCopy));
+
+    // setting four types of annotations
+    dispatch(actions.setSections(sections));
+    dispatch(actions.setSentences(sentences));
+    dispatch(actions.setTokens(tokens));
+    dispatch(actions.setEntities(entities));
   };
 };
 
