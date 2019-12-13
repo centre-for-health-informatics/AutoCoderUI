@@ -36,4 +36,4 @@ export {
   setAddingTags,
   setInitialTagsAdded
 } from "./tagManagement";
-export { addMissingTags, updateAnnotationsAfterLoadingSpacy, setTagTemplatesWithCallback } from "./asyncActions";
+export { openFiles, updateAnnotationsAfterLoadingSpacy, setTagTemplatesWithCallback } from "./asyncActions";

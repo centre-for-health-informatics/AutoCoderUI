@@ -53,42 +53,35 @@ const ManageFiles = props => {
   // .txt files are shown in a list of files available for annotation
   // .json files are mapped to .txt files with the same name to display previously exported annotations
   const openFiles = fileList => {
-    // creating empty lists
-    const txtList = [];
-    const jsonList = [];
-    const annotationsList = [];
-    for (let file of fileList) {
-      const ext = file.name.split(".")[file.name.split(".").length - 1];
-      // for text files that aren't already opened
-      if (ext === "txt" && !fileAlreadyOpen(file, props.txtList)) {
-        txtList.push(file);
-        // creating annotation object and pushing into a list
-        let annotationsObject = {};
-        annotationsObject.name = file.name.slice(0, file.name.length - 1 - ext.length);
-        populateAnnotationsObject(annotationsObject, fileList);
-        annotationsList.push(annotationsObject);
-        // for json files that aren't already opened
-      } else if (ext === "json" && !fileAlreadyOpen(file, props.jsonList)) {
-        jsonList.push(file);
+    // // creating empty lists
+    // const txtList = [];
+    // const jsonList = [];
+    // const annotationsList = [];
+    // for (let file of fileList) {
+    //   const ext = file.name.split(".")[file.name.split(".").length - 1];
+    //   // for text files that aren't already opened
+    //   if (ext === "txt" && !fileAlreadyOpen(file, props.txtList)) {
+    //     txtList.push(file);
+    //     // creating annotation object and pushing into a list
+    //     let annotationsObject = {};
+    //     annotationsObject.name = file.name.slice(0, file.name.length - 1 - ext.length);
+    //     populateAnnotationsObject(annotationsObject, fileList);
+    //     annotationsList.push(annotationsObject);
+    //     // for json files that aren't already opened
+    //   } else if (ext === "json" && !fileAlreadyOpen(file, props.jsonList)) {
+    //     jsonList.push(file);
+    //   }
+    // }
+    // // combining lists with store
+    // props.setJsonList([...props.jsonList, ...jsonList]);
+    // props.setTxtList([...props.txtList, ...txtList]);
+    // props.setAnnotationsList([...props.annotationsList, ...annotationsList]);
+
+    props.openFiles(fileList).then(state => {
+      for (let annotation of state) {
+        console.log(annotation);
       }
-    }
-    // combining lists with store
-    props.setJsonList([...props.jsonList, ...jsonList]);
-    props.setTxtList([...props.txtList, ...txtList]);
-    props.setAnnotationsList([...props.annotationsList, ...annotationsList]);
-
-    // adding tags that exist in annotations but not in the session
-    addMissingTags(annotationsList);
-  };
-
-  // adds missing tags from imported annotations
-  // need to do async stuff... can potentially not pass annotationsList and just use props?
-  const addMissingTags = annotationsList => {
-    console.log(annotationsList);
-    for (let list of annotationsList) {
-      console.log(list);
-      console.log(list.Sections);
-    }
+    });
   };
 
   // Used to populate annotations from imported json files
@@ -125,7 +118,7 @@ const ManageFiles = props => {
     return false;
   };
 
-  // reads a file when it is selected from the list of uploaded file
+  // reads a file when it is selected from the list of uploaded files
   const readFile = (file, index) => {
     if (file) {
       let fileReader = new FileReader();
@@ -277,7 +270,8 @@ const mapDispatchToProps = dispatch => {
     setJsonList: jsonList => dispatch(actions.setJsonList(jsonList)),
     setTxtList: txtList => dispatch(actions.setTxtList(txtList)),
     setAnnotationsList: annotationsList => dispatch(actions.setAnnotationsList(annotationsList)),
-    setFileIndex: fileIndex => dispatch(actions.setFileIndex(fileIndex))
+    setFileIndex: fileIndex => dispatch(actions.setFileIndex(fileIndex)),
+    openFiles: fileList => dispatch(actions.openFiles(fileList))
     // setAlertMessage: newValue => dispatch(actions.setAlertMessage(newValue))
   };
 };
