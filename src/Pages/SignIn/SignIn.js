@@ -82,8 +82,8 @@ function SignIn(props) {
         <Avatar className={classes.avatar}>
           <LockOutlinedIcon />
         </Avatar>
-        <Typography component="h1" variant="h5">
-          ICD-10 Recommender System
+        <Typography component="h1" variant="h6">
+          FABULOUS TEXT ANNOTATOR ( ͡° ͜ʖ ͡°)
         </Typography>
         <form className={classes.form} noValidate>
           <TextField

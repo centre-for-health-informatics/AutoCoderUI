@@ -1,6 +1,8 @@
 import * as actions from "./index";
 import * as tagTypes from "../../Components/TagManagement/tagTypes";
 
+export const addMissingTags = annotationsList => {};
+
 // sets store with annotations when spacy loads, and gets the tags for the legend
 export const updateAnnotationsAfterLoadingSpacy = data => {
   return (dispatch, getState) => {
@@ -13,13 +15,13 @@ export const updateAnnotationsAfterLoadingSpacy = data => {
     const tokens = mapData(data.tokens, tagTypes.TOKENS, alternatingColors, tagTemplates);
     const entities = mapData(data.entities, tagTypes.ENTITIES, alternatingColors, tagTemplates);
 
+    // setting annotationsList
     let annotationsListCopy = JSON.parse(JSON.stringify(getState().fileViewer.annotationsList));
     let annotationsObject = annotationsListCopy[getState().fileViewer.fileIndex];
     annotationsObject[tagTypes.SECTIONS] = sections;
     annotationsObject[tagTypes.SENTENCES] = sentences;
     annotationsObject[tagTypes.ENTITIES] = entities;
     annotationsObject[tagTypes.TOKENS] = tokens;
-
     dispatch(actions.setAnnotationsList(annotationsListCopy));
 
     // setting four types of annotations

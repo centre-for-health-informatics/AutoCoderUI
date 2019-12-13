@@ -8,6 +8,9 @@ import Sandbox from "./Pages/Sandbox/Sandbox";
 import Tags from "./Pages/Tags/Tags";
 import Annotate from "./Pages/Annotate/Annotate";
 import SignIn from "./Pages/SignIn/SignIn";
+import SignUp from "./Pages/SignUp/SignUp";
+import SignUpSuccess from "./Pages/SignUpSuccess/SignUpSuccess";
+import ForgotPassword from "./Pages/ForgotPassword/ForgotPassword";
 
 const router = (
   <Provider store={store}>
@@ -19,6 +22,9 @@ const router = (
           <Route exact path="/sandbox" component={Sandbox} />
           <Route exact path="/tags" component={Tags} />
           <Route exact path="/sign-in" component={SignIn} />
+          <Route exact path="/sign-up" component={SignUp} />
+          <Route exact path="/sign-up-success" component={SignUpSuccess} />
+          <Route exact path="/forgot-password" component={ForgotPassword} />
         </Switch>
       </BrowserRouter>
     </AlertProvider>
