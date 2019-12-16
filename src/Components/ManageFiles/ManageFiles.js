@@ -40,6 +40,7 @@ const ManageFiles = props => {
     APIUtility.API.makeAPICall(APIUtility.UPLOAD_DOCUMENT, null, options)
       .then(response => response.json())
       .then(data => {
+        console.log(data);
         props.updateAnnotationsAfterLoadingSpacy(data);
         props.setAnnotationFocus("");
         props.setSpacyLoading(false);
@@ -53,35 +54,58 @@ const ManageFiles = props => {
   // .txt files are shown in a list of files available for annotation
   // .json files are mapped to .txt files with the same name to display previously exported annotations
   const openFiles = fileList => {
-    // // creating empty lists
-    // const txtList = [];
-    // const jsonList = [];
-    // const annotationsList = [];
-    // for (let file of fileList) {
-    //   const ext = file.name.split(".")[file.name.split(".").length - 1];
-    //   // for text files that aren't already opened
-    //   if (ext === "txt" && !fileAlreadyOpen(file, props.txtList)) {
-    //     txtList.push(file);
-    //     // creating annotation object and pushing into a list
-    //     let annotationsObject = {};
-    //     annotationsObject.name = file.name.slice(0, file.name.length - 1 - ext.length);
-    //     populateAnnotationsObject(annotationsObject, fileList);
-    //     annotationsList.push(annotationsObject);
-    //     // for json files that aren't already opened
-    //   } else if (ext === "json" && !fileAlreadyOpen(file, props.jsonList)) {
-    //     jsonList.push(file);
-    //   }
-    // }
-    // // combining lists with store
-    // props.setJsonList([...props.jsonList, ...jsonList]);
-    // props.setTxtList([...props.txtList, ...txtList]);
-    // props.setAnnotationsList([...props.annotationsList, ...annotationsList]);
-
-    props.openFiles(fileList).then(state => {
-      for (let annotation of state) {
-        console.log(annotation);
+    // creating empty lists
+    const txtList = [];
+    const jsonList = [];
+    const annotationsList = [];
+    for (let file of fileList) {
+      const ext = file.name.split(".")[file.name.split(".").length - 1];
+      // for text files that aren't already opened
+      if (ext === "txt" && !fileAlreadyOpen(file, props.txtList)) {
+        txtList.push(file);
+        // creating annotation object and pushing into a list
+        let annotationsObject = {};
+        annotationsObject.name = file.name.slice(0, file.name.length - 1 - ext.length);
+        populateAnnotationsObject(annotationsObject, fileList);
+        annotationsList.push(annotationsObject);
+        // for json files that aren't already opened
+      } else if (ext === "json" && !fileAlreadyOpen(file, props.jsonList)) {
+        jsonList.push(file);
       }
-    });
+    }
+    // combining lists with store
+    props.setJsonList([...props.jsonList, ...jsonList]);
+    props.setTxtList([...props.txtList, ...txtList]);
+    props.setAnnotationsList([...props.annotationsList, ...annotationsList]);
+
+    for (let jsonFile of jsonList) {
+      let fileReader = new FileReader();
+      fileReader.onloadend = () => {
+        let jsonData = JSON.parse(fileReader.result);
+        console.log(jsonData);
+        checkTags(jsonData[tagTypes.SECTIONS]);
+        checkTags(jsonData[tagTypes.ENTITIES]);
+      };
+      fileReader.readAsText(jsonFile);
+    }
+  };
+
+  const checkTags = items => {
+    const tagTemplates = Array.from(props.tagTemplates);
+    for (let item of items) {
+      let duplicateTag = tagTemplates.find(tag => tag.id === item.tag && tag.type === item.type);
+      if (duplicateTag === undefined) {
+        // tag doesn't already exist
+        let newTag = {};
+        newTag.id = item.tag;
+        newTag.color = item.color;
+        newTag.type = item.type;
+        newTag.description = "";
+        tagTemplates.push(newTag);
+      }
+    }
+    console.log(tagTemplates);
+    props.setTagTemplates(tagTemplates);
   };
 
   // Used to populate annotations from imported json files
@@ -132,7 +156,7 @@ const ManageFiles = props => {
 
       // creating fileData - used to call API
       let fileData = {};
-      fileData.id = file.name;
+      fileData.filename = file.name;
       let ext = file.name.split(".")[file.name.split(".").length - 1];
       let filename = file.name.slice(0, file.name.length - 1 - ext.length);
       props.setFileReference(filename);
@@ -249,7 +273,8 @@ const mapStateToProps = state => {
     jsonList: state.fileViewer.jsonList,
     txtList: state.fileViewer.txtList,
     annotationsList: state.fileViewer.annotationsList,
-    fileIndex: state.fileViewer.fileIndex
+    fileIndex: state.fileViewer.fileIndex,
+    tagTemplates: state.fileViewer.tagTemplates
   };
 };
 
@@ -271,7 +296,8 @@ const mapDispatchToProps = dispatch => {
     setTxtList: txtList => dispatch(actions.setTxtList(txtList)),
     setAnnotationsList: annotationsList => dispatch(actions.setAnnotationsList(annotationsList)),
     setFileIndex: fileIndex => dispatch(actions.setFileIndex(fileIndex)),
-    openFiles: fileList => dispatch(actions.openFiles(fileList))
+    openFiles: fileList => dispatch(actions.openFiles(fileList)),
+    setTagTemplates: tagTemplates => dispatch(actions.setTagTemplates(tagTemplates))
     // setAlertMessage: newValue => dispatch(actions.setAlertMessage(newValue))
   };
 };
