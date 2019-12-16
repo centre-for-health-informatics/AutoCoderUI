@@ -81,6 +81,19 @@ function TagManager(props) {
   ];
 
   const onRowAdd = newData => {
+    if (
+      newData.type.toUpperCase() === tagTypes.TOKENS.toUpperCase() ||
+      newData.type.toUpperCase() === tagTypes.SENTENCES.toUpperCase()
+    ) {
+      return new Promise(resolve => {
+        props.setAlertMessage({
+          message: "Cannot use following tag types: " + tagTypes.TOKENS + ", " + tagTypes.SENTENCES,
+          messageType: "error"
+        });
+        resolve();
+      });
+    }
+
     return new Promise(resolve => {
       setTimeout(() => {
         props.setTagTemplates([...props.tagTemplates, newData]);
@@ -90,9 +103,20 @@ function TagManager(props) {
   };
 
   const onRowUpdate = (newData, oldData) => {
-    console.log(newData);
-    console.log(oldData);
     // updating existing annotations
+    if (
+      newData.type.toUpperCase() === tagTypes.TOKENS.toUpperCase() ||
+      newData.type.toUpperCase() === tagTypes.SENTENCES.toUpperCase()
+    ) {
+      return new Promise(resolve => {
+        props.setAlertMessage({
+          message: "Cannot use following tag types: " + tagTypes.TOKENS + ", " + tagTypes.SENTENCES,
+          messageType: "error"
+        });
+        resolve();
+      });
+    }
+
     updateAnnotations(newData, oldData);
 
     // updating tag templates
@@ -249,7 +273,8 @@ const mapDispatchToProps = dispatch => {
   return {
     setTagTemplates: tags => dispatch(actions.setTagTemplatesWithCallback(tags)),
     setSections: sections => dispatch(actions.setSections(sections)),
-    setEntities: entities => dispatch(actions.setEntities(entities))
+    setEntities: entities => dispatch(actions.setEntities(entities)),
+    setAlertMessage: newValue => dispatch(actions.setAlertMessage(newValue))
   };
 };
 
