@@ -71,7 +71,10 @@ const Annotate = props => {
       alert.show(props.alertMessage.message, {
         timeout: 5000,
         position: positions.MIDDLE,
-        type: props.alertMessage.messageType
+        type: props.alertMessage.messageType,
+        onClose: () => {
+          props.setAlertMessage(null);
+        }
       });
     }
   }, [props.alertMessage]);
