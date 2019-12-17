@@ -48,7 +48,10 @@ function ForgotPassword(props) {
       alert.show(props.alertMessage.message, {
         timeout: 2500,
         position: positions.MIDDLE,
-        type: props.alertMessage.messageType
+        type: props.alertMessage.messageType,
+        onClose: () => {
+          props.setAlertMessage(null);
+        }
       });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
