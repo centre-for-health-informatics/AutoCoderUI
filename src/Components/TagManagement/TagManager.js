@@ -80,18 +80,44 @@ function TagManager(props) {
     }
   ];
 
-  const onRowAdd = newData => {
-    if (
-      newData.type.toUpperCase() === tagTypes.TOKENS.toUpperCase() ||
-      newData.type.toUpperCase() === tagTypes.SENTENCES.toUpperCase()
-    ) {
+  /**
+   * Validates the data input from Table. returns null if data is valid, returns a promise if there is error.
+   */
+  const isTableInputValid = data => {
+    if (data.type === undefined || data.type === "") {
       return new Promise(resolve => {
         props.setAlertMessage({
-          message: "Cannot use following tag types: " + tagTypes.TOKENS + ", " + tagTypes.SENTENCES,
+          message: "Changes not saved: missing 'Type'",
           messageType: "error"
         });
         resolve();
       });
+    } else if (
+      data.type.toUpperCase() === tagTypes.TOKENS.toUpperCase() ||
+      data.type.toUpperCase() === tagTypes.SENTENCES.toUpperCase()
+    ) {
+      return new Promise(resolve => {
+        props.setAlertMessage({
+          message:
+            "Changes not saved: cannot used the following system reserved tpyes " +
+            tagTypes.TOKENS +
+            ", " +
+            tagTypes.SENTENCES,
+          messageType: "error"
+        });
+        resolve();
+      });
+    }
+    return null;
+  };
+
+  /**
+   * Called when adding new row, must return a Promise to be used by MaterialTable
+   */
+  const onRowAdd = newData => {
+    let inValidPromise = isTableInputValid(newData);
+    if (inValidPromise) {
+      return inValidPromise;
     }
 
     return new Promise(resolve => {
@@ -102,19 +128,13 @@ function TagManager(props) {
     });
   };
 
+  /**
+   * Called when editing a row, must return a Promise to be used by MaterialTable
+   */
   const onRowUpdate = (newData, oldData) => {
-    // updating existing annotations
-    if (
-      newData.type.toUpperCase() === tagTypes.TOKENS.toUpperCase() ||
-      newData.type.toUpperCase() === tagTypes.SENTENCES.toUpperCase()
-    ) {
-      return new Promise(resolve => {
-        props.setAlertMessage({
-          message: "Cannot use following tag types: " + tagTypes.TOKENS + ", " + tagTypes.SENTENCES,
-          messageType: "error"
-        });
-        resolve();
-      });
+    let inValidPromise = isTableInputValid(newData);
+    if (inValidPromise) {
+      return inValidPromise;
     }
 
     updateAnnotations(newData, oldData);
