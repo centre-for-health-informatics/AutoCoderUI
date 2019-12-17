@@ -40,7 +40,6 @@ const ManageFiles = props => {
     APIUtility.API.makeAPICall(APIUtility.UPLOAD_DOCUMENT, null, options)
       .then(response => response.json())
       .then(data => {
-        console.log(data);
         props.updateAnnotationsAfterLoadingSpacy(data);
         props.setAnnotationFocus("");
         props.setSpacyLoading(false);
@@ -78,34 +77,58 @@ const ManageFiles = props => {
     props.setTxtList([...props.txtList, ...txtList]);
     props.setAnnotationsList([...props.annotationsList, ...annotationsList]);
 
-    for (let jsonFile of jsonList) {
-      let fileReader = new FileReader();
-      fileReader.onloadend = () => {
-        let jsonData = JSON.parse(fileReader.result);
-        console.log(jsonData);
-        checkTags(jsonData[tagTypes.SECTIONS]);
-        checkTags(jsonData[tagTypes.ENTITIES]);
-      };
-      fileReader.readAsText(jsonFile);
-    }
+    const tagTemplates = Array.from(props.tagTemplates); // copy state
+    const promiseList = makePromiseList(jsonList); // make promise list
+    Promise.all(promiseList).then(promises => {
+      // once all of the promises are resolved
+      let newTags = []; // make an empty list of tags to append all tags to
+      for (let promise of promises) {
+        // adding to newTags
+        for (let section of promise[tagTypes.SECTIONS]) {
+          newTags.push(makeTagObject(section));
+        }
+        for (let entity of promise[tagTypes.ENTITIES]) {
+          newTags.push(makeTagObject(entity));
+        }
+      }
+      // for every tag added, check if it exists in tagTemplates. If not, append it
+      for (let newTag of newTags) {
+        let duplicateTag = tagTemplates.find(tag => tag.id === newTag.id && tag.type === newTag.type);
+        if (duplicateTag === undefined) {
+          tagTemplates.push(newTag);
+        }
+      }
+      // pushing the modified tagTemplates to the state
+      props.setTagTemplates(tagTemplates);
+    });
   };
 
-  const checkTags = items => {
-    const tagTemplates = Array.from(props.tagTemplates);
-    for (let item of items) {
-      let duplicateTag = tagTemplates.find(tag => tag.id === item.tag && tag.type === item.type);
-      if (duplicateTag === undefined) {
-        // tag doesn't already exist
-        let newTag = {};
-        newTag.id = item.tag;
-        newTag.color = item.color;
-        newTag.type = item.type;
-        newTag.description = "";
-        tagTemplates.push(newTag);
-      }
+  // makes a tag object from an annotation
+  const makeTagObject = item => {
+    let newTag = {};
+    newTag.id = item.tag;
+    newTag.color = item.color;
+    newTag.type = item.type;
+    newTag.description = item.description || ""; // setting empty string if there is no description so the UI doesn't display "undefined"
+    return newTag;
+  };
+
+  // making a promise list
+  const makePromiseList = jsonList => {
+    let promiseList = [];
+    // for every json file, create a promise
+    for (let jsonFile of jsonList) {
+      let fileReader = new FileReader();
+      promiseList.push(
+        new Promise((resolve, reject) => {
+          fileReader.onloadend = () => {
+            resolve(JSON.parse(fileReader.result));
+          };
+          fileReader.readAsText(jsonFile);
+        })
+      );
     }
-    console.log(tagTemplates);
-    props.setTagTemplates(tagTemplates);
+    return promiseList;
   };
 
   // Used to populate annotations from imported json files
@@ -203,12 +226,34 @@ const ManageFiles = props => {
     let zip = new JSZip();
 
     for (let annotation of props.annotationsList) {
-      zip.file(annotation.name + "_Annotations.json", JSON.stringify(annotation));
+      const tagsInUse = checkTagsInUse(annotation);
+      zip.file(
+        annotation.name + "_Annotations.json",
+        '{"tagTemplates":[' + JSON.stringify(tagsInUse).slice(1, -1) + "]," + JSON.stringify(annotation).slice(1)
+      );
     }
 
     zip.generateAsync({ type: "blob" }).then(content => {
       saveAs(content, "annotations.zip");
     });
+  };
+
+  const checkTagsInUse = annotation => {
+    let tagTemplates = Array.from(props.tagTemplates);
+    const tagsInUse = new Set();
+    for (let tag of tagTemplates) {
+      for (let entity of annotation[tagTypes.ENTITIES]) {
+        if (tag.id === entity.tag && tag.type === entity.type) {
+          tagsInUse.add(tag);
+        }
+      }
+      for (let section of annotation[tagTypes.SECTIONS]) {
+        if (tag.id === section.tag && tag.type === section.type) {
+          tagsInUse.add(tag);
+        }
+      }
+    }
+    return tagsInUse;
   };
 
   // handles a user clicking on another file that has been uploaded
@@ -296,7 +341,6 @@ const mapDispatchToProps = dispatch => {
     setTxtList: txtList => dispatch(actions.setTxtList(txtList)),
     setAnnotationsList: annotationsList => dispatch(actions.setAnnotationsList(annotationsList)),
     setFileIndex: fileIndex => dispatch(actions.setFileIndex(fileIndex)),
-    openFiles: fileList => dispatch(actions.openFiles(fileList)),
     setTagTemplates: tagTemplates => dispatch(actions.setTagTemplates(tagTemplates))
     // setAlertMessage: newValue => dispatch(actions.setAlertMessage(newValue))
   };
