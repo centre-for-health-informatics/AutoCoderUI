@@ -2,6 +2,8 @@ import React from "react";
 import IntervalTree from "@flatten-js/interval-tree";
 
 const backgroundColor = "transparent";
+let colorIndex = 0;
+const alternatingColors = ["rgb(149,156,243)", "rgb(244,196,199)"];
 
 export const Interval = props => {
   if (props.index === props.intervals.length - 1) {
@@ -65,7 +67,7 @@ export const Mark = props => {
 };
 
 // Method to draw a line between linked annotations
-export const drawLine = (annotation, i) => {
+export const drawLine = (annotation, i, tagTemplates) => {
   // only draw a line if the annotation has a next property (linked annotation)
   if (annotation.next) {
     // getting offsets for the other components on the page above the annotations
@@ -98,13 +100,22 @@ export const drawLine = (annotation, i) => {
 
     // returning a dashed line
     return (
-      <line key={i} strokeWidth="4px" strokeDasharray="4" stroke={annotation.color} x1={x1} y1={y1} x2={x2} y2={y2} />
+      <line
+        key={i}
+        strokeWidth="4px"
+        strokeDasharray="4"
+        stroke={getColorFromTagType(annotation, tagTemplates)}
+        x1={x1}
+        y1={y1}
+        x2={x2}
+        y2={y2}
+      />
     );
   }
 };
 
 // creates the intervals to display
-export const createIntervals = (text, annotations) => {
+export const createIntervals = (text, annotations, tagTemplates) => {
   // set of breakpoints to create all intervals
   let breakPoints = new Set();
   for (let annotation of annotations) {
@@ -144,13 +155,31 @@ export const createIntervals = (text, annotations) => {
   }
 
   // assigning colors to annotations (also creates the gradient in another helper function)
-  intervals = colorAnnotations(intervals, annotations);
+  intervals = colorAnnotations(intervals, annotations, tagTemplates);
 
   return intervals;
 };
 
+// gets color from tagTemplates, or alternates colors for sentences
+const getColorFromTagType = (annotation, tagTemplates) => {
+  if (annotation.type === undefined) {
+    if (colorIndex === 0) {
+      colorIndex = 1;
+      return alternatingColors[0];
+    } else {
+      colorIndex = 0;
+      return alternatingColors[1];
+    }
+  }
+  for (let tagTemplate of tagTemplates) {
+    if (tagTemplate.id === annotation.tag && tagTemplate.type === annotation.type) {
+      return tagTemplate.color;
+    }
+  }
+};
+
 // assigns colors to intervals
-const colorAnnotations = (intervals, annotations) => {
+const colorAnnotations = (intervals, annotations, tagTemplates) => {
   let prevInterval;
   for (let interval of intervals) {
     // if the neighbouring interval contains the same annotation as the current one, the percentage
@@ -172,7 +201,8 @@ const colorAnnotations = (intervals, annotations) => {
       interval.colors = [];
       for (let i = 0; i < interval.annotes.length; i++) {
         // setting color or a default color
-        interval.colors.push(annotations[interval.annotes[i] - 1].color || "#34e4ed");
+        interval.colors.push(getColorFromTagType(annotations[interval.annotes[i] - 1], tagTemplates) || "#34e4ed");
+        // interval.colors.push(annotations[interval.annotes[i] - 1].color || "#34e4ed");
       }
       // adding colours
       while (interval.colors.length < interval.numAnnotes) {

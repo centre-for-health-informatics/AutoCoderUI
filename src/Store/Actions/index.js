@@ -11,7 +11,6 @@ export {
   setAnnotations,
   setTagTemplates,
   setFileReference,
-  setAlternatingColors,
   setLinkedListAdd,
   setIntervalDivHeight,
   setIntervalDivWidth,
