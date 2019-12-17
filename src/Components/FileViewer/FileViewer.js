@@ -49,7 +49,6 @@ const mapStateToProps = state => {
     spacyActive: state.fileViewer.spacyActive,
     spacyLoading: state.fileViewer.spacyLoading,
     tagTemplates: state.fileViewer.tagTemplates,
-    alternatingColors: state.fileViewer.alternatingColors,
     snapToWord: state.fileViewer.snapToWord,
     sectionsInUse: state.fileViewer.sectionsInUse
   };

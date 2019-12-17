@@ -129,8 +129,19 @@ const AnnotationEditor = props => {
     return {
       spans: [{ start: annot.start, end: annot.end }],
       ref: [annot],
-      labels: [{ tag: annot.tag, color: annot.color }]
+      labels: [{ tag: annot.tag, color: getColor(annot) }]
     };
+  };
+
+  // gets the color for an annotation
+  const getColor = annotation => {
+    console.log(annotation);
+    const tagTemplates = Array.from(props.tagTemplates);
+    for (let tag of tagTemplates) {
+      if (annotation.tag === tag.id && annotation.type === tag.type) {
+        return tag.color;
+      }
+    }
   };
 
   /**

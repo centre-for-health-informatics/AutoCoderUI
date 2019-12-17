@@ -77,13 +77,6 @@ export const setFileReference = fileReference => {
   };
 };
 
-export const setAlternatingColors = alternatingColors => {
-  return {
-    type: actionTypes.SET_ALTERNATING_COLORS,
-    alternatingColors
-  };
-};
-
 export const setLinkedListAdd = linkedListAdd => {
   return {
     type: actionTypes.SET_LINKED_LIST_ADD,

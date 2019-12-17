@@ -130,7 +130,6 @@ class CustomAnnotator extends Component {
       start,
       end,
       tag: this.props.addingTags.length > 0 ? this.props.addingTags[0].id : "",
-      color: this.props.addingTags.length > 0 ? this.props.addingTags[0].color : "",
       type: this.props.annotationFocus
     };
 
@@ -185,13 +184,6 @@ class CustomAnnotator extends Component {
       annotations = annotations.sort((a, b) => {
         return a.start - b.start;
       });
-      for (let i = 0; i < annotations.length; i++) {
-        if (i % 2 === 0) {
-          annotations[i].color = this.props.alternatingColors[0];
-        } else {
-          annotations[i].color = this.props.alternatingColors[1];
-        }
-      }
       // setting annotations to sentences for current file, as well as for the annotationList
       this.props.setSentences(annotations);
       annotationObject[tagTypes.SENTENCES] = annotations;
@@ -201,13 +193,6 @@ class CustomAnnotator extends Component {
       annotations = annotations.sort((a, b) => {
         return a.start - b.start;
       });
-      for (let i = 0; i < annotations.length; i++) {
-        if (i % 2 === 0) {
-          annotations[i].color = this.props.alternatingColors[0];
-        } else {
-          annotations[i].color = this.props.alternatingColors[1];
-        }
-      }
       // setting annotations to tokens for current file, as well as for the annotationList
       this.props.setTokens(annotations);
       annotationObject[tagTypes.TOKENS] = annotations;
@@ -347,7 +332,7 @@ class CustomAnnotator extends Component {
   renderLines = () => {
     if (this.props.spansRendered) {
       const lines = this.props.annotations.map((annotation, i) =>
-        util.drawLine(annotation, i, this.props.xOffset, this.props.yOffset)
+        util.drawLine(annotation, i, this.props.tagTemplates)
       );
       return lines;
     }
@@ -355,7 +340,11 @@ class CustomAnnotator extends Component {
 
   render() {
     // create intervals and render interval elements defined in utility and draw lines between linked intervals
-    const intervals = util.createIntervals(this.props.textToDisplay, this.props.annotations);
+    const intervals = util.createIntervals(
+      this.props.textToDisplay,
+      this.props.annotations,
+      Array.from(this.props.tagTemplates)
+    );
     return (
       <div id={"customerAnnotator" + this.props.id}>
         <div style={(this.annoteStyle, { position: "absolute" })} ref={this.rootRef} id="intervalsDiv">
@@ -408,13 +397,13 @@ const mapStateToProps = state => {
     linkedListAdd: state.fileViewer.linkedListAdd,
     intervalDivHeight: state.fileViewer.intervalDivHeight,
     intervalDivWidth: state.fileViewer.intervalDivWidth,
-    alternatingColors: state.fileViewer.alternatingColors,
     snapToWord: state.fileViewer.snapToWord,
     sectionsInUse: state.fileViewer.sectionsInUse,
     entitiesInUse: state.fileViewer.entitiesInUse,
     spansRendered: state.fileViewer.spansRendered,
     fileIndex: state.fileViewer.fileIndex,
-    annotationsList: state.fileViewer.annotationsList
+    annotationsList: state.fileViewer.annotationsList,
+    tagTemplates: state.fileViewer.tagTemplates
   };
 };
 

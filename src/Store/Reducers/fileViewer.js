@@ -12,7 +12,6 @@ const initialState = {
   annotations: [],
   tagTemplates: [],
   fileReference: "",
-  alternatingColors: ["rgb(149,156,243)", "rgb(244,196,199)"],
   linkedListAdd: false,
   intervalDivHeight: 0,
   intervalDivWidth: 0,
@@ -52,8 +51,6 @@ const reducer = (state = initialState, action) => {
       return { ...state, tagTemplates: action.tagTemplates };
     case actionTypes.SET_FILE_REFERENCE:
       return { ...state, fileReference: action.fileReference };
-    case actionTypes.SET_ALTERNATING_COLORS:
-      return { ...state, alternatingColors: action.alternatingColors };
     case actionTypes.SET_LINKED_LIST_ADD:
       return { ...state, linkedListAdd: action.linkedListAdd };
     case actionTypes.SET_INTERVAL_DIV_HEIGHT:
