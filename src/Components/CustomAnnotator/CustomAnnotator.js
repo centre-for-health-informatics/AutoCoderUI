@@ -125,6 +125,14 @@ class CustomAnnotator extends Component {
       }
     }
 
+    // do not allow overlapping annotations for tokens or sentences
+    if (this.props.annotationFocus === tagTypes.TOKENS || this.props.annotationFocus === tagTypes.SENTENCES) {
+      if (this.checkOverlap(start, end)) {
+        this.props.setAlertMessage({ message: "Can't have overlapping annotations", messageType: "error" });
+        return;
+      }
+    }
+
     // creating span object
     const span = {
       start,
@@ -144,6 +152,24 @@ class CustomAnnotator extends Component {
 
     this.prevSpan = span;
 
+    this.updateLegend();
+
+    // clears selection
+    window.getSelection().empty();
+  };
+
+  // checks if an annotation overlaps another annotation, returns true if yes, false if no
+  checkOverlap = (start, end) => {
+    const annotations = Array.from(this.props.annotations);
+    for (let annotation of annotations) {
+      if ((start > annotation.start && start < annotation.end) || (end < annotation.end && end > annotation.start)) {
+        return true;
+      }
+    }
+    return false;
+  };
+
+  updateLegend = () => {
     // Handling updating Legend lists
     if (this.props.annotationFocus === tagTypes.SECTIONS) {
       let newSections = Array.from(this.props.sectionsInUse);
@@ -165,9 +191,6 @@ class CustomAnnotator extends Component {
       newEntities.unshift(this.props.addingTags[0].id);
       this.props.setEntitiesInUse(newEntities);
     }
-
-    // clears selection
-    window.getSelection().empty();
   };
 
   // this is called whenever the user selects text to annotate or clicks on an annotation to remove it
@@ -423,7 +446,8 @@ const mapDispatchToProps = dispatch => {
     setSectionsInUse: sectionsInUse => dispatch(actions.setSectionsInUse(sectionsInUse)),
     setEntitiesInUse: entitiesInUse => dispatch(actions.setEntitiesInUse(entitiesInUse)),
     setAnnotationsList: annotationsList => dispatch(actions.setAnnotationsList(annotationsList)),
-    setSpansRendered: spansRendered => dispatch(actions.setSpansRendered(spansRendered))
+    setSpansRendered: spansRendered => dispatch(actions.setSpansRendered(spansRendered)),
+    setAlertMessage: newValue => dispatch(actions.setAlertMessage(newValue))
   };
 };
 

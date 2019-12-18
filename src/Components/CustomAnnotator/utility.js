@@ -2,8 +2,8 @@ import React from "react";
 import IntervalTree from "@flatten-js/interval-tree";
 
 const backgroundColor = "transparent";
-let colorIndex = 0;
-const alternatingColors = ["rgb(149,156,243)", "rgb(244,196,199)"];
+let colorIndex;
+export const alternatingColors = ["rgb(149,156,243)", "rgb(244,196,199)"];
 
 export const Interval = props => {
   if (props.index === props.intervals.length - 1) {
@@ -116,6 +116,7 @@ export const drawLine = (annotation, i, tagTemplates) => {
 
 // creates the intervals to display
 export const createIntervals = (text, annotations, tagTemplates) => {
+  colorIndex = 0;
   // set of breakpoints to create all intervals
   let breakPoints = new Set();
   for (let annotation of annotations) {
@@ -162,7 +163,7 @@ export const createIntervals = (text, annotations, tagTemplates) => {
 
 // gets color from tagTemplates, or alternates colors for sentences
 const getColorFromTagType = (annotation, tagTemplates) => {
-  if (annotation.type === undefined) {
+  if (annotation.type === undefined || annotation.tag === "") {
     if (colorIndex === 0) {
       colorIndex = 1;
       return alternatingColors[0];

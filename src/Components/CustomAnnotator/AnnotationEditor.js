@@ -6,6 +6,8 @@ import ListItem from "@material-ui/core/ListItem";
 import Chip from "@material-ui/core/Chip";
 import Typography from "@material-ui/core/Typography";
 import * as actions from "../../Store/Actions/index";
+import * as tagTypes from "../TagManagement/tagTypes";
+import * as util from "./utility";
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -136,6 +138,14 @@ const AnnotationEditor = props => {
   // gets the color for an annotation
   const getColor = annotation => {
     console.log(annotation);
+    if (props.annotationFocus === tagTypes.SENTENCES) {
+      console.log(props.sentences.indexOf(annotation));
+      if (props.sentences.indexOf(annotation) % 2 === 0) {
+        return util.alternatingColors[0];
+      } else {
+        return util.alternatingColors[1];
+      }
+    }
     const tagTemplates = Array.from(props.tagTemplates);
     for (let tag of tagTemplates) {
       if (annotation.tag === tag.id && annotation.type === tag.type) {
