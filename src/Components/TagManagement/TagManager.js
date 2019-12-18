@@ -99,7 +99,7 @@ function TagManager(props) {
       return new Promise(resolve => {
         props.setAlertMessage({
           message:
-            "Changes not saved: cannot used the following system reserved tpyes " +
+            "Changes not saved: cannot used the following system reserved types " +
             tagTypes.TOKENS +
             ", " +
             tagTypes.SENTENCES,

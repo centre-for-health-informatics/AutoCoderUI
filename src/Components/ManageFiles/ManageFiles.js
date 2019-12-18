@@ -84,11 +84,8 @@ const ManageFiles = props => {
       let newTags = []; // make an empty list of tags to append all tags to
       for (let promise of promises) {
         // adding to newTags
-        for (let section of promise[tagTypes.SECTIONS]) {
-          newTags.push(makeTagObject(section));
-        }
-        for (let entity of promise[tagTypes.ENTITIES]) {
-          newTags.push(makeTagObject(entity));
+        for (let tag of promise.tagTemplates) {
+          newTags.push(tag);
         }
       }
       // for every tag added, check if it exists in tagTemplates. If not, append it
@@ -101,16 +98,6 @@ const ManageFiles = props => {
       // pushing the modified tagTemplates to the state
       props.setTagTemplates(tagTemplates);
     });
-  };
-
-  // makes a tag object from an annotation
-  const makeTagObject = item => {
-    let newTag = {};
-    newTag.id = item.tag;
-    newTag.color = item.color;
-    newTag.type = item.type;
-    newTag.description = item.description || ""; // setting empty string if there is no description so the UI doesn't display "undefined"
-    return newTag;
   };
 
   // making a promise list
@@ -238,10 +225,10 @@ const ManageFiles = props => {
   const annotationsEmpty = index => {
     let annotationsObject = props.annotationsList[index];
     if (
-      annotationsObject[tagTypes.SECTIONS] ||
-      annotationsObject[tagTypes.ENTITIES] ||
-      annotationsObject[tagTypes.SENTENCES] ||
-      annotationsObject[tagTypes.TOKENS]
+      annotationsObject[tagTypes.SECTIONS] !== [] ||
+      annotationsObject[tagTypes.ENTITIES] !== [] ||
+      annotationsObject[tagTypes.SENTENCES] !== [] ||
+      annotationsObject[tagTypes.TOKENS] !== []
     ) {
       return false;
     }
@@ -255,8 +242,6 @@ const ManageFiles = props => {
 
     for (let annotation of props.annotationsList) {
       const tagsInUse = checkTagsInUse(annotation);
-      console.log(tagsInUse);
-      console.log(JSON.stringify(tagsInUse));
       zip.file(
         annotation.name + "_Annotations.json",
         '{"tagTemplates":[' + JSON.stringify(tagsInUse).slice(1, -1) + "]," + JSON.stringify(annotation).slice(1)
@@ -270,10 +255,8 @@ const ManageFiles = props => {
 
   const checkTagsInUse = annotation => {
     let tagTemplates = Array.from(props.tagTemplates);
-    console.log(tagTemplates);
     const tagsInUse = new Set();
     for (let tag of tagTemplates) {
-      console.log("hi");
       for (let entity of annotation[tagTypes.ENTITIES]) {
         if (tag.id === entity.tag && tag.type === entity.type) {
           tagsInUse.add(tag);
@@ -285,7 +268,7 @@ const ManageFiles = props => {
         }
       }
     }
-    return tagsInUse;
+    return Array.from(tagsInUse);
   };
 
   // handles a user clicking on another file that has been uploaded
