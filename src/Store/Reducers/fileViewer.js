@@ -24,7 +24,8 @@ const initialState = {
   txtList: [],
   jsonList: [],
   annotationsList: [],
-  fileIndex: -1
+  fileIndex: -1,
+  sessionId: null
 };
 
 const reducer = (state = initialState, action) => {
@@ -77,6 +78,8 @@ const reducer = (state = initialState, action) => {
       return { ...state, annotationsList: action.annotationsList };
     case actionTypes.SET_FILE_INDEX:
       return { ...state, fileIndex: action.fileIndex };
+    case actionTypes.SET_SESSION_ID:
+      return { ...state, sessionId: action.sessionId };
     default:
       return state;
   }

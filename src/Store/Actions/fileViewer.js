@@ -167,3 +167,10 @@ export const setFileIndex = fileIndex => {
     fileIndex
   };
 };
+
+export const setSessionId = sessionId => {
+  return {
+    type: actionTypes.SET_SESSION_ID,
+    sessionId
+  };
+};

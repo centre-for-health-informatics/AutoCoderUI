@@ -24,7 +24,8 @@ export {
   setTxtList,
   setJsonList,
   setAnnotationsList,
-  setFileIndex
+  setFileIndex,
+  setSessionId
 } from "./fileViewer";
 export {
   setUploadedTags,

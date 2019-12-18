@@ -58,6 +58,9 @@ const Annotate = props => {
     APIUtility.API.verifyLSToken(() => setIsLoading(false));
     setDefaultTags(props.setTagTemplates, props.initialTagsAdded);
     props.setInitialTagsAdded(true);
+    if (!props.sessionId) {
+      props.setSessionId(Date.now().toString() + Math.floor(Math.random() * 1000000).toString());
+    }
   }, []);
 
   // Map colors
@@ -136,7 +139,8 @@ const mapStateToProps = state => {
     alertMessage: state.alert.alertMessage,
     isAuthorized: state.authentication.isAuthorized,
     isServerDown: state.authentication.isServerDown,
-    initialTagsAdded: state.tagManagement.initialTagsAdded
+    initialTagsAdded: state.tagManagement.initialTagsAdded,
+    sessionId: state.fileViewer.sessionId
   };
 };
 
@@ -148,7 +152,8 @@ const mapDispatchToProps = dispatch => {
     setAnnotations: annotations => dispatch(actions.setAnnotations(annotations)),
     setEntitiesInUse: entitiesInUse => dispatch(actions.setEntitiesInUse(entitiesInUse)),
     setSectionsInUse: sectionsInUse => dispatch(actions.setSectionsInUse(sectionsInUse)),
-    setInitialTagsAdded: initialTagsAdded => dispatch(actions.setInitialTagsAdded(initialTagsAdded))
+    setInitialTagsAdded: initialTagsAdded => dispatch(actions.setInitialTagsAdded(initialTagsAdded)),
+    setSessionId: sessionId => dispatch(actions.setSessionId(sessionId))
   };
 };
 

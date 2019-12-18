@@ -300,18 +300,23 @@ const ManageFiles = props => {
   };
 
   const saveAnnotations = () => {
-    // const options = {
-    //   method: "POST",
-    //   body: fileData
-    // };
-    // APIUtility.API.makeAPICall(APIUtility.UPLOAD_ANNOTATIONS, null, options)
-    //   .then(response => response.json())
-    //   .then(data => {
-    //     console.log(data)
-    //   })
-    //   .catch(error => {
-    //     console.log("ERROR:", error);
-    // });
+    const annotationsList = JSON.parse(JSON.stringify(props.annotationsList));
+    for (let annotations of annotationsList) {
+      annotations.sessionId = props.sessionId;
+
+      const options = {
+        method: "POST",
+        body: annotations
+      };
+      APIUtility.API.makeAPICall(APIUtility.UPLOAD_ANNOTATIONS, null, options)
+        .then(response => response.json())
+        .then(data => {
+          console.log(data);
+        })
+        .catch(error => {
+          console.log("ERROR:", error);
+        });
+    }
   };
 
   return (
@@ -352,7 +357,8 @@ const mapStateToProps = state => {
     txtList: state.fileViewer.txtList,
     annotationsList: state.fileViewer.annotationsList,
     fileIndex: state.fileViewer.fileIndex,
-    tagTemplates: state.fileViewer.tagTemplates
+    tagTemplates: state.fileViewer.tagTemplates,
+    sessionId: state.fileViewer.sessionId
   };
 };
 
