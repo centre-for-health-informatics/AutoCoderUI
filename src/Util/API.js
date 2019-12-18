@@ -10,6 +10,7 @@ export const FORGOT_PASSWORD = "FORGOT_PASSWORD";
 export const RESET_PASSWORD = "RESET_PASSWORD";
 export const UPLOAD_DOCUMENT = "UPLOAD_DOCUMENT";
 export const GET_SECTIONS = "GET_SECTIONS";
+export const UPLOAD_ANNOTATIONS = "UPLOAD_ANNOTATIONS";
 
 /**
  * API class used to connect to the backend
@@ -210,6 +211,8 @@ export class API {
         return this._addAuthorization(this.urlBeginning + "uploadDoc/", options);
       case GET_SECTIONS:
         return this._addAuthorization(this.urlBeginning + "getSections/");
+      case UPLOAD_ANNOTATIONS:
+        return this._addAuthorization(this.urlBeginning + "uploadAnnot/");
       default:
         return null;
     }

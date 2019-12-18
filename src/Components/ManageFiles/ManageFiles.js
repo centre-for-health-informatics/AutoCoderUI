@@ -144,14 +144,42 @@ const ManageFiles = props => {
         let fileReader = new FileReader();
         fileReader.onload = e => {
           const json = JSON.parse(e.target.result);
-          annotationsObject.Sections = json[tagTypes.SECTIONS];
-          annotationsObject[tagTypes.ENTITIES] = json[tagTypes.ENTITIES];
-          annotationsObject[tagTypes.TOKENS] = json[tagTypes.TOKENS];
-          annotationsObject[tagTypes.SENTENCES] = json[tagTypes.SENTENCES];
+          if (json[tagTypes.SECTIONS]) {
+            annotationsObject.Sections = json[tagTypes.SECTIONS];
+          } else {
+            annotationsObject[tagTypes.SECTIONS] = [];
+          }
+          if (json[tagTypes.ENTITIES]) {
+            annotationsObject[tagTypes.ENTITIES] = json[tagTypes.ENTITIES];
+          } else {
+            annotationsObject[tagTypes.ENTITIES] = [];
+          }
+          if (json[tagTypes.TOKENS]) {
+            annotationsObject[tagTypes.TOKENS] = json[tagTypes.TOKENS];
+          } else {
+            annotationsObject[tagTypes.TOKENS] = [];
+          }
+          if (json[tagTypes.SENTENCES]) {
+            annotationsObject[tagTypes.SENTENCES] = json[tagTypes.SENTENCES];
+          } else {
+            annotationsObject[tagTypes.SENTENCES] = [];
+          }
         };
         fileReader.readAsText(file);
         break;
       }
+    }
+    if (!annotationsObject[tagTypes.SECTIONS]) {
+      annotationsObject[tagTypes.SECTIONS] = [];
+    }
+    if (!annotationsObject[tagTypes.TOKENS]) {
+      annotationsObject[tagTypes.TOKENS] = [];
+    }
+    if (!annotationsObject[tagTypes.SENTENCES]) {
+      annotationsObject[tagTypes.SENTENCES] = [];
+    }
+    if (!annotationsObject[tagTypes.ENTITIES]) {
+      annotationsObject[tagTypes.ENTITIES] = [];
     }
   };
 
@@ -227,6 +255,8 @@ const ManageFiles = props => {
 
     for (let annotation of props.annotationsList) {
       const tagsInUse = checkTagsInUse(annotation);
+      console.log(tagsInUse);
+      console.log(JSON.stringify(tagsInUse));
       zip.file(
         annotation.name + "_Annotations.json",
         '{"tagTemplates":[' + JSON.stringify(tagsInUse).slice(1, -1) + "]," + JSON.stringify(annotation).slice(1)
@@ -240,8 +270,10 @@ const ManageFiles = props => {
 
   const checkTagsInUse = annotation => {
     let tagTemplates = Array.from(props.tagTemplates);
+    console.log(tagTemplates);
     const tagsInUse = new Set();
     for (let tag of tagTemplates) {
+      console.log("hi");
       for (let entity of annotation[tagTypes.ENTITIES]) {
         if (tag.id === entity.tag && tag.type === entity.type) {
           tagsInUse.add(tag);
@@ -284,6 +316,21 @@ const ManageFiles = props => {
     return "normal";
   };
 
+  const saveAnnotations = () => {
+    // const options = {
+    //   method: "POST",
+    //   body: fileData
+    // };
+    // APIUtility.API.makeAPICall(APIUtility.UPLOAD_ANNOTATIONS, null, options)
+    //   .then(response => response.json())
+    //   .then(data => {
+    //     console.log(data)
+    //   })
+    //   .catch(error => {
+    //     console.log("ERROR:", error);
+    // });
+  };
+
   return (
     <div className={classes.root}>
       <Button onClick={openExplorerBrowse} variant="contained" color="primary" className={classes.button}>
@@ -296,6 +343,9 @@ const ManageFiles = props => {
         multiple
         onChange={e => openFiles(e.target.files)}
       />
+      <Button onClick={saveAnnotations} variant="contained" color="primary" className={classes.button}>
+        Save Annotations
+      </Button>
       <Button onClick={exportAnnotations} variant="contained" color="primary" className={classes.button}>
         Export Annotations
       </Button>
