@@ -9,7 +9,6 @@ export const VALIDATE_TOKEN = "VALIDATE_TOKEN";
 export const FORGOT_PASSWORD = "FORGOT_PASSWORD";
 export const RESET_PASSWORD = "RESET_PASSWORD";
 export const UPLOAD_DOCUMENT = "UPLOAD_DOCUMENT";
-export const GET_SECTIONS = "GET_SECTIONS";
 export const UPLOAD_ANNOTATIONS = "UPLOAD_ANNOTATIONS";
 
 /**
@@ -192,6 +191,7 @@ export class API {
    * This method returns the response from various API calls as a promise
    */
   static makeAPICall(endpoint, input, options = {}) {
+    console.log(options);
     switch (endpoint) {
       case GET_TOKEN:
         if (options.body === undefined) {
@@ -209,10 +209,8 @@ export class API {
         return this._fetchFromAPI(this.urlBeginning + "password_reset/confirm", options);
       case UPLOAD_DOCUMENT:
         return this._addAuthorization(this.urlBeginning + "uploadDoc/", options);
-      case GET_SECTIONS:
-        return this._addAuthorization(this.urlBeginning + "getSections/");
       case UPLOAD_ANNOTATIONS:
-        return this._addAuthorization(this.urlBeginning + "uploadAnnot/");
+        return this._addAuthorization(this.urlBeginning + "uploadAnnot/", options);
       default:
         return null;
     }

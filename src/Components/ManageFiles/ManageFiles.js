@@ -224,11 +224,12 @@ const ManageFiles = props => {
 
   const annotationsEmpty = index => {
     let annotationsObject = props.annotationsList[index];
+    console.log(JSON.stringify(annotationsObject));
     if (
-      annotationsObject[tagTypes.SECTIONS] !== [] ||
-      annotationsObject[tagTypes.ENTITIES] !== [] ||
-      annotationsObject[tagTypes.SENTENCES] !== [] ||
-      annotationsObject[tagTypes.TOKENS] !== []
+      annotationsObject[tagTypes.SECTIONS].length > 0 ||
+      annotationsObject[tagTypes.ENTITIES].length > 0 ||
+      annotationsObject[tagTypes.SENTENCES].length > 0 ||
+      annotationsObject[tagTypes.TOKENS].length > 0
     ) {
       return false;
     }
@@ -308,6 +309,7 @@ const ManageFiles = props => {
         method: "POST",
         body: annotations
       };
+
       APIUtility.API.makeAPICall(APIUtility.UPLOAD_ANNOTATIONS, null, options)
         .then(response => response.json())
         .then(data => {
