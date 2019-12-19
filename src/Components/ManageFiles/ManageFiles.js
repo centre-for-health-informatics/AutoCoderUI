@@ -304,6 +304,8 @@ const ManageFiles = props => {
     const annotationsList = JSON.parse(JSON.stringify(props.annotationsList));
     for (let annotations of annotationsList) {
       annotations.sessionId = props.sessionId;
+      annotations.tagTemplates = checkTagsInUse(annotations);
+      console.log(annotations);
 
       const options = {
         method: "POST",
@@ -311,13 +313,9 @@ const ManageFiles = props => {
       };
 
       APIUtility.API.makeAPICall(APIUtility.UPLOAD_ANNOTATIONS, null, options)
-        .then(response => response.json())
-        .then(data => {
-          console.log(data);
-        })
-        .catch(error => {
-          console.log("ERROR:", error);
-        });
+      .catch(error => {
+        console.log("ERROR:", error);
+      });
     }
   };
 
