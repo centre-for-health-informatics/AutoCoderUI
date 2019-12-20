@@ -12,10 +12,12 @@ import * as APIUtility from "../../Util/API";
 import "react-grid-layout/css/styles.css";
 import "react-resizable/css/styles.css";
 import TagSelector from "../../Components/TagManagement/TagSelector";
-import FileViewer from "../../Components/FileViewer/FileViewer";
 import Legend from "../../Components/CustomAnnotator/Legend";
 import ManageFiles from "../../Components/ManageFiles/ManageFiles";
 import { mapColors, setDefaultTags } from "../../Components/TagManagement/tagUtil";
+import { Switch, FormControlLabel } from "@material-ui/core";
+import LoadingIndicator from "../../Components/LoadingIndicator/LoadingIndicator";
+import CustomAnnotator from "../../Components/CustomAnnotator/CustomAnnotator";
 
 const ResponsiveReactGridLayout = WidthProvider(Responsive);
 const originalLayouts = getFromLS("annotateLayouts", "layouts") || defaultLayouts;
@@ -94,6 +96,13 @@ const Annotate = props => {
     return <Redirect to="/sign-in" />;
   }
 
+  const renderCustomAnnotator = () => {
+    if (props.isSpacyLoading[props.fileIndex]) {
+      return <LoadingIndicator />;
+    }
+    return <CustomAnnotator />;
+  };
+
   return (
     <div>
       <div>
@@ -116,14 +125,33 @@ const Annotate = props => {
         isResizable={isLayoutModifiable}
         onLayoutChange={(layout, layouts) => onLayoutChange(layouts)}
       >
-        <div key="tagSelector" className={highlightEditDiv}>
-          <TagSelector />
+        <div key="tagSelector" className={highlightEditDiv} style={{ display: "flex", flexDirection: "row" }}>
+          <div>
+            <TagSelector />
+          </div>
+          <div>
+            <FormControlLabel
+              control={
+                <Switch
+                  size="small"
+                  color="primary"
+                  checked={props.snapToWord}
+                  onChange={() => {
+                    props.setSnapToWord(!props.snapToWord);
+                  }}
+                />
+              }
+              label="Snap to Whole Word"
+            />
+          </div>
         </div>
         <div key="manageFiles" className={highlightEditDiv} style={{ overflowY: "auto" }}>
           <ManageFiles />
         </div>
         <div key="document" className={highlightEditDiv} style={{ overflowY: "auto" }}>
-          <FileViewer />
+          <div id="docDisplay" style={{ whiteSpace: "pre-wrap" }}>
+            {renderCustomAnnotator()}
+          </div>
         </div>
         <div key="legend" className={highlightEditDiv}>
           <Legend />
@@ -139,8 +167,10 @@ const mapStateToProps = state => {
     alertMessage: state.alert.alertMessage,
     isAuthorized: state.authentication.isAuthorized,
     isServerDown: state.authentication.isServerDown,
+    isSpacyLoading: state.fileViewer.isSpacyLoading,
     initialTagsAdded: state.tagManagement.initialTagsAdded,
-    sessionId: state.fileViewer.sessionId
+    sessionId: state.fileViewer.sessionId,
+    snapToWord: state.fileViewer.snapToWord
   };
 };
 
@@ -153,7 +183,8 @@ const mapDispatchToProps = dispatch => {
     setEntitiesInUse: entitiesInUse => dispatch(actions.setEntitiesInUse(entitiesInUse)),
     setSectionsInUse: sectionsInUse => dispatch(actions.setSectionsInUse(sectionsInUse)),
     setInitialTagsAdded: initialTagsAdded => dispatch(actions.setInitialTagsAdded(initialTagsAdded)),
-    setSessionId: sessionId => dispatch(actions.setSessionId(sessionId))
+    setSessionId: sessionId => dispatch(actions.setSessionId(sessionId)),
+    setSnapToWord: snapToWord => dispatch(actions.setSnapToWord(snapToWord))
   };
 };
 

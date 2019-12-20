@@ -57,7 +57,8 @@ class CustomAnnotator extends Component {
   handleMouseUp = () => {
     // can't set a section or entity annotation without a tag
     if (
-      (this.props.annotationFocus === tagTypes.SECTIONS || this.props.annotationFocus === tagTypes.ENTITIES) &&
+      this.props.annotationFocus !== tagTypes.SENTENCES &&
+      this.props.annotationFocus !== tagTypes.TOKENS &&
       this.props.addingTags.length === 0
     ) {
       return;
