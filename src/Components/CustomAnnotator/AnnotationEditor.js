@@ -115,7 +115,7 @@ const AnnotationEditor = props => {
           uniqueTextIntervals.push(makeListItemDataFromAnnotation(props.itemsToEdit[i]));
         } else {
           // item already exist, add to the item's colors and tags lists
-          spanAlreadyExist.labels.push({ tag: props.itemsToEdit[i].tag, color: props.itemsToEdit[i].color });
+          spanAlreadyExist.labels.push({ tag: props.itemsToEdit[i].tag, color: getColor(props.itemsToEdit[i]) });
           spanAlreadyExist.ref.push(props.itemsToEdit[i]);
         }
       }
@@ -213,6 +213,7 @@ const AnnotationEditor = props => {
   const makeListItemHTML = item => {
     const chipList = [];
     for (let i = 0; i < item.labels.length; i++) {
+      console.log(item.labels[i].color);
       chipList.push(
         <Chip
           key={"chipItem-" + item.labels[i].tag + Math.random()}
