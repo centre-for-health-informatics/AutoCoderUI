@@ -126,10 +126,10 @@ const Annotate = props => {
         onLayoutChange={(layout, layouts) => onLayoutChange(layouts)}
       >
         <div key="tagSelector" className={highlightEditDiv} style={{ display: "flex", flexDirection: "row" }}>
-          <div>
+          <div style={{ flex: 2.5 }}>
             <TagSelector />
           </div>
-          <div>
+          <div style={{ flex: 1 }}>
             <FormControlLabel
               control={
                 <Switch
@@ -142,6 +142,19 @@ const Annotate = props => {
                 />
               }
               label="Snap to Whole Word"
+            />
+            <FormControlLabel
+              control={
+                <Switch
+                  size="small"
+                  color="primary"
+                  checked={props.linkedListAdd}
+                  onChange={() => {
+                    props.setLinkedListAdd(!props.linkedListAdd);
+                  }}
+                />
+              }
+              label="Link Next Annotation"
             />
           </div>
         </div>
@@ -170,6 +183,7 @@ const mapStateToProps = state => {
     isSpacyLoading: state.fileViewer.isSpacyLoading,
     initialTagsAdded: state.tagManagement.initialTagsAdded,
     sessionId: state.fileViewer.sessionId,
+    linkedListAdd: state.fileViewer.linkedListAdd,
     snapToWord: state.fileViewer.snapToWord
   };
 };
@@ -181,6 +195,7 @@ const mapDispatchToProps = dispatch => {
     setAnnotationFocus: annotationFocus => dispatch(actions.setAnnotationFocus(annotationFocus)),
     setAnnotations: annotations => dispatch(actions.setAnnotations(annotations)),
     setEntitiesInUse: entitiesInUse => dispatch(actions.setEntitiesInUse(entitiesInUse)),
+    setLinkedListAdd: linkedListAdd => dispatch(actions.setLinkedListAdd(linkedListAdd)),
     setSectionsInUse: sectionsInUse => dispatch(actions.setSectionsInUse(sectionsInUse)),
     setInitialTagsAdded: initialTagsAdded => dispatch(actions.setInitialTagsAdded(initialTagsAdded)),
     setSessionId: sessionId => dispatch(actions.setSessionId(sessionId)),
