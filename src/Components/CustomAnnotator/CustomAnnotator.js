@@ -57,8 +57,7 @@ class CustomAnnotator extends Component {
   handleMouseUp = () => {
     // can't set a section or entity annotation without a tag
     if (
-      this.props.annotationFocus !== tagTypes.TOKENS &&
-      this.props.annotationFocus !== tagTypes.SENTENCES &&
+      (this.props.annotationFocus === tagTypes.SECTIONS || this.props.annotationFocus === tagTypes.ENTITIES) &&
       this.props.addingTags.length === 0
     ) {
       return;
@@ -373,7 +372,7 @@ class CustomAnnotator extends Component {
         <div style={(this.annoteStyle, { position: "absolute" })} ref={this.rootRef} id="intervalsDiv">
           {intervals.map((interval, i) => (
             <util.Interval
-              key={interval.start + "-" + interval.end}
+              key={interval.start + "-" + interval.end + "-" + i}
               {...interval}
               onClick={event => this.handleIntervalClick(event, interval.start, interval.end)}
               setSpansRendered={this.props.setSpansRendered}

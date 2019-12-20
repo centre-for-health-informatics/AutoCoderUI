@@ -10,6 +10,7 @@ export const FORGOT_PASSWORD = "FORGOT_PASSWORD";
 export const RESET_PASSWORD = "RESET_PASSWORD";
 export const UPLOAD_DOCUMENT = "UPLOAD_DOCUMENT";
 export const UPLOAD_ANNOTATIONS = "UPLOAD_ANNOTATIONS";
+export const GET_LAST_ANNOTE = "GET_LAST_ANNOTE";
 
 /**
  * API class used to connect to the backend
@@ -191,7 +192,6 @@ export class API {
    * This method returns the response from various API calls as a promise
    */
   static makeAPICall(endpoint, input, options = {}) {
-    console.log(options);
     switch (endpoint) {
       case GET_TOKEN:
         if (options.body === undefined) {
@@ -211,6 +211,8 @@ export class API {
         return this._addAuthorization(this.urlBeginning + "uploadDoc/", options);
       case UPLOAD_ANNOTATIONS:
         return this._addAuthorization(this.urlBeginning + "uploadAnnot/", options);
+      case GET_LAST_ANNOTE:
+        return this._addAuthorization(this.urlBeginning + "getLastAnnot/" + input + this.json);
       default:
         return null;
     }

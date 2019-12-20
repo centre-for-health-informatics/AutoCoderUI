@@ -2,10 +2,10 @@ import * as actions from "./index";
 import * as tagTypes from "../../Components/TagManagement/tagTypes";
 
 // sets store with annotations when spacy loads, and gets the tags for the legend
-export const updateAnnotationsAfterLoadingSpacy = data => {
+export const updateAnnotationsAfterLoadingSpacy = (data, index) => {
   return (dispatch, getState) => {
     let annotationsListCopy = JSON.parse(JSON.stringify(getState().fileViewer.annotationsList));
-    let annotationsObject = annotationsListCopy[getState().fileViewer.fileIndex];
+    let annotationsObject = annotationsListCopy[index];
 
     let sections, sentences, tokens, entities;
     if (data[tagTypes.SECTIONS]) {
@@ -30,6 +30,8 @@ export const updateAnnotationsAfterLoadingSpacy = data => {
     }
 
     dispatch(actions.setAnnotationsList(annotationsListCopy));
+
+    // if opening more files while spacy is loading, can maybe cause issue?
   };
 };
 

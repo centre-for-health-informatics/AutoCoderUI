@@ -7,7 +7,7 @@ import CustomAnnotator from "../../Components/CustomAnnotator/CustomAnnotator";
 
 const FileViewer = props => {
   const renderCustomAnnotator = () => {
-    if (props.spacyLoading) {
+    if (props.isSpacyLoading[props.fileIndex]) {
       return <LoadingIndicator />;
     }
     return <CustomAnnotator />;
@@ -45,12 +45,13 @@ const mapStateToProps = state => {
     sentences: state.fileViewer.sentences,
     tokens: state.fileViewer.tokens,
     entities: state.fileViewer.entities,
-    // icdCodes:
     spacyActive: state.fileViewer.spacyActive,
-    spacyLoading: state.fileViewer.spacyLoading,
+    isSpacyLoading: state.fileViewer.isSpacyLoading,
     tagTemplates: state.fileViewer.tagTemplates,
     snapToWord: state.fileViewer.snapToWord,
-    sectionsInUse: state.fileViewer.sectionsInUse
+    sectionsInUse: state.fileViewer.sectionsInUse,
+    fileIndex: state.fileViewer.fileIndex,
+    annotationsList: state.fileViewer.annotationsList
   };
 };
 
@@ -62,7 +63,7 @@ const mapDispatchToProps = dispatch => {
     setSentences: sentences => dispatch(actions.setSentences(sentences)),
     setTokens: tokens => dispatch(actions.setTokens(tokens)),
     setEntities: entities => dispatch(actions.setEntities(entities)),
-    setSpacyLoading: spacyLoading => dispatch(actions.setSpacyLoading(spacyLoading)),
+    setSpacyLoading: isSpacyLoading => dispatch(actions.setSpacyLoading(isSpacyLoading)),
     setSpacyActive: spacyActive => dispatch(actions.setSpacyActive(spacyActive)),
     setAnnotations: annotations => dispatch(actions.setAnnotations(annotations)),
     setAnnotationFocus: annotationFocus => dispatch(actions.setAnnotationFocus(annotationFocus)),

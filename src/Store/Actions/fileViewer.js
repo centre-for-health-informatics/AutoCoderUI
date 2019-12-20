@@ -35,10 +35,10 @@ export const setEntities = entities => {
   };
 };
 
-export const setSpacyLoading = spacyLoading => {
+export const setSpacyLoading = isSpacyLoading => {
   return {
     type: actionTypes.SET_SPACY_LOADING,
-    spacyLoading
+    isSpacyLoading
   };
 };
 
@@ -172,5 +172,13 @@ export const setSessionId = sessionId => {
   return {
     type: actionTypes.SET_SESSION_ID,
     sessionId
+  };
+};
+
+export const setSingleSpacyLoading = (isSpacyLoading, index) => {
+  return {
+    type: actionTypes.SET_SINGLE_SPACY_LOADING,
+    isSpacyLoading,
+    index
   };
 };

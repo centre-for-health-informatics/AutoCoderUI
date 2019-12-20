@@ -30,8 +30,8 @@ const ManageFiles = props => {
   };
 
   // calls API to receive annotations from Spacy
-  const callApi = fileData => {
-    props.setSpacyLoading(true);
+  const callApi = (fileData, index) => {
+    props.setSingleSpacyLoading(true, index);
     const options = {
       method: "POST",
       body: fileData
@@ -40,9 +40,11 @@ const ManageFiles = props => {
     APIUtility.API.makeAPICall(APIUtility.UPLOAD_DOCUMENT, null, options)
       .then(response => response.json())
       .then(data => {
-        props.updateAnnotationsAfterLoadingSpacy(data);
-        props.setAnnotationFocus("");
-        props.setSpacyLoading(false);
+        props.updateAnnotationsAfterLoadingSpacy(data, index);
+        if (props.fileIndex === index) {
+          props.setAnnotationFocus("");
+        }
+        props.setSingleSpacyLoading(false, index);
       })
       .catch(error => {
         console.log("ERROR:", error);
@@ -57,11 +59,13 @@ const ManageFiles = props => {
     const txtList = [];
     const jsonList = [];
     const annotationsList = [];
+    const isSpacyLoading = [];
     for (let file of fileList) {
       const ext = file.name.split(".")[file.name.split(".").length - 1];
       // for text files that aren't already opened
       if (ext === "txt" && !fileAlreadyOpen(file, props.txtList)) {
         txtList.push(file);
+        isSpacyLoading.push(false);
         // creating annotation object and pushing into a list
         let annotationsObject = {};
         annotationsObject.name = file.name.slice(0, file.name.length - 1 - ext.length);
@@ -77,7 +81,9 @@ const ManageFiles = props => {
     props.setTxtList([...props.txtList, ...txtList]);
     props.setAnnotationsList([...props.annotationsList, ...annotationsList]);
 
-    const tagTemplates = Array.from(props.tagTemplates); // copy state
+    // setting spacy loading array
+    props.setSpacyLoading([...props.isSpacyLoading, ...isSpacyLoading]);
+
     const promiseList = makePromiseList(jsonList); // make promise list
     Promise.all(promiseList).then(promises => {
       // once all of the promises are resolved
@@ -88,16 +94,22 @@ const ManageFiles = props => {
           newTags.push(tag);
         }
       }
-      // for every tag added, check if it exists in tagTemplates. If not, append it
-      for (let newTag of newTags) {
-        let duplicateTag = tagTemplates.find(tag => tag.id === newTag.id && tag.type === newTag.type);
-        if (duplicateTag === undefined) {
-          tagTemplates.push(newTag);
-        }
-      }
-      // pushing the modified tagTemplates to the state
-      props.setTagTemplates(tagTemplates);
+      addNewTags(newTags);
     });
+  };
+
+  // checking duplicate tags and adding new tags to tagTemplates
+  const addNewTags = newTags => {
+    const tagTemplates = Array.from(props.tagTemplates); // copy state
+    // for every tag added, check if it exists in tagTemplates. If not, append it
+    for (let newTag of newTags) {
+      let duplicateTag = tagTemplates.find(tag => tag.id === newTag.id && tag.type === newTag.type);
+      if (duplicateTag === undefined) {
+        tagTemplates.push(newTag);
+      }
+    }
+    // pushing the modified tagTemplates to the state
+    props.setTagTemplates(tagTemplates);
   };
 
   // making a promise list
@@ -186,10 +198,10 @@ const ManageFiles = props => {
       let fileReader = new FileReader();
       // reset store if file changes
       props.setAnnotations([]);
-      props.setSections(props.annotationsList[index][tagTypes.SECTIONS] || []);
-      props.setSentences(props.annotationsList[index][tagTypes.SENTENCES] || []);
-      props.setTokens(props.annotationsList[index][tagTypes.TOKENS] || []);
-      props.setEntities(props.annotationsList[index][tagTypes.ENTITIES] || []);
+      props.setSections(props.annotationsList[index][tagTypes.SECTIONS]);
+      props.setSentences(props.annotationsList[index][tagTypes.SENTENCES]);
+      props.setTokens(props.annotationsList[index][tagTypes.TOKENS]);
+      props.setEntities(props.annotationsList[index][tagTypes.ENTITIES]);
       props.setAnnotationFocus("");
 
       // creating fileData - used to call API
@@ -216,7 +228,7 @@ const ManageFiles = props => {
 
         // if "use spacy" is checked and there are no existing annotations for the file
         if (props.spacyActive && annotationsEmpty(index)) {
-          callApi(fileData);
+          callApi(fileData, index);
         }
       };
     }
@@ -224,7 +236,6 @@ const ManageFiles = props => {
 
   const annotationsEmpty = index => {
     let annotationsObject = props.annotationsList[index];
-    console.log(JSON.stringify(annotationsObject));
     if (
       annotationsObject[tagTypes.SECTIONS].length > 0 ||
       annotationsObject[tagTypes.ENTITIES].length > 0 ||
@@ -305,17 +316,44 @@ const ManageFiles = props => {
     for (let annotations of annotationsList) {
       annotations.sessionId = props.sessionId;
       annotations.tagTemplates = checkTagsInUse(annotations);
-      console.log(annotations);
 
       const options = {
         method: "POST",
         body: annotations
       };
 
-      APIUtility.API.makeAPICall(APIUtility.UPLOAD_ANNOTATIONS, null, options)
-      .catch(error => {
+      APIUtility.API.makeAPICall(APIUtility.UPLOAD_ANNOTATIONS, null, options).catch(error => {
         console.log("ERROR:", error);
       });
+    }
+  };
+
+  const loadAnnotations = () => {
+    if (props.fileIndex !== -1) {
+      APIUtility.API.makeAPICall(APIUtility.GET_LAST_ANNOTE, props.annotationsList[props.fileIndex].name)
+        .then(response => response.json())
+        .then(data => {
+          props.setAnnotationFocus("");
+          let annotationsList = JSON.parse(JSON.stringify(props.annotationsList));
+          let annotationsObject = annotationsList[props.fileIndex];
+          annotationsObject[tagTypes.SECTIONS] = data.data[tagTypes.SECTIONS];
+          annotationsObject[tagTypes.SENTENCES] = data.data[tagTypes.SENTENCES];
+          annotationsObject[tagTypes.ENTITIES] = data.data[tagTypes.ENTITIES];
+          props.setAnnotationsList(annotationsList);
+          props.setSections(data.data[tagTypes.SECTIONS]);
+          props.setSentences(data.data[tagTypes.SENTENCES]);
+          props.setEntities(data.data[tagTypes.ENTITIES]);
+
+          // adding new tags to store
+          let newTags = []; // make an empty list of tags to append all tags to
+          for (let tag of data.data.tagTemplates) {
+            newTags.push(tag);
+          }
+          addNewTags(newTags);
+        })
+        .catch(error => {
+          console.log("ERROR:", error);
+        });
     }
   };
 
@@ -333,6 +371,9 @@ const ManageFiles = props => {
       />
       <Button onClick={saveAnnotations} variant="contained" color="primary" className={classes.button}>
         Save Annotations
+      </Button>
+      <Button onClick={loadAnnotations} variant="contained" color="primary" className={classes.button}>
+        Load Annotations
       </Button>
       <Button onClick={exportAnnotations} variant="contained" color="primary" className={classes.button}>
         Export Annotations
@@ -358,7 +399,8 @@ const mapStateToProps = state => {
     annotationsList: state.fileViewer.annotationsList,
     fileIndex: state.fileViewer.fileIndex,
     tagTemplates: state.fileViewer.tagTemplates,
-    sessionId: state.fileViewer.sessionId
+    sessionId: state.fileViewer.sessionId,
+    isSpacyLoading: state.fileViewer.isSpacyLoading
   };
 };
 
@@ -374,13 +416,15 @@ const mapDispatchToProps = dispatch => {
     setSectionsInUse: sectionsInUse => dispatch(actions.setSectionsInUse(sectionsInUse)),
     setEntitiesInUse: entitiesInUse => dispatch(actions.setEntitiesInUse(entitiesInUse)),
     setAnnotationFocus: annotationFocus => dispatch(actions.setAnnotationFocus(annotationFocus)),
-    setSpacyLoading: spacyLoading => dispatch(actions.setSpacyLoading(spacyLoading)),
-    updateAnnotationsAfterLoadingSpacy: data => dispatch(actions.updateAnnotationsAfterLoadingSpacy(data)),
+    setSpacyLoading: isSpacyLoading => dispatch(actions.setSpacyLoading(isSpacyLoading)),
+    updateAnnotationsAfterLoadingSpacy: (data, index) =>
+      dispatch(actions.updateAnnotationsAfterLoadingSpacy(data, index)),
     setJsonList: jsonList => dispatch(actions.setJsonList(jsonList)),
     setTxtList: txtList => dispatch(actions.setTxtList(txtList)),
     setAnnotationsList: annotationsList => dispatch(actions.setAnnotationsList(annotationsList)),
     setFileIndex: fileIndex => dispatch(actions.setFileIndex(fileIndex)),
-    setTagTemplates: tagTemplates => dispatch(actions.setTagTemplates(tagTemplates))
+    setTagTemplates: tagTemplates => dispatch(actions.setTagTemplates(tagTemplates)),
+    setSingleSpacyLoading: (isSpacyLoading, index) => dispatch(actions.setSingleSpacyLoading(isSpacyLoading, index))
     // setAlertMessage: newValue => dispatch(actions.setAlertMessage(newValue))
   };
 };

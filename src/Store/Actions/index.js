@@ -25,7 +25,8 @@ export {
   setJsonList,
   setAnnotationsList,
   setFileIndex,
-  setSessionId
+  setSessionId,
+  setSingleSpacyLoading
 } from "./fileViewer";
 export {
   setUploadedTags,

@@ -6,7 +6,7 @@ const initialState = {
   sentences: [],
   tokens: [],
   entities: [],
-  spacyLoading: false,
+  isSpacyLoading: [],
   spacyActive: false,
   annotationFocus: "Sections",
   annotations: [],
@@ -41,7 +41,7 @@ const reducer = (state = initialState, action) => {
     case actionTypes.SET_ENTITIES:
       return { ...state, entities: action.entities };
     case actionTypes.SET_SPACY_LOADING:
-      return { ...state, spacyLoading: action.spacyLoading };
+      return { ...state, isSpacyLoading: action.isSpacyLoading };
     case actionTypes.SET_SPACY_ACTIVE:
       return { ...state, spacyActive: action.spacyActive };
     case actionTypes.SET_ANNOTATION_FOCUS:
@@ -80,6 +80,10 @@ const reducer = (state = initialState, action) => {
       return { ...state, fileIndex: action.fileIndex };
     case actionTypes.SET_SESSION_ID:
       return { ...state, sessionId: action.sessionId };
+    case actionTypes.SET_SINGLE_SPACY_LOADING:
+      let isSpacyLoading = Array.from(state.isSpacyLoading);
+      isSpacyLoading[action.index] = action.isSpacyLoading;
+      return { ...state, isSpacyLoading: isSpacyLoading };
     default:
       return state;
   }

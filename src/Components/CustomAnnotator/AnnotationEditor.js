@@ -137,7 +137,6 @@ const AnnotationEditor = props => {
 
   // gets the color for an annotation
   const getColor = annotation => {
-    console.log(annotation);
     if (props.annotationFocus === tagTypes.SENTENCES) {
       console.log(props.sentences.indexOf(annotation));
       if (props.sentences.indexOf(annotation) % 2 === 0) {
@@ -216,7 +215,7 @@ const AnnotationEditor = props => {
     for (let i = 0; i < item.labels.length; i++) {
       chipList.push(
         <Chip
-          key={"chipItem-" + item.labels[i].tag}
+          key={"chipItem-" + item.labels[i].tag + Math.random()}
           variant="outlined"
           size="small"
           label={item.labels[i].tag}
