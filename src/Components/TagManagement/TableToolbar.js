@@ -80,12 +80,16 @@ export class MTableToolbar extends React.Component {
     const typeUpdated = [];
 
     for (let i = 0; i < lines.length; i++) {
-      const items = lines[i].split(",");
+      const items = lines[i].split("\t");
 
       let id = items[0];
       let description = items[1];
       let color = items[2];
       let type = items[3];
+
+      if (type === tagTypes.SENTENCES || type === tagTypes.TOKENS) {
+        continue;
+      }
 
       id = this.cleanInput(id, id);
       description = this.cleanInput(description, id);
@@ -95,7 +99,7 @@ export class MTableToolbar extends React.Component {
       if (id !== "") {
         // line is not empty
 
-        let duplicateTag = oldTags.find(tag => tag.id === id);
+        let duplicateTag = oldTags.find(tag => tag.id === id && tag.type === type);
 
         if (duplicateTag !== undefined) {
           // tag id already exist in oldTags
@@ -110,12 +114,6 @@ export class MTableToolbar extends React.Component {
             // color update
             duplicateTag.color = color;
             colorUpdated.push(duplicateTag);
-          }
-
-          if (type !== duplicateTag.type) {
-            // type change
-            duplicateTag.type = type;
-            typeUpdated.push(duplicateTag);
           }
         } else {
           // the tag does not exist in oldTags
