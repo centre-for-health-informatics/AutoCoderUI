@@ -57,6 +57,7 @@ const Annotate = props => {
 
   // ComponentDidMount
   useEffect(() => {
+    setLayouts(getFromLS("annotateLayouts", "layouts") || defaultLayouts);
     APIUtility.API.verifyLSToken(() => setIsLoading(false));
     setDefaultTags(props.setTagTemplates, props.initialTagsAdded);
     props.setInitialTagsAdded(true);

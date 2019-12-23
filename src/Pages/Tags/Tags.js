@@ -41,6 +41,7 @@ const Tags = props => {
 
   // ComponentDidMount
   useEffect(() => {
+    setLayouts(getFromLS("tagsLayouts", "layouts") || defaultLayouts);
     APIUtility.API.verifyLSToken(() => setIsLoading(false));
     setDefaultTags(props.setTagTemplates, props.initialTagsAdded);
     props.setInitialTagsAdded(true);
