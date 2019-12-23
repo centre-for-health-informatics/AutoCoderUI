@@ -13,6 +13,7 @@ const GeneralSettings = props => {
 
   return (
     <FormControlLabel
+      style={{ paddingLeft: 10 }}
       control={<Switch size="small" color="primary" checked={props.spacyActive} onChange={handleUseSpacyChange} />}
       label="Use Spacy"
     />
