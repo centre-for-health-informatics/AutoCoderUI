@@ -4,10 +4,8 @@ import { Switch, FormControlLabel } from "@material-ui/core";
 import * as actions from "../../Store/Actions/index";
 
 const GeneralSettings = props => {
+  // changes whether spacy is active or not
   const handleUseSpacyChange = () => {
-    // if (!props.spacyActive && props.textToDisplay !== "") {
-    //   callApi();
-    // }
     props.setSpacyActive(!props.spacyActive);
   };
 

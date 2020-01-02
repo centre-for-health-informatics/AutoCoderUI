@@ -1,10 +1,11 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { connect } from "react-redux";
 import * as APIUtility from "../../Util/API";
 import * as actions from "../../Store/Actions/index";
 import * as tagTypes from "../TagManagement/tagTypes";
-import { List, ListItem, Button, makeStyles } from "@material-ui/core";
+import { List, ListItem, Button, makeStyles, ListSubheader, Collapse } from "@material-ui/core";
 import { saveAs } from "file-saver";
+import FileHistory from "../FileHistory/FileHistory";
 
 var JSZip = require("jszip");
 
@@ -14,12 +15,32 @@ const useStyles = makeStyles(theme => ({
   },
   root: {
     padding: theme.spacing(0.5)
+  },
+  nested: {
+    paddingLeft: theme.spacing(4)
   }
 }));
 
 const ManageFiles = props => {
   const classes = useStyles();
   const fileInputRefBrowse = React.createRef();
+
+  // ComponentWillUnmount
+  useEffect(() => {
+    return () => {
+      window.removeEventListener("beforeunload", onUnmount, false);
+      onUnmount();
+    };
+  }, []);
+
+  // ComponentDidMount
+  useEffect(() => {
+    window.addEventListener("beforeunload", onUnmount, false);
+  }, []);
+
+  const onUnmount = () => {
+    // save current annotations
+  };
 
   // opens file explorer
   const openExplorerBrowse = () => {
@@ -290,27 +311,6 @@ const ManageFiles = props => {
     props.setEntitiesInUse([]);
   };
 
-  // Creates the list of files to display
-  const makeFileList = () => {
-    return props.txtList.map((file, index) => (
-      <ListItem
-        key={file.name}
-        onClick={() => switchFile(index)}
-        style={{ cursor: "pointer", fontWeight: getFontWeight(index) }}
-      >
-        {file.name}
-      </ListItem>
-    ));
-  };
-
-  // returns bold for the currently selected file, normal otherwise
-  const getFontWeight = index => {
-    if (index === props.fileIndex) {
-      return "bold";
-    }
-    return "normal";
-  };
-
   const saveAnnotations = () => {
     const annotationsList = JSON.parse(JSON.stringify(props.annotationsList));
     for (let annotations of annotationsList) {
@@ -378,9 +378,20 @@ const ManageFiles = props => {
       <Button onClick={exportAnnotations} variant="contained" color="primary" className={classes.button}>
         Export Annotations
       </Button>
-      <p>Opened files:</p>
-      <List dense disablePadding>
-        {makeFileList()}
+      <List
+        dense
+        disablePadding
+        component="nav"
+        aria-labelledby="nested-list-subheader"
+        subheader={
+          <ListSubheader component="div" id="nested-list-subheader">
+            Opened Files:
+          </ListSubheader>
+        }
+      >
+        {props.txtList.map((file, index) => (
+          <FileHistory key={file.name} file={file} index={index} switchFile={switchFile} />
+        ))}
       </List>
     </div>
   );
