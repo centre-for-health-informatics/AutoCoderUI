@@ -25,7 +25,12 @@ const initialState = {
   jsonList: [],
   annotationsList: [],
   fileIndex: -1,
-  sessionId: null
+  sessionId: null,
+  currentEntities: [],
+  currentSections: [],
+  currentSentences: [],
+  versionIndex: -1,
+  versions: []
 };
 
 const reducer = (state = initialState, action) => {
@@ -84,6 +89,16 @@ const reducer = (state = initialState, action) => {
       let isSpacyLoading = Array.from(state.isSpacyLoading);
       isSpacyLoading[action.index] = action.isSpacyLoading;
       return { ...state, isSpacyLoading: isSpacyLoading };
+    case actionTypes.SET_CURRENT_ENTITIES:
+      return { ...state, currentEntities: action.currentEntities };
+    case actionTypes.SET_CURRENT_SECTIONS:
+      return { ...state, currentSections: action.currentSections };
+    case actionTypes.SET_CURRENT_SENTENCES:
+      return { ...state, currentSentences: action.currentSentences };
+    case actionTypes.SET_VERSIONS:
+      return { ...state, versions: action.versions };
+    case actionTypes.SET_VERSION_INDEX:
+      return { ...state, versionIndex: action.versionIndex };
     default:
       return state;
   }

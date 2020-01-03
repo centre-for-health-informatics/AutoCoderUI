@@ -182,3 +182,38 @@ export const setSingleSpacyLoading = (isSpacyLoading, index) => {
     index
   };
 };
+
+export const setCurrentEntities = currentEntities => {
+  return {
+    type: actionTypes.SET_CURRENT_ENTITIES,
+    currentEntities
+  };
+};
+
+export const setCurrentSections = currentSections => {
+  return {
+    type: actionTypes.SET_CURRENT_SECTIONS,
+    currentSections
+  };
+};
+
+export const setCurrentSentences = currentSentences => {
+  return {
+    type: actionTypes.SET_CURRENT_SENTENCES,
+    currentSentences
+  };
+};
+
+export const setVersions = versions => {
+  return {
+    type: actionTypes.SET_VERSIONS,
+    versions
+  };
+};
+
+export const setVersionIndex = versionIndex => {
+  return {
+    type: actionTypes.SET_VERSION_INDEX,
+    versionIndex
+  };
+};
