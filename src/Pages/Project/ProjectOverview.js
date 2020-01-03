@@ -11,18 +11,13 @@ import Loading from "../Loading/Loading";
 import * as APIUtility from "../../Util/API";
 import "react-grid-layout/css/styles.css";
 import "react-resizable/css/styles.css";
-import TagSelector from "../../Components/TagManagement/TagSelector";
-import Legend from "../../Components/CustomAnnotator/Legend";
-import ManageFiles from "../../Components/ManageFiles/ManageFiles";
-import { mapColors, setDefaultTags } from "../../Components/TagManagement/tagUtil";
-import { Switch, FormControlLabel } from "@material-ui/core";
 import LoadingIndicator from "../../Components/LoadingIndicator/LoadingIndicator";
-import CustomAnnotator from "../../Components/CustomAnnotator/CustomAnnotator";
+import MyAnnotations from "../../Components/MyAnnotations/MyAnnotations";
 
 const ResponsiveReactGridLayout = WidthProvider(Responsive);
-const originalLayouts = getFromLS("annotateLayouts", "layouts") || defaultLayouts;
+const originalLayouts = getFromLS("projectLayouts", "layouts") || defaultLayouts;
 
-const Annotate = props => {
+const ProjectOverview = props => {
   const [layouts, setLayouts] = useState(originalLayouts);
   const [isLayoutModifiable, setLayoutModifiable] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
@@ -32,12 +27,12 @@ const Annotate = props => {
 
   const onLayoutChange = layouts => {
     setLayouts(layouts);
-    saveToLS("annotateLayouts", "layouts", layouts);
+    saveToLS("projectLayouts", "layouts", layouts);
   };
 
   const resetLayout = () => {
     setLayouts(defaultLayouts);
-    saveToLS("annotateLayouts", "layouts", defaultLayouts);
+    saveToLS("projectLayouts", "layouts", defaultLayouts);
   };
 
   const handleLayoutModifierButton = () => {
@@ -57,19 +52,9 @@ const Annotate = props => {
 
   // ComponentDidMount
   useEffect(() => {
-    setLayouts(getFromLS("annotateLayouts", "layouts") || defaultLayouts);
+    setLayouts(getFromLS("projectLayouts", "layouts") || defaultLayouts);
     APIUtility.API.verifyLSToken(() => setIsLoading(false));
-    setDefaultTags(props.setTagTemplates, props.initialTagsAdded);
-    props.setInitialTagsAdded(true);
-    if (!props.sessionId) {
-      props.setSessionId(Date.now().toString() + Math.floor(Math.random() * 1000000).toString());
-    }
   }, []);
-
-  // Map colors
-  useEffect(() => {
-    mapColors(props.tagTemplates);
-  }, [props.tagTemplates]);
 
   // // Display alert message
   useEffect(() => {
@@ -97,19 +82,12 @@ const Annotate = props => {
     return <Redirect to="/sign-in" />;
   }
 
-  const renderCustomAnnotator = () => {
-    if (props.isSpacyLoading[props.fileIndex]) {
-      return <LoadingIndicator />;
-    }
-    return <CustomAnnotator />;
-  };
-
   return (
     <div>
       <div>
         <MenuBar
-          title="Annotate"
-          projectLink
+          title="Project"
+          annotateLink
           tagsLink
           sandboxLink
           handleLayoutConfirm={() => handleLayoutModifierButton()}
@@ -117,6 +95,7 @@ const Annotate = props => {
           inModifyMode={isLayoutModifiable}
         />
       </div>
+
       <ResponsiveReactGridLayout
         className="layout"
         rowHeight={10}
@@ -127,49 +106,8 @@ const Annotate = props => {
         isResizable={isLayoutModifiable}
         onLayoutChange={(layout, layouts) => onLayoutChange(layouts)}
       >
-        <div key="tagSelector" className={highlightEditDiv} style={{ display: "flex", flexDirection: "row" }}>
-          <div style={{ flex: 2.5 }}>
-            <TagSelector />
-          </div>
-          <div style={{ flex: 1 }}>
-            <FormControlLabel
-              control={
-                <Switch
-                  size="small"
-                  color="primary"
-                  checked={props.snapToWord}
-                  onChange={() => {
-                    props.setSnapToWord(!props.snapToWord);
-                  }}
-                />
-              }
-              label="Snap to Whole Word"
-            />
-            <FormControlLabel
-              control={
-                <Switch
-                  size="small"
-                  color="primary"
-                  checked={props.linkedListAdd}
-                  onChange={() => {
-                    props.setLinkedListAdd(!props.linkedListAdd);
-                  }}
-                />
-              }
-              label="Link Next Annotation"
-            />
-          </div>
-        </div>
-        <div key="manageFiles" className={highlightEditDiv} style={{ overflowY: "auto" }}>
-          <ManageFiles />
-        </div>
-        <div key="document" className={highlightEditDiv} style={{ overflowY: "auto" }}>
-          <div id="docDisplay" style={{ whiteSpace: "pre-wrap" }}>
-            {renderCustomAnnotator()}
-          </div>
-        </div>
-        <div key="legend" className={highlightEditDiv}>
-          <Legend />
+        <div key="annotationsList" className={highlightEditDiv} style={{ display: "flex", flexDirection: "row" }}>
+          <MyAnnotations />
         </div>
       </ResponsiveReactGridLayout>
     </div>
@@ -205,4 +143,4 @@ const mapDispatchToProps = dispatch => {
   };
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(Annotate);
+export default connect(mapStateToProps, mapDispatchToProps)(ProjectOverview);

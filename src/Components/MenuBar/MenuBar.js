@@ -70,6 +70,12 @@ function ButtonAppBar(props) {
       open={isMenuOpen}
       onClose={handleMenuClose}
     >
+      {props.projectLink ? (
+        <MenuItem component={Link} to="/project">
+          Project
+        </MenuItem>
+      ) : null}
+
       {props.annotateLink ? (
         <MenuItem component={Link} to="/annotate">
           Annotate
