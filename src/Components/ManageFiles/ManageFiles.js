@@ -1,10 +1,11 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { connect } from "react-redux";
 import * as APIUtility from "../../Util/API";
 import * as actions from "../../Store/Actions/index";
 import * as tagTypes from "../TagManagement/tagTypes";
-import { List, ListItem, Button, makeStyles } from "@material-ui/core";
+import { List, Button, makeStyles, ListSubheader } from "@material-ui/core";
 import { saveAs } from "file-saver";
+import FileHistory from "../FileHistory/FileHistory";
 
 var JSZip = require("jszip");
 
@@ -14,12 +15,32 @@ const useStyles = makeStyles(theme => ({
   },
   root: {
     padding: theme.spacing(0.5)
+  },
+  nested: {
+    paddingLeft: theme.spacing(5)
   }
 }));
 
 const ManageFiles = props => {
   const classes = useStyles();
   const fileInputRefBrowse = React.createRef();
+
+  // ComponentWillUnmount
+  useEffect(() => {
+    return () => {
+      window.removeEventListener("beforeunload", onUnmount, false);
+      onUnmount();
+    };
+  }, []);
+
+  // ComponentDidMount
+  useEffect(() => {
+    window.addEventListener("beforeunload", onUnmount, false);
+  }, []);
+
+  const onUnmount = () => {
+    saveAnnotations();
+  };
 
   // opens file explorer
   const openExplorerBrowse = () => {
@@ -285,35 +306,22 @@ const ManageFiles = props => {
 
   // handles a user clicking on another file that has been uploaded
   const switchFile = index => {
+    console.log("version index", props.versionIndex);
+    if (props.fileIndex !== -1) {
+      saveAnnotations();
+    }
     readFile(props.txtList[index], index);
     props.setFileIndex(index);
     props.setEntitiesInUse([]);
   };
 
-  // Creates the list of files to display
-  const makeFileList = () => {
-    return props.txtList.map((file, index) => (
-      <ListItem
-        key={file.name}
-        onClick={() => switchFile(index)}
-        style={{ cursor: "pointer", fontWeight: getFontWeight(index) }}
-      >
-        {file.name}
-      </ListItem>
-    ));
-  };
-
-  // returns bold for the currently selected file, normal otherwise
-  const getFontWeight = index => {
-    if (index === props.fileIndex) {
-      return "bold";
-    }
-    return "normal";
-  };
-
   const saveAnnotations = () => {
-    const annotationsList = JSON.parse(JSON.stringify(props.annotationsList));
-    for (let annotations of annotationsList) {
+    if (props.currentEntities.length > 0 || props.currentSections.length > 0 || props.currentSentences.length > 0) {
+      const annotations = {};
+      annotations[tagTypes.ENTITIES] = props.currentEntities;
+      annotations[tagTypes.SECTIONS] = props.currentSections;
+      annotations[tagTypes.SENTENCES] = props.currentSentences;
+      annotations.name = props.annotationsList[props.fileIndex].name;
       annotations.sessionId = props.sessionId;
       annotations.tagTemplates = checkTagsInUse(annotations);
 
@@ -325,35 +333,6 @@ const ManageFiles = props => {
       APIUtility.API.makeAPICall(APIUtility.UPLOAD_ANNOTATIONS, null, options).catch(error => {
         console.log("ERROR:", error);
       });
-    }
-  };
-
-  const loadAnnotations = () => {
-    if (props.fileIndex !== -1) {
-      APIUtility.API.makeAPICall(APIUtility.GET_LAST_ANNOTE, props.annotationsList[props.fileIndex].name)
-        .then(response => response.json())
-        .then(data => {
-          props.setAnnotationFocus("");
-          let annotationsList = JSON.parse(JSON.stringify(props.annotationsList));
-          let annotationsObject = annotationsList[props.fileIndex];
-          annotationsObject[tagTypes.SECTIONS] = data.data[tagTypes.SECTIONS];
-          annotationsObject[tagTypes.SENTENCES] = data.data[tagTypes.SENTENCES];
-          annotationsObject[tagTypes.ENTITIES] = data.data[tagTypes.ENTITIES];
-          props.setAnnotationsList(annotationsList);
-          props.setSections(data.data[tagTypes.SECTIONS]);
-          props.setSentences(data.data[tagTypes.SENTENCES]);
-          props.setEntities(data.data[tagTypes.ENTITIES]);
-
-          // adding new tags to store
-          let newTags = []; // make an empty list of tags to append all tags to
-          for (let tag of data.data.tagTemplates) {
-            newTags.push(tag);
-          }
-          addNewTags(newTags);
-        })
-        .catch(error => {
-          console.log("ERROR:", error);
-        });
     }
   };
 
@@ -372,15 +351,23 @@ const ManageFiles = props => {
       <Button onClick={saveAnnotations} variant="contained" color="primary" className={classes.button}>
         Save Annotations
       </Button>
-      <Button onClick={loadAnnotations} variant="contained" color="primary" className={classes.button}>
-        Load Annotations
-      </Button>
       <Button onClick={exportAnnotations} variant="contained" color="primary" className={classes.button}>
         Export Annotations
       </Button>
-      <p>Opened files:</p>
-      <List dense disablePadding>
-        {makeFileList()}
+      <List
+        dense
+        disablePadding
+        component="nav"
+        aria-labelledby="nested-list-subheader"
+        subheader={
+          <ListSubheader component="div" id="nested-list-subheader">
+            Opened Files:
+          </ListSubheader>
+        }
+      >
+        {props.txtList.map((file, index) => (
+          <FileHistory key={file.name} file={file} index={index} switchFile={switchFile} />
+        ))}
       </List>
     </div>
   );
@@ -400,7 +387,12 @@ const mapStateToProps = state => {
     fileIndex: state.fileViewer.fileIndex,
     tagTemplates: state.fileViewer.tagTemplates,
     sessionId: state.fileViewer.sessionId,
-    isSpacyLoading: state.fileViewer.isSpacyLoading
+    isSpacyLoading: state.fileViewer.isSpacyLoading,
+    currentEntities: state.fileViewer.currentEntities,
+    currentSections: state.fileViewer.currentSections,
+    currentSentences: state.fileViewer.currentSentences,
+    versions: state.fileViewer.versions,
+    versionIndex: state.fileViewer.versionIndex
   };
 };
 
@@ -424,7 +416,11 @@ const mapDispatchToProps = dispatch => {
     setAnnotationsList: annotationsList => dispatch(actions.setAnnotationsList(annotationsList)),
     setFileIndex: fileIndex => dispatch(actions.setFileIndex(fileIndex)),
     setTagTemplates: tagTemplates => dispatch(actions.setTagTemplates(tagTemplates)),
-    setSingleSpacyLoading: (isSpacyLoading, index) => dispatch(actions.setSingleSpacyLoading(isSpacyLoading, index))
+    setSingleSpacyLoading: (isSpacyLoading, index) => dispatch(actions.setSingleSpacyLoading(isSpacyLoading, index)),
+    setVersionIndex: versionIndex => dispatch(actions.setVersionIndex(versionIndex)),
+    setCurrentEntities: currentEntities => dispatch(actions.setCurrentEntities(currentEntities)),
+    setCurrentSections: currentSections => dispatch(actions.setCurrentSections(currentSections)),
+    setCurrentSentences: currentSentences => dispatch(actions.setCurrentSentences(currentSentences))
     // setAlertMessage: newValue => dispatch(actions.setAlertMessage(newValue))
   };
 };

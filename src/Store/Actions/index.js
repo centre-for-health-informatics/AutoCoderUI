@@ -26,7 +26,12 @@ export {
   setAnnotationsList,
   setFileIndex,
   setSessionId,
-  setSingleSpacyLoading
+  setSingleSpacyLoading,
+  setCurrentEntities,
+  setCurrentSections,
+  setCurrentSentences,
+  setVersions,
+  setVersionIndex
 } from "./fileViewer";
 export {
   setUploadedTags,

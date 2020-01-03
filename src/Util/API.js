@@ -12,6 +12,7 @@ export const UPLOAD_DOCUMENT = "UPLOAD_DOCUMENT";
 export const UPLOAD_ANNOTATIONS = "UPLOAD_ANNOTATIONS";
 export const GET_LAST_ANNOTE = "GET_LAST_ANNOTE";
 export const GET_ALL_ANNOTE_BY_CURRENT_USER = "GET_ALL_ANNOTE_BY_CURRENT_USER";
+export const GET_ANNOTATIONS_FILENAME_USER = "GET_ANNOTATIONS_FILENAME_USER";
 
 /**
  * API class used to connect to the backend
@@ -216,6 +217,8 @@ export class API {
         return this._addAuthorization(this.urlBeginning + "getLastAnnot/" + input + this.json);
       case GET_ALL_ANNOTE_BY_CURRENT_USER:
         return this._addAuthorization(this.urlBeginning + "getAllMyAnnots/" + (input == null ? "" : input));
+      case GET_ANNOTATIONS_FILENAME_USER:
+        return this._addAuthorization(this.urlBeginning + "getAnnotationsByFilenameUser/" + input + this.json);
       default:
         return null;
     }

@@ -55,6 +55,11 @@ class CustomAnnotator extends Component {
   };
 
   handleMouseUp = () => {
+    // can't annotate without focus
+    if (this.props.annotationFocus === "") {
+      return;
+    }
+
     // can't set a section or entity annotation without a tag
     if (
       this.props.annotationFocus !== tagTypes.SENTENCES &&
@@ -195,10 +200,15 @@ class CustomAnnotator extends Component {
 
   // this is called whenever the user selects text to annotate or clicks on an annotation to remove it
   handleAnnotate = (annotations, span) => {
+    if (this.props.versionIndex !== this.props.versions.length) {
+      this.props.setAlertMessage({ message: "Can't modify previous versions", messageType: "error" });
+      return;
+    }
     // copying annotation object from annotationsList
     let annotationObject = JSON.parse(JSON.stringify(this.props.annotationsList[this.props.fileIndex]));
     if (this.props.annotationFocus === tagTypes.SECTIONS) {
       // setting annotations to sections for current file, as well as for the annotationList
+      this.props.setCurrentSections([...annotations, span]);
       this.props.setSections([...annotations, span]);
       annotationObject[tagTypes.SECTIONS] = [...annotations, span];
     } else if (this.props.annotationFocus === tagTypes.SENTENCES) {
@@ -208,6 +218,7 @@ class CustomAnnotator extends Component {
         return a.start - b.start;
       });
       // setting annotations to sentences for current file, as well as for the annotationList
+      this.props.setCurrentSentences([...annotations, span]);
       this.props.setSentences(annotations);
       annotationObject[tagTypes.SENTENCES] = annotations;
     } else if (this.props.annotationFocus === tagTypes.TOKENS) {
@@ -221,6 +232,7 @@ class CustomAnnotator extends Component {
       annotationObject[tagTypes.TOKENS] = annotations;
     } else {
       // setting annotations to entities for current file, as well as for the annotationList
+      this.props.setCurrentEntities([...this.props.entities, span]);
       this.props.setEntities([...this.props.entities, span]);
       annotationObject[tagTypes.ENTITIES] = [...this.props.entities, span];
     }
@@ -237,6 +249,9 @@ class CustomAnnotator extends Component {
 
   // handles clicking on an interval to open AnnotationEditor popup
   handleIntervalClick = (event, start, end) => {
+    if (this.props.versionIndex !== this.props.versions.length) {
+      return;
+    }
     let annotationsInInterval = this.props.annotations.filter(s => s.start <= start && s.end >= end);
     const annotationsToPass = [];
     let hasPrev = true;
@@ -426,7 +441,12 @@ const mapStateToProps = state => {
     spansRendered: state.fileViewer.spansRendered,
     fileIndex: state.fileViewer.fileIndex,
     annotationsList: state.fileViewer.annotationsList,
-    tagTemplates: state.fileViewer.tagTemplates
+    tagTemplates: state.fileViewer.tagTemplates,
+    currentEntities: state.fileViewer.currentEntities,
+    currentSections: state.fileViewer.currentSections,
+    currentSentences: state.fileViewer.currentSentences,
+    versions: state.fileViewer.versions,
+    versionIndex: state.fileViewer.versionIndex
   };
 };
 
@@ -447,7 +467,12 @@ const mapDispatchToProps = dispatch => {
     setEntitiesInUse: entitiesInUse => dispatch(actions.setEntitiesInUse(entitiesInUse)),
     setAnnotationsList: annotationsList => dispatch(actions.setAnnotationsList(annotationsList)),
     setSpansRendered: spansRendered => dispatch(actions.setSpansRendered(spansRendered)),
-    setAlertMessage: newValue => dispatch(actions.setAlertMessage(newValue))
+    setAlertMessage: newValue => dispatch(actions.setAlertMessage(newValue)),
+    setCurrentEntities: currentEntities => dispatch(actions.setCurrentEntities(currentEntities)),
+    setCurrentSections: currentSections => dispatch(actions.setCurrentSections(currentSections)),
+    setCurrentSentences: currentSentences => dispatch(actions.setCurrentSentences(currentSentences)),
+    setVersions: versions => dispatch(actions.setVersions(versions)),
+    setVersionIndex: versionIndex => dispatch(actions.setVersionIndex(versionIndex))
   };
 };
 
