@@ -8,69 +8,12 @@ import Table from "@material-ui/core/Table";
 import TableBody from "@material-ui/core/TableBody";
 import TableCell from "@material-ui/core/TableCell";
 import TableFooter from "@material-ui/core/TableFooter";
-import TablePagination from "@material-ui/core/TablePagination";
 import TableRow from "@material-ui/core/TableRow";
 import Paper from "@material-ui/core/Paper";
-import IconButton from "@material-ui/core/IconButton";
-import FirstPageIcon from "@material-ui/icons/FirstPage";
-import KeyboardArrowLeft from "@material-ui/icons/KeyboardArrowLeft";
-import KeyboardArrowRight from "@material-ui/icons/KeyboardArrowRight";
-import LastPageIcon from "@material-ui/icons/LastPage";
 
-const useStyles1 = makeStyles(theme => ({
-  root: {
-    flexShrink: 0,
-    marginLeft: theme.spacing(2.5)
-  }
-}));
+import PaginationFooter from "../Pagination/PaginationFooter";
 
-function TablePaginationActions(props) {
-  const classes = useStyles1();
-  const theme = useTheme();
-  const { totalPage, page, rowsPerPage, onChangePage } = props;
-
-  const handleFirstPageButtonClick = event => {
-    onChangePage(event, "first");
-  };
-
-  const handleBackButtonClick = event => {
-    onChangePage(event, "prev");
-  };
-
-  const handleNextButtonClick = event => {
-    onChangePage(event, "next");
-  };
-
-  const handleLastPageButtonClick = event => {
-    onChangePage(event, "last");
-  };
-
-  return (
-    <div className={classes.root}>
-      <IconButton onClick={handleFirstPageButtonClick} disabled={page === 1} aria-label="first page">
-        {theme.direction === "rtl" ? <LastPageIcon /> : <FirstPageIcon />}
-      </IconButton>
-      <IconButton onClick={handleBackButtonClick} disabled={page === 1} aria-label="previous page">
-        {theme.direction === "rtl" ? <KeyboardArrowRight /> : <KeyboardArrowLeft />}
-      </IconButton>
-      <IconButton onClick={handleNextButtonClick} disabled={page === totalPage} aria-label="next page">
-        {theme.direction === "rtl" ? <KeyboardArrowLeft /> : <KeyboardArrowRight />}
-      </IconButton>
-      <IconButton onClick={handleLastPageButtonClick} disabled={page === totalPage} aria-label="last page">
-        {theme.direction === "rtl" ? <FirstPageIcon /> : <LastPageIcon />}
-      </IconButton>
-    </div>
-  );
-}
-
-TablePaginationActions.propTypes = {
-  count: PropTypes.number.isRequired,
-  onChangePage: PropTypes.func.isRequired,
-  page: PropTypes.number.isRequired,
-  rowsPerPage: PropTypes.number.isRequired
-};
-
-const useStyles2 = makeStyles({
+const useStyles = makeStyles({
   root: {
     width: "100%"
   },
@@ -83,7 +26,7 @@ const useStyles2 = makeStyles({
 });
 
 const MyAnnotations = props => {
-  const classes = useStyles2();
+  const classes = useStyles();
   const [rowsPerPage, setRowsPerPage] = React.useState(5);
   const [data, setData] = useState([]);
 
@@ -92,14 +35,12 @@ const MyAnnotations = props => {
     pageSize: 2
   });
 
-  const emptyRows =
-    paginationSettings.pageSize -
-    Math.min(paginationSettings.pageSize, data.length - paginationSettings.page * paginationSettings.pageSize);
+  const emptyRows = Math.max(rowsPerPage - data.length, 0);
 
   const handleChangePage = (event, command) => {
     switch (command) {
       case "first":
-        getAnnotations();
+        getAnnotations("?size=" + rowsPerPage);
         break;
       case "prev":
         getAnnotations(paginationSettings.previous);
@@ -108,28 +49,34 @@ const MyAnnotations = props => {
         getAnnotations(paginationSettings.next);
         break;
       case "last":
-        getAnnotations("?size=" + paginationSettings.pageSize + "&page=" + paginationSettings.totalPage);
+        getAnnotations("?size=" + rowsPerPage + "&page=" + paginationSettings.totalPage);
         break;
       default:
         break;
     }
   };
 
-  const handleChangeRowsPerPage = event => {
-    setRowsPerPage(parseInt(event.target.value, 10));
-    setPaginationSettings({ ...paginationSettings, pageSize: parseInt(event.target.value, 10) });
+  const handleChangeRowsPerPage = pageSize => {
+    setRowsPerPage(pageSize);
+    // setPaginationSettings({ ...paginationSettings, pageSize });
+    getAnnotations("?size=" + pageSize);
   };
 
   useEffect(() => {
     getAnnotations("?size=" + paginationSettings.pageSize);
   }, []);
 
+  useEffect(() => {
+    console.log(paginationSettings);
+  }, [paginationSettings]);
+
   const getAnnotations = params => {
+    console.log(params);
     APIUtility.API.makeAPICall(APIUtility.GET_ALL_ANNOTE_BY_CURRENT_USER, params)
       .then(response => response.json())
       .then(result => {
-        console.log(result);
         setData(result.data);
+        console.log(result);
         setPaginationSettings({
           page: result.page,
           pageSize: result.per_page,
@@ -138,12 +85,32 @@ const MyAnnotations = props => {
           next: result.next,
           previous: result.previous
         });
-        // setRowsPerPage(result.per_page);
-        // setPage(result.page);
       })
       .catch(error => {
         console.log("ERROR: ", error);
       });
+  };
+
+  const makeTableRowsHTML = () => {
+    if (data == null || data.length === 0) {
+      return;
+    }
+
+    const outputRows = [];
+    for (let i = 0; i < Math.min(rowsPerPage, data.length); i++) {
+      let row = data[i];
+      let rowHTML = (
+        <TableRow key={row.id}>
+          <TableCell component="th" scope="row">
+            {row.id}
+          </TableCell>
+          <TableCell align="right">{row.user}</TableCell>
+          <TableCell align="right">{row.updated}</TableCell>
+        </TableRow>
+      );
+      outputRows.push(rowHTML);
+    }
+    return outputRows;
   };
 
   return (
@@ -151,16 +118,7 @@ const MyAnnotations = props => {
       <div className={classes.tableWrapper}>
         <Table className={classes.table} aria-label="My Annotation History">
           <TableBody>
-            {data.map(row => (
-              <TableRow key={row.id}>
-                <TableCell component="th" scope="row">
-                  {row.id}
-                </TableCell>
-                <TableCell align="right">{row.user}</TableCell>
-                <TableCell align="right">{row.updated}</TableCell>
-              </TableRow>
-            ))}
-
+            {makeTableRowsHTML()}
             {emptyRows > 0 && (
               <TableRow style={{ height: 53 * emptyRows }}>
                 <TableCell colSpan={5} />
@@ -169,19 +127,12 @@ const MyAnnotations = props => {
           </TableBody>
           <TableFooter>
             <TableRow>
-              <TablePagination
-                rowsPerPageOptions={[5, 10, 25, { label: "All", value: -1 }]}
-                colSpan={3}
-                count={paginationSettings.totalPage}
-                rowsPerPage={paginationSettings.pageSize}
+              <PaginationFooter
+                defaultPageSize={paginationSettings.pageSize}
+                setPageSize={handleChangeRowsPerPage}
                 page={paginationSettings.page}
-                SelectProps={{
-                  inputProps: { "aria-label": "rows per page" },
-                  native: true
-                }}
+                totalPage={paginationSettings.totalPage}
                 onChangePage={handleChangePage}
-                onChangeRowsPerPage={handleChangeRowsPerPage}
-                ActionsComponent={TablePaginationActions}
               />
             </TableRow>
           </TableFooter>
