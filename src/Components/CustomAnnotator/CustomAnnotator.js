@@ -3,6 +3,7 @@ import { connect } from "react-redux";
 import * as actions from "../../Store/Actions/index";
 import * as tagTypes from "../TagManagement/tagTypes";
 import * as util from "./utility";
+import * as APIUtility from "../../Util/API";
 import AnnotationEditor from "./AnnotationEditor";
 import Popover from "@material-ui/core/Popover";
 
@@ -174,6 +175,27 @@ class CustomAnnotator extends Component {
     return false;
   };
 
+  saveAnnotations = () => {
+    const annotations = {};
+    annotations[tagTypes.ENTITIES] = this.props.currentEntities;
+    annotations[tagTypes.SECTIONS] = this.props.currentSections;
+    annotations[tagTypes.SENTENCES] = this.props.currentSentences;
+    annotations.name = this.props.annotationsList[this.props.fileIndex].name;
+    annotations.sessionId = this.props.sessionId;
+    annotations.tagTemplates = this.props.checkTagsInUse(annotations);
+
+    console.log("saving", JSON.stringify(annotations));
+
+    const options = {
+      method: "POST",
+      body: annotations
+    };
+
+    APIUtility.API.makeAPICall(APIUtility.UPLOAD_ANNOTATIONS, null, options).catch(error => {
+      console.log("ERROR:", error);
+    });
+  };
+
   updateLegend = () => {
     // Handling updating Legend lists
     if (this.props.annotationFocus === tagTypes.SECTIONS) {
@@ -245,6 +267,7 @@ class CustomAnnotator extends Component {
     const annotationsList = Array.from(this.props.annotationsList);
     annotationsList[this.props.fileIndex] = annotationObject;
     this.props.setAnnotationsList(annotationsList);
+    this.saveAnnotations();
   };
 
   // handles clicking on an interval to open AnnotationEditor popup
@@ -331,8 +354,25 @@ class CustomAnnotator extends Component {
     const newAnnotations = this.removeItemsFromArrayByRef(annotationsToRemove, annotations);
     const newAnnotationsToEdit = this.removeItemsFromArrayByRef(annotationsToRemove, annotationsToEdit);
 
+    console.log("newannotations", JSON.stringify(newAnnotations));
     this.props.setAnnotationsToEdit(newAnnotationsToEdit);
     this.props.setAnnotations(newAnnotations);
+    if (this.props.annotationFocus === tagTypes.SECTIONS) {
+      this.props.setSections(newAnnotations);
+      this.props.setCurrentSections(newAnnotations).then(() => {
+        this.saveAnnotations();
+      });
+    } else if (this.props.annotationFocus === tagTypes.SENTENCES) {
+      this.props.setSentences(newAnnotations);
+      this.props.setCurrentSentences(newAnnotations).then(() => {
+        this.saveAnnotations();
+      });
+    } else if (this.props.annotationFocus === tagTypes.ENTITIES) {
+      this.props.setEntities(newAnnotations);
+      this.props.setCurrentEntities(newAnnotations).then(() => {
+        this.saveAnnotations();
+      });
+    }
   };
 
   /**
@@ -446,7 +486,8 @@ const mapStateToProps = state => {
     currentSections: state.fileViewer.currentSections,
     currentSentences: state.fileViewer.currentSentences,
     versions: state.fileViewer.versions,
-    versionIndex: state.fileViewer.versionIndex
+    versionIndex: state.fileViewer.versionIndex,
+    sessionId: state.fileViewer.sessionId
   };
 };
 
@@ -468,9 +509,9 @@ const mapDispatchToProps = dispatch => {
     setAnnotationsList: annotationsList => dispatch(actions.setAnnotationsList(annotationsList)),
     setSpansRendered: spansRendered => dispatch(actions.setSpansRendered(spansRendered)),
     setAlertMessage: newValue => dispatch(actions.setAlertMessage(newValue)),
-    setCurrentEntities: currentEntities => dispatch(actions.setCurrentEntities(currentEntities)),
-    setCurrentSections: currentSections => dispatch(actions.setCurrentSections(currentSections)),
-    setCurrentSentences: currentSentences => dispatch(actions.setCurrentSentences(currentSentences)),
+    setCurrentEntities: currentEntities => dispatch(actions.setCurrentEntitiesWithCallback(currentEntities)),
+    setCurrentSections: currentSections => dispatch(actions.setCurrentSectionsWithCallback(currentSections)),
+    setCurrentSentences: currentSentences => dispatch(actions.setCurrentSentencesWithCallback(currentSentences)),
     setVersions: versions => dispatch(actions.setVersions(versions)),
     setVersionIndex: versionIndex => dispatch(actions.setVersionIndex(versionIndex))
   };

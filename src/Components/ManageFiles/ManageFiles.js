@@ -25,23 +25,6 @@ const ManageFiles = props => {
   const classes = useStyles();
   const fileInputRefBrowse = React.createRef();
 
-  // ComponentWillUnmount
-  useEffect(() => {
-    return () => {
-      window.removeEventListener("beforeunload", onUnmount, false);
-      onUnmount();
-    };
-  }, []);
-
-  // ComponentDidMount
-  useEffect(() => {
-    window.addEventListener("beforeunload", onUnmount, false);
-  }, []);
-
-  const onUnmount = () => {
-    saveAnnotations();
-  };
-
   // opens file explorer
   const openExplorerBrowse = () => {
     if (props.disabled) {
@@ -274,7 +257,7 @@ const ManageFiles = props => {
     let zip = new JSZip();
 
     for (let annotation of props.annotationsList) {
-      const tagsInUse = checkTagsInUse(annotation);
+      const tagsInUse = props.checkTagsInUse(annotation);
       zip.file(
         annotation.name + "_Annotations.json",
         '{"tagTemplates":[' + JSON.stringify(tagsInUse).slice(1, -1) + "]," + JSON.stringify(annotation).slice(1)
@@ -286,54 +269,11 @@ const ManageFiles = props => {
     });
   };
 
-  const checkTagsInUse = annotation => {
-    let tagTemplates = Array.from(props.tagTemplates);
-    const tagsInUse = new Set();
-    for (let tag of tagTemplates) {
-      for (let entity of annotation[tagTypes.ENTITIES]) {
-        if (tag.id === entity.tag && tag.type === entity.type) {
-          tagsInUse.add(tag);
-        }
-      }
-      for (let section of annotation[tagTypes.SECTIONS]) {
-        if (tag.id === section.tag && tag.type === section.type) {
-          tagsInUse.add(tag);
-        }
-      }
-    }
-    return Array.from(tagsInUse);
-  };
-
   // handles a user clicking on another file that has been uploaded
   const switchFile = index => {
-    console.log("version index", props.versionIndex);
-    if (props.fileIndex !== -1) {
-      saveAnnotations();
-    }
     readFile(props.txtList[index], index);
     props.setFileIndex(index);
     props.setEntitiesInUse([]);
-  };
-
-  const saveAnnotations = () => {
-    if (props.currentEntities.length > 0 || props.currentSections.length > 0 || props.currentSentences.length > 0) {
-      const annotations = {};
-      annotations[tagTypes.ENTITIES] = props.currentEntities;
-      annotations[tagTypes.SECTIONS] = props.currentSections;
-      annotations[tagTypes.SENTENCES] = props.currentSentences;
-      annotations.name = props.annotationsList[props.fileIndex].name;
-      annotations.sessionId = props.sessionId;
-      annotations.tagTemplates = checkTagsInUse(annotations);
-
-      const options = {
-        method: "POST",
-        body: annotations
-      };
-
-      APIUtility.API.makeAPICall(APIUtility.UPLOAD_ANNOTATIONS, null, options).catch(error => {
-        console.log("ERROR:", error);
-      });
-    }
   };
 
   return (
@@ -348,9 +288,6 @@ const ManageFiles = props => {
         multiple
         onChange={e => openFiles(e.target.files)}
       />
-      <Button onClick={saveAnnotations} variant="contained" color="primary" className={classes.button}>
-        Save Annotations
-      </Button>
       <Button onClick={exportAnnotations} variant="contained" color="primary" className={classes.button}>
         Export Annotations
       </Button>
