@@ -52,3 +52,24 @@ export const setTagTemplatesWithCallback = tagTemplates => {
     return Promise.resolve(getState());
   };
 };
+
+export const setCurrentEntitiesWithCallback = entities => {
+  return (dispatch, getState) => {
+    dispatch(actions.setCurrentEntities(entities));
+    return Promise.resolve(getState());
+  };
+};
+
+export const setCurrentSectionsWithCallback = sections => {
+  return (dispatch, getState) => {
+    dispatch(actions.setCurrentSections(sections));
+    return Promise.resolve(getState());
+  };
+};
+
+export const setCurrentSentencesWithCallback = sentences => {
+  return (dispatch, getState) => {
+    dispatch(actions.setCurrentSentences(sentences));
+    return Promise.resolve(getState());
+  };
+};

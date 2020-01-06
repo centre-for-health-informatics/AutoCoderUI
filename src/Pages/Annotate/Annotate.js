@@ -9,6 +9,7 @@ import { useAlert, positions } from "react-alert";
 import { Redirect } from "react-router";
 import Loading from "../Loading/Loading";
 import * as APIUtility from "../../Util/API";
+import * as tagTypes from "../../Components/TagManagement/tagTypes";
 import "react-grid-layout/css/styles.css";
 import "react-resizable/css/styles.css";
 import TagSelector from "../../Components/TagManagement/TagSelector";
@@ -85,6 +86,24 @@ const Annotate = props => {
     }
   }, [props.alertMessage]);
 
+  const checkTagsInUse = annotation => {
+    let tagTemplates = Array.from(props.tagTemplates);
+    const tagsInUse = new Set();
+    for (let tag of tagTemplates) {
+      for (let entity of annotation[tagTypes.ENTITIES]) {
+        if (tag.id === entity.tag && tag.type === entity.type) {
+          tagsInUse.add(tag);
+        }
+      }
+      for (let section of annotation[tagTypes.SECTIONS]) {
+        if (tag.id === section.tag && tag.type === section.type) {
+          tagsInUse.add(tag);
+        }
+      }
+    }
+    return Array.from(tagsInUse);
+  };
+
   if (isLoading) {
     return <Loading />;
   }
@@ -101,7 +120,7 @@ const Annotate = props => {
     if (props.isSpacyLoading[props.fileIndex]) {
       return <LoadingIndicator />;
     }
-    return <CustomAnnotator />;
+    return <CustomAnnotator checkTagsInUse={checkTagsInUse} />;
   };
 
   return (
@@ -161,7 +180,7 @@ const Annotate = props => {
           </div>
         </div>
         <div key="manageFiles" className={highlightEditDiv} style={{ overflowY: "auto" }}>
-          <ManageFiles />
+          <ManageFiles checkTagsInUse={checkTagsInUse} />
         </div>
         <div key="document" className={highlightEditDiv} style={{ overflowY: "auto" }}>
           <div id="docDisplay" style={{ whiteSpace: "pre-wrap" }}>

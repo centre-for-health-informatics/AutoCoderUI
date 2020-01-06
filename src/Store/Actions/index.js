@@ -42,4 +42,10 @@ export {
   setAddingTags,
   setInitialTagsAdded
 } from "./tagManagement";
-export { updateAnnotationsAfterLoadingSpacy, setTagTemplatesWithCallback } from "./asyncActions";
+export {
+  updateAnnotationsAfterLoadingSpacy,
+  setTagTemplatesWithCallback,
+  setCurrentEntitiesWithCallback,
+  setCurrentSectionsWithCallback,
+  setCurrentSentencesWithCallback
+} from "./asyncActions";
