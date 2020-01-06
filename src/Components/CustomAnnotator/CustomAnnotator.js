@@ -184,8 +184,6 @@ class CustomAnnotator extends Component {
     annotations.sessionId = this.props.sessionId;
     annotations.tagTemplates = this.props.checkTagsInUse(annotations);
 
-    console.log("saving", JSON.stringify(annotations));
-
     const options = {
       method: "POST",
       body: annotations
@@ -354,7 +352,6 @@ class CustomAnnotator extends Component {
     const newAnnotations = this.removeItemsFromArrayByRef(annotationsToRemove, annotations);
     const newAnnotationsToEdit = this.removeItemsFromArrayByRef(annotationsToRemove, annotationsToEdit);
 
-    console.log("newannotations", JSON.stringify(newAnnotations));
     this.props.setAnnotationsToEdit(newAnnotationsToEdit);
     this.props.setAnnotations(newAnnotations);
     if (this.props.annotationFocus === tagTypes.SECTIONS) {

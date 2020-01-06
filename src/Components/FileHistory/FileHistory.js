@@ -3,12 +3,12 @@ import { connect } from "react-redux";
 import * as actions from "../../Store/Actions/index";
 import * as tagTypes from "../TagManagement/tagTypes";
 import * as APIUtility from "../../Util/API";
-import { List, ListItem, makeStyles, Collapse, IconButton } from "@material-ui/core";
+import { List, ListItem, makeStyles, Collapse, IconButton, Button } from "@material-ui/core";
 import { AddCircleOutline, RemoveCircleOutline } from "@material-ui/icons";
 
 const useStyles = makeStyles(theme => ({
   button: {
-    margin: theme.spacing(0.3)
+    margin: theme.spacing(1)
   },
   root: {
     padding: theme.spacing(0.5)
@@ -107,6 +107,20 @@ const FileHistory = props => {
         style={{ fontWeight: getFontWeightVersion(index) }}
       >
         {version.updated}
+        {index === props.versionIndex ? (
+          <Button
+            onClick={() => {
+              console.log("clicked continue");
+            }}
+            variant="contained"
+            color="default"
+            className={classes.button}
+            size="small"
+            style={{ fontSize: "70%" }}
+          >
+            Continue
+          </Button>
+        ) : null}
       </ListItem>
     ));
   };
