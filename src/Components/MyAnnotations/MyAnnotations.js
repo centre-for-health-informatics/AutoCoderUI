@@ -46,7 +46,7 @@ const tableHeaders = [
 const MyAnnotations = props => {
   const classes = useStyles();
   const [data, setData] = useState([]);
-  const [order, setOrder] = React.useState("dsc");
+  const [order, setOrder] = React.useState("desc");
   const [orderBy, setOrderBy] = React.useState("id");
 
   const [paginationSettings, setPaginationSettings] = useState({
