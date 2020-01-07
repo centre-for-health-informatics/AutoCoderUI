@@ -87,12 +87,30 @@ const FileHistory = props => {
       props.setSections(props.currentSections);
       props.setSentences(props.currentSentences);
     }
+    console.log(props.currentSections);
     // switching away from current, need to store annotations
     // if (oldIndex === props.versions.length) {
     //   props.setCurrentEntities(props.entities);
     //   props.setCurrentSections(props.sections);
     //   props.setCurrentSentences(props.sentences);
     // }
+  };
+
+  const continueFromVersion = () => {
+    // set current store properties
+    // set "current" version
+    if (window.confirm("Are you sure? This will overwrite your current annotations.")) {
+      props.setCurrentSections(props.sections).then(() => {
+        props.setCurrentEntities(props.entities).then(() => {
+          props.setCurrentSentences(props.sentences).then(state => {
+            props.saveAnnotations(state);
+          });
+        });
+      });
+      props.setVersionIndex(props.versions.length);
+    } else {
+      // do nothing
+    }
   };
 
   const showHistory = () => {
@@ -110,7 +128,7 @@ const FileHistory = props => {
         {index === props.versionIndex ? (
           <Button
             onClick={() => {
-              console.log("clicked continue");
+              continueFromVersion();
             }}
             variant="contained"
             color="default"
@@ -201,9 +219,9 @@ const mapDispatchToProps = dispatch => {
     setSections: sections => dispatch(actions.setSections(sections)),
     setSentences: sentences => dispatch(actions.setSentences(sentences)),
     setEntities: entities => dispatch(actions.setEntities(entities)),
-    setCurrentEntities: currentEntities => dispatch(actions.setCurrentEntities(currentEntities)),
-    setCurrentSections: currentSections => dispatch(actions.setCurrentSections(currentSections)),
-    setCurrentSentences: currentSentences => dispatch(actions.setCurrentSentences(currentSentences)),
+    setCurrentEntities: currentEntities => dispatch(actions.setCurrentEntitiesWithCallback(currentEntities)),
+    setCurrentSections: currentSections => dispatch(actions.setCurrentSectionsWithCallback(currentSections)),
+    setCurrentSentences: currentSentences => dispatch(actions.setCurrentSentencesWithCallback(currentSentences)),
     setVersions: versions => dispatch(actions.setVersions(versions)),
     setVersionIndex: versionIndex => dispatch(actions.setVersionIndex(versionIndex))
   };
