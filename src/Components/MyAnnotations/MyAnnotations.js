@@ -196,18 +196,15 @@ const MyAnnotations = props => {
               </TableRow>
             )}
           </TableBody>
-          <TableFooter>
-            <TableRow>
-              <PaginationFooter
-                defaultPageSize={paginationSettings.pageSize}
-                setPageSize={handleChangeRowsPerPage}
-                page={paginationSettings.page}
-                totalPage={paginationSettings.totalPage}
-                onChangePage={handleChangePage}
-              />
-            </TableRow>
-          </TableFooter>
         </Table>
+        <PaginationFooter
+          totalItems={paginationSettings.total}
+          defaultPageSize={paginationSettings.pageSize}
+          setPageSize={handleChangeRowsPerPage}
+          page={paginationSettings.page}
+          totalPage={paginationSettings.totalPage}
+          onChangePage={handleChangePage}
+        />
       </div>
     </Paper>
   );

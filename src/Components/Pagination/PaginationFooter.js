@@ -12,7 +12,8 @@ import LastPageIcon from "@material-ui/icons/LastPage";
 const useStyles = makeStyles(theme => ({
   root: {
     flexGrow: 0,
-    flexShrink: 0
+    flexShrink: 0,
+    width: "100%"
   },
   paginationItem: {
     padding: theme.spacing(1),
@@ -46,8 +47,8 @@ const PaginationFooter = props => {
 
   return (
     <div className={classes.root}>
-      <Grid container spacing={3}>
-        <Grid item>
+      <Grid container spacing={1}>
+        <Grid item xs={3}>
           <div className={classes.paginationItem}>Rows per Page: </div>
         </Grid>
         <Grid item xs={3}>
@@ -59,19 +60,19 @@ const PaginationFooter = props => {
               valueLabelDisplay="auto"
               step={1}
               min={1}
-              max={100}
+              max={Math.min(100, props.totalItems)}
               valueLabelDisplay="auto"
             />
           </div>
         </Grid>
-        <Grid item>
+        <Grid item xs={2}>
           <div className={classes.paginationItem}>
             <Typography>
               Page {props.page} of {props.totalPage}
             </Typography>
           </div>
         </Grid>
-        <Grid item>
+        <Grid item xs={4}>
           <IconButton onClick={handleFirstPageButtonClick} disabled={props.page === 1} aria-label="first page">
             <FirstPageIcon />
           </IconButton>
