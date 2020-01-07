@@ -303,7 +303,13 @@ const ManageFiles = props => {
         }
       >
         {props.txtList.map((file, index) => (
-          <FileHistory key={file.name} file={file} index={index} switchFile={switchFile} />
+          <FileHistory
+            key={file.name}
+            file={file}
+            index={index}
+            switchFile={switchFile}
+            saveAnnotations={props.saveAnnotations}
+          />
         ))}
       </List>
     </div>

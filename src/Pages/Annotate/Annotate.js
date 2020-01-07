@@ -120,7 +120,34 @@ const Annotate = props => {
     if (props.isSpacyLoading[props.fileIndex]) {
       return <LoadingIndicator />;
     }
-    return <CustomAnnotator checkTagsInUse={checkTagsInUse} />;
+    return <CustomAnnotator saveAnnotations={saveAnnotations} checkTagsInUse={checkTagsInUse} />;
+  };
+
+  const saveAnnotations = (state = null) => {
+    const annotations = {};
+    if (state) {
+      annotations[tagTypes.ENTITIES] = state.fileViewer.currentEntities;
+      annotations[tagTypes.SECTIONS] = state.fileViewer.currentSections;
+      annotations[tagTypes.SENTENCES] = state.fileViewer.currentSentences;
+      annotations.name = state.fileViewer.annotationsList[state.fileViewer.fileIndex].name;
+      annotations.sessionId = state.fileViewer.sessionId;
+      annotations.tagTemplates = checkTagsInUse(annotations);
+    } else {
+      annotations[tagTypes.ENTITIES] = props.currentEntities;
+      annotations[tagTypes.SECTIONS] = props.currentSections;
+      annotations[tagTypes.SENTENCES] = props.currentSentences;
+      annotations.name = props.annotationsList[props.fileIndex].name;
+      annotations.sessionId = props.sessionId;
+      annotations.tagTemplates = checkTagsInUse(annotations);
+    }
+    const options = {
+      method: "POST",
+      body: annotations
+    };
+
+    APIUtility.API.makeAPICall(APIUtility.UPLOAD_ANNOTATIONS, null, options).catch(error => {
+      console.log("ERROR:", error);
+    });
   };
 
   return (
@@ -180,7 +207,7 @@ const Annotate = props => {
           </div>
         </div>
         <div key="manageFiles" className={highlightEditDiv} style={{ overflowY: "auto" }}>
-          <ManageFiles checkTagsInUse={checkTagsInUse} />
+          <ManageFiles checkTagsInUse={checkTagsInUse} saveAnnotations={saveAnnotations} />
         </div>
         <div key="document" className={highlightEditDiv} style={{ overflowY: "auto" }}>
           <div id="docDisplay" style={{ whiteSpace: "pre-wrap" }}>
@@ -205,7 +232,12 @@ const mapStateToProps = state => {
     initialTagsAdded: state.tagManagement.initialTagsAdded,
     sessionId: state.fileViewer.sessionId,
     linkedListAdd: state.fileViewer.linkedListAdd,
-    snapToWord: state.fileViewer.snapToWord
+    snapToWord: state.fileViewer.snapToWord,
+    currentEntities: state.fileViewer.currentEntities,
+    currentSentences: state.fileViewer.currentSentences,
+    currentSections: state.fileViewer.currentSections,
+    fileIndex: state.fileViewer.fileIndex,
+    annotationsList: state.fileViewer.annotationsList
   };
 };
 

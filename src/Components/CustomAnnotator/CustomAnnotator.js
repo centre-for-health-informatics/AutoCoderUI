@@ -175,24 +175,24 @@ class CustomAnnotator extends Component {
     return false;
   };
 
-  saveAnnotations = () => {
-    const annotations = {};
-    annotations[tagTypes.ENTITIES] = this.props.currentEntities;
-    annotations[tagTypes.SECTIONS] = this.props.currentSections;
-    annotations[tagTypes.SENTENCES] = this.props.currentSentences;
-    annotations.name = this.props.annotationsList[this.props.fileIndex].name;
-    annotations.sessionId = this.props.sessionId;
-    annotations.tagTemplates = this.props.checkTagsInUse(annotations);
+  // saveAnnotations = () => {
+  //   const annotations = {};
+  //   annotations[tagTypes.ENTITIES] = this.props.currentEntities;
+  //   annotations[tagTypes.SECTIONS] = this.props.currentSections;
+  //   annotations[tagTypes.SENTENCES] = this.props.currentSentences;
+  //   annotations.name = this.props.annotationsList[this.props.fileIndex].name;
+  //   annotations.sessionId = this.props.sessionId;
+  //   annotations.tagTemplates = this.props.checkTagsInUse(annotations);
 
-    const options = {
-      method: "POST",
-      body: annotations
-    };
+  //   const options = {
+  //     method: "POST",
+  //     body: annotations
+  //   };
 
-    APIUtility.API.makeAPICall(APIUtility.UPLOAD_ANNOTATIONS, null, options).catch(error => {
-      console.log("ERROR:", error);
-    });
-  };
+  //   APIUtility.API.makeAPICall(APIUtility.UPLOAD_ANNOTATIONS, null, options).catch(error => {
+  //     console.log("ERROR:", error);
+  //   });
+  // };
 
   updateLegend = () => {
     // Handling updating Legend lists
@@ -265,7 +265,7 @@ class CustomAnnotator extends Component {
     const annotationsList = Array.from(this.props.annotationsList);
     annotationsList[this.props.fileIndex] = annotationObject;
     this.props.setAnnotationsList(annotationsList);
-    this.saveAnnotations();
+    this.props.saveAnnotations();
   };
 
   // handles clicking on an interval to open AnnotationEditor popup
@@ -357,17 +357,17 @@ class CustomAnnotator extends Component {
     if (this.props.annotationFocus === tagTypes.SECTIONS) {
       this.props.setSections(newAnnotations);
       this.props.setCurrentSections(newAnnotations).then(() => {
-        this.saveAnnotations();
+        this.props.saveAnnotations();
       });
     } else if (this.props.annotationFocus === tagTypes.SENTENCES) {
       this.props.setSentences(newAnnotations);
       this.props.setCurrentSentences(newAnnotations).then(() => {
-        this.saveAnnotations();
+        this.props.saveAnnotations();
       });
     } else if (this.props.annotationFocus === tagTypes.ENTITIES) {
       this.props.setEntities(newAnnotations);
       this.props.setCurrentEntities(newAnnotations).then(() => {
-        this.saveAnnotations();
+        this.props.saveAnnotations();
       });
     }
   };
