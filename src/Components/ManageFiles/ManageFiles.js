@@ -200,21 +200,6 @@ const ManageFiles = props => {
   const readFile = (file, index) => {
     if (file) {
       let fileReader = new FileReader();
-      // reset store if file changes
-      // props.setSections(props.annotationsList[index][tagTypes.SECTIONS]);
-      // props.setSentences(props.annotationsList[index][tagTypes.SENTENCES]);
-      // props.setEntities(props.annotationsList[index][tagTypes.ENTITIES]);
-      // if (props.annotationFocus === tagTypes.SECTIONS) {
-      //   props.setAnnotations(props.annotationsList[index][tagTypes.SECTIONS]);
-      // } else if (props.annotationFocus === tagTypes.SENTENCES) {
-      //   props.setAnnotations(props.annotationsList[index][tagTypes.SENTENCES]);
-      // } else {
-      //   props.setAnnotations([
-      //     ...props.annotationsList[index][tagTypes.ENTITIES].filter(
-      //       annotation => annotation.type === props.annotationFocus
-      //     )
-      //   ]);
-      // }
       props.setAnnotationFocus(props.annotationFocus);
 
       // creating fileData - used to call API
@@ -248,6 +233,7 @@ const ManageFiles = props => {
     }
   };
 
+  // checks if annotations are empty
   const annotationsEmpty = index => {
     let annotationsObject = props.annotationsList[index];
     if (
@@ -341,10 +327,6 @@ const mapStateToProps = state => {
     tagTemplates: state.fileViewer.tagTemplates,
     sessionId: state.fileViewer.sessionId,
     isSpacyLoading: state.fileViewer.isSpacyLoading,
-    currentEntities: state.fileViewer.currentEntities,
-    currentSections: state.fileViewer.currentSections,
-    currentSentences: state.fileViewer.currentSentences,
-    versions: state.fileViewer.versions,
     versionIndex: state.fileViewer.versionIndex,
     annotationFocus: state.fileViewer.annotationFocus
   };
@@ -371,11 +353,7 @@ const mapDispatchToProps = dispatch => {
     setFileIndex: fileIndex => dispatch(actions.setFileIndex(fileIndex)),
     setTagTemplates: tagTemplates => dispatch(actions.setTagTemplates(tagTemplates)),
     setSingleSpacyLoading: (isSpacyLoading, index) => dispatch(actions.setSingleSpacyLoading(isSpacyLoading, index)),
-    setVersionIndex: versionIndex => dispatch(actions.setVersionIndex(versionIndex)),
-    setCurrentEntities: currentEntities => dispatch(actions.setCurrentEntities(currentEntities)),
-    setCurrentSections: currentSections => dispatch(actions.setCurrentSections(currentSections)),
-    setCurrentSentences: currentSentences => dispatch(actions.setCurrentSentences(currentSentences))
-    // setAlertMessage: newValue => dispatch(actions.setAlertMessage(newValue))
+    setVersionIndex: versionIndex => dispatch(actions.setVersionIndex(versionIndex))
   };
 };
 

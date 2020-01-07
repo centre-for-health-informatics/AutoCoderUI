@@ -27,15 +27,19 @@ class CustomAnnotator extends Component {
 
   componentDidMount() {
     this.props.setLinkedListAdd(false);
+    // add mouse listener
     this.rootRef.current.addEventListener("mouseup", this.handleMouseUp);
+    // listen for key presses
     document.onkeypress = e => {
       this.handleKeyPress(e);
     };
+    // reset annotations on window resize to deal with linked annotations not displaying properly
     window.addEventListener("resize", () => {
       this.props.setAnnotations([...this.props.annotations]);
     });
   }
 
+  // removing mouse listener and resetting annotation linking
   componentWillUnmount() {
     this.rootRef.current.removeEventListener("mouseup", this.handleMouseUp);
     this.props.setLinkedListAdd(false);
@@ -333,7 +337,9 @@ class CustomAnnotator extends Component {
     const newAnnotations = this.removeItemsFromArrayByRef(annotationsToRemove, annotations);
     const newAnnotationsToEdit = this.removeItemsFromArrayByRef(annotationsToRemove, annotationsToEdit);
 
+    // setting annotations to edit after removing an annotation
     this.props.setAnnotationsToEdit(newAnnotationsToEdit);
+    // setting annotations and saving
     this.props.setAnnotations(newAnnotations);
     if (this.props.annotationFocus === tagTypes.SECTIONS) {
       this.props.setSections(newAnnotations);
@@ -464,8 +470,7 @@ const mapStateToProps = state => {
     currentSections: state.fileViewer.currentSections,
     currentSentences: state.fileViewer.currentSentences,
     versions: state.fileViewer.versions,
-    versionIndex: state.fileViewer.versionIndex,
-    sessionId: state.fileViewer.sessionId
+    versionIndex: state.fileViewer.versionIndex
   };
 };
 

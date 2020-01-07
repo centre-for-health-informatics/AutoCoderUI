@@ -60,9 +60,12 @@ const Annotate = props => {
   useEffect(() => {
     setLayouts(getFromLS("annotateLayouts", "layouts") || defaultLayouts);
     APIUtility.API.verifyLSToken(() => setIsLoading(false));
+    // Setting up default tags if they haven't been already added.
+    // This prevents tags from being added if the user explicitly deleted all of them
     setDefaultTags(props.setTagTemplates, props.initialTagsAdded);
     props.setInitialTagsAdded(true);
     if (!props.sessionId) {
+      // generating session ID if one doesn't exist already
       props.setSessionId(Date.now().toString() + Math.floor(Math.random() * 1000000).toString());
     }
   }, []);
@@ -72,7 +75,7 @@ const Annotate = props => {
     mapColors(props.tagTemplates);
   }, [props.tagTemplates]);
 
-  // // Display alert message
+  // Display alert message
   useEffect(() => {
     if (props.alertMessage) {
       alert.show(props.alertMessage.message, {
@@ -86,6 +89,7 @@ const Annotate = props => {
     }
   }, [props.alertMessage]);
 
+  // checks the tags in use to generate a list for export, saving, etc.
   const checkTagsInUse = annotation => {
     let tagTemplates = Array.from(props.tagTemplates);
     const tagsInUse = new Set();
@@ -116,6 +120,7 @@ const Annotate = props => {
     return <Redirect to="/sign-in" />;
   }
 
+  // renders the text and annotations if Spacy is not loading
   const renderCustomAnnotator = () => {
     if (props.isSpacyLoading[props.fileIndex]) {
       return <LoadingIndicator />;
@@ -123,9 +128,12 @@ const Annotate = props => {
     return <CustomAnnotator saveAnnotations={saveAnnotations} checkTagsInUse={checkTagsInUse} />;
   };
 
+  // Saves annotations to database
+  // option parameter of state for when async actions are an issue, the state is created as a promise then passed into the method
   const saveAnnotations = (state = null) => {
     const annotations = {};
     if (state) {
+      // creating object to save
       annotations[tagTypes.ENTITIES] = state.fileViewer.currentEntities;
       annotations[tagTypes.SECTIONS] = state.fileViewer.currentSections;
       annotations[tagTypes.SENTENCES] = state.fileViewer.currentSentences;
@@ -133,6 +141,7 @@ const Annotate = props => {
       annotations.sessionId = state.fileViewer.sessionId;
       annotations.tagTemplates = checkTagsInUse(annotations);
     } else {
+      // creating object to save
       annotations[tagTypes.ENTITIES] = props.currentEntities;
       annotations[tagTypes.SECTIONS] = props.currentSections;
       annotations[tagTypes.SENTENCES] = props.currentSentences;
@@ -140,7 +149,6 @@ const Annotate = props => {
       annotations.sessionId = props.sessionId;
       annotations.tagTemplates = checkTagsInUse(annotations);
     }
-    console.log("saving", annotations);
     const options = {
       method: "POST",
       body: annotations

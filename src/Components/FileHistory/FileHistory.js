@@ -38,6 +38,7 @@ const FileHistory = props => {
     return "normal";
   };
 
+  // retrieves all annotation versions for a file after selecting it
   const getAnnotationsForFile = () => {
     const options = {
       method: "GET"
@@ -51,15 +52,14 @@ const FileHistory = props => {
       .then(response => response.json())
       .then(data => {
         let dataVersions = [];
-        let isThereCurrent = false;
+        let isThereCurrent = false; // boolean as to whether there is current annotations for the file
         for (let version of data) {
-          console.log("version", version);
           // if version isn't the current one
           if (version.data.sessionId !== props.sessionId) {
             dataVersions.push(version);
             // for the current version
           } else {
-            isThereCurrent = true;
+            isThereCurrent = true; // setting current to true
             props.setCurrentSections(version.data[tagTypes.SECTIONS]);
             props.setSections(version.data[tagTypes.SECTIONS]);
             props.setCurrentEntities(version.data[tagTypes.ENTITIES]);
@@ -67,6 +67,7 @@ const FileHistory = props => {
             props.setCurrentSentences(version.data[tagTypes.SENTENCES]);
             props.setSentences(version.data[tagTypes.SENTENCES]);
 
+            // setting the appropriate annotations to be displayed
             if (props.annotationFocus === tagTypes.SECTIONS) {
               props.setAnnotations(version.data[tagTypes.SECTIONS]);
             } else if (props.annotationFocus === tagTypes.SENTENCES) {
@@ -78,6 +79,7 @@ const FileHistory = props => {
             }
           }
         }
+        // if there is not current annotations, set all annotations to empty
         if (!isThereCurrent) {
           props.setCurrentSections([]);
           props.setSections([]);
@@ -88,6 +90,7 @@ const FileHistory = props => {
           props.setAnnotations([]);
         }
 
+        // setting versions and index
         props.setVersions(dataVersions);
         props.setVersionIndex(dataVersions.length);
       })
@@ -96,6 +99,7 @@ const FileHistory = props => {
       });
   };
 
+  // switching version of annotations for a file
   const switchVersion = (version, newIndex, oldIndex) => {
     if (newIndex === oldIndex) {
       return;
@@ -113,6 +117,7 @@ const FileHistory = props => {
       props.setEntities(props.currentEntities);
       props.setSections(props.currentSections);
       props.setSentences(props.currentSentences);
+      // setting appropriate annotations
       if (props.annotationFocus === tagTypes.SECTIONS) {
         props.setAnnotations(props.currentSections);
       } else if (props.annotationFocus === tagTypes.SENTENCES) {
@@ -125,8 +130,11 @@ const FileHistory = props => {
     }
   };
 
+  // continue from a previous version
   const continueFromVersion = () => {
+    // prompt the user to confirm that they wish to continue
     if (window.confirm("Are you sure? This will overwrite your current annotations.")) {
+      // set current annotations and then save
       props.setCurrentSections(props.sections).then(() => {
         props.setCurrentEntities(props.entities).then(() => {
           props.setCurrentSentences(props.sentences).then(state => {
@@ -140,6 +148,7 @@ const FileHistory = props => {
     }
   };
 
+  // shows the list of versions of an annotation when the file is expanded
   const showHistory = () => {
     return props.versions.map((version, index) => (
       <ListItem
