@@ -37,10 +37,11 @@ const useStyles = makeStyles({
   }
 });
 
+// the id fields must match the model field references in backend for sorting to work
 const tableHeaders = [
   { id: "id", align: "left", disablePadding: false, label: "Id" },
   { id: "user", align: "left", disablePadding: false, label: "User" },
-  { id: "time", align: "left", disablePadding: false, label: "Last updated" }
+  { id: "updated", align: "left", disablePadding: false, label: "Time" }
 ];
 
 const MyAnnotations = props => {
@@ -51,7 +52,7 @@ const MyAnnotations = props => {
 
   const [paginationSettings, setPaginationSettings] = useState({
     page: 1,
-    pageSize: 3
+    pageSize: 5
   });
 
   const emptyRows = Math.max(paginationSettings.pageSize - data.length, 0);
