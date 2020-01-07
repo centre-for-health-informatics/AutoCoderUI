@@ -46,7 +46,7 @@ const ManageFiles = props => {
       .then(data => {
         props.updateAnnotationsAfterLoadingSpacy(data, index);
         if (props.fileIndex === index) {
-          props.setAnnotationFocus("");
+          props.setAnnotationFocus(props.annotationFocus);
         }
         props.setSingleSpacyLoading(false, index);
       })
@@ -201,26 +201,24 @@ const ManageFiles = props => {
     if (file) {
       let fileReader = new FileReader();
       // reset store if file changes
-      props.setAnnotations([]);
-      props.setSections(props.annotationsList[index][tagTypes.SECTIONS]);
-      props.setSentences(props.annotationsList[index][tagTypes.SENTENCES]);
-      props.setTokens(props.annotationsList[index][tagTypes.TOKENS]);
-      props.setEntities(props.annotationsList[index][tagTypes.ENTITIES]);
-      props.setAnnotationFocus("");
+      // props.setSections(props.annotationsList[index][tagTypes.SECTIONS]);
+      // props.setSentences(props.annotationsList[index][tagTypes.SENTENCES]);
+      // props.setEntities(props.annotationsList[index][tagTypes.ENTITIES]);
+      // if (props.annotationFocus === tagTypes.SECTIONS) {
+      //   props.setAnnotations(props.annotationsList[index][tagTypes.SECTIONS]);
+      // } else if (props.annotationFocus === tagTypes.SENTENCES) {
+      //   props.setAnnotations(props.annotationsList[index][tagTypes.SENTENCES]);
+      // } else {
+      //   props.setAnnotations([
+      //     ...props.annotationsList[index][tagTypes.ENTITIES].filter(
+      //       annotation => annotation.type === props.annotationFocus
+      //     )
+      //   ]);
+      // }
+      props.setAnnotationFocus(props.annotationFocus);
 
       // creating fileData - used to call API
       let fileData = {};
-      fileData.filename = file.name;
-      let ext = file.name.split(".")[file.name.split(".").length - 1];
-      let filename = file.name.slice(0, file.name.length - 1 - ext.length);
-      props.setFileReference(filename);
-      if (ext === "txt") {
-        fileData.format = "plain_text";
-      } else if (ext === "rtf") {
-        fileData.format = "rich_text";
-      } else {
-        fileData.format = "other";
-      }
 
       fileReader.readAsText(file);
 
@@ -232,6 +230,18 @@ const ManageFiles = props => {
 
         // if "use spacy" is checked and there are no existing annotations for the file
         if (props.spacyActive && annotationsEmpty(index)) {
+          fileData.filename = file.name;
+          let ext = file.name.split(".")[file.name.split(".").length - 1];
+          let filename = file.name.slice(0, file.name.length - 1 - ext.length);
+          props.setFileReference(filename);
+          if (ext === "txt") {
+            fileData.format = "plain_text";
+          } else if (ext === "rtf") {
+            fileData.format = "rich_text";
+          } else {
+            fileData.format = "other";
+          }
+
           callApi(fileData, index);
         }
       };
@@ -335,7 +345,8 @@ const mapStateToProps = state => {
     currentSections: state.fileViewer.currentSections,
     currentSentences: state.fileViewer.currentSentences,
     versions: state.fileViewer.versions,
-    versionIndex: state.fileViewer.versionIndex
+    versionIndex: state.fileViewer.versionIndex,
+    annotationFocus: state.fileViewer.annotationFocus
   };
 };
 

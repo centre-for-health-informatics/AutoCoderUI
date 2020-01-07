@@ -175,25 +175,6 @@ class CustomAnnotator extends Component {
     return false;
   };
 
-  // saveAnnotations = () => {
-  //   const annotations = {};
-  //   annotations[tagTypes.ENTITIES] = this.props.currentEntities;
-  //   annotations[tagTypes.SECTIONS] = this.props.currentSections;
-  //   annotations[tagTypes.SENTENCES] = this.props.currentSentences;
-  //   annotations.name = this.props.annotationsList[this.props.fileIndex].name;
-  //   annotations.sessionId = this.props.sessionId;
-  //   annotations.tagTemplates = this.props.checkTagsInUse(annotations);
-
-  //   const options = {
-  //     method: "POST",
-  //     body: annotations
-  //   };
-
-  //   APIUtility.API.makeAPICall(APIUtility.UPLOAD_ANNOTATIONS, null, options).catch(error => {
-  //     console.log("ERROR:", error);
-  //   });
-  // };
-
   updateLegend = () => {
     // Handling updating Legend lists
     if (this.props.annotationFocus === tagTypes.SECTIONS) {
@@ -405,7 +386,7 @@ class CustomAnnotator extends Component {
 
   // method used to render the dashed lines between linked annotations
   renderLines = () => {
-    if (this.props.spansRendered) {
+    if (this.props.spansRendered && this.props.annotations) {
       const lines = this.props.annotations.map((annotation, i) =>
         util.drawLine(annotation, i, this.props.tagTemplates)
       );
@@ -497,7 +478,6 @@ const mapDispatchToProps = dispatch => {
     setSentences: sentences => dispatch(actions.setSentences(sentences)),
     setTokens: tokens => dispatch(actions.setTokens(tokens)),
     setEntities: entities => dispatch(actions.setEntities(entities)),
-    setAnnotationFocus: annotationFocus => dispatch(actions.setAnnotationFocus(annotationFocus)),
     setAnnotations: annotations => dispatch(actions.setAnnotations(annotations)),
     setAddingTags: tag => dispatch(actions.setAddingTags(tag)),
     setAnnotationsToEdit: annotationsToEdit => dispatch(actions.setAnnotationsToEdit(annotationsToEdit)),

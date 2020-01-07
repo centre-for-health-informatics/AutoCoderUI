@@ -104,8 +104,7 @@ const mapStateToProps = state => {
 
 const mapDispatchToProps = dispatch => {
   return {
-    setAddingTags: tags => dispatch(actions.setAddingTags(tags)),
-    setAnnotationFocus: annotationFocus => dispatch(actions.setAnnotationFocus(annotationFocus))
+    setAddingTags: tags => dispatch(actions.setAddingTags(tags))
   };
 };
 

@@ -30,6 +30,7 @@ const FileHistory = props => {
     return "normal";
   };
 
+  // returns bold for the currently selected version, normal otherwise
   const getFontWeightVersion = index => {
     if (index === props.versionIndex) {
       return "bold";
@@ -50,17 +51,43 @@ const FileHistory = props => {
       .then(response => response.json())
       .then(data => {
         let dataVersions = [];
+        let isThereCurrent = false;
         for (let version of data) {
+          console.log("version", version);
           // if version isn't the current one
           if (version.data.sessionId !== props.sessionId) {
             dataVersions.push(version);
             // for the current version
           } else {
-            props.setCurrentSections(version[tagTypes.SECTIONS]);
-            props.setCurrentEntities(version[tagTypes.ENTITIES]);
-            props.setCurrentSentences(version[tagTypes.SENTENCES]);
+            isThereCurrent = true;
+            props.setCurrentSections(version.data[tagTypes.SECTIONS]);
+            props.setSections(version.data[tagTypes.SECTIONS]);
+            props.setCurrentEntities(version.data[tagTypes.ENTITIES]);
+            props.setEntities(version.data[tagTypes.ENTITIES]);
+            props.setCurrentSentences(version.data[tagTypes.SENTENCES]);
+            props.setSentences(version.data[tagTypes.SENTENCES]);
+
+            if (props.annotationFocus === tagTypes.SECTIONS) {
+              props.setAnnotations(version.data[tagTypes.SECTIONS]);
+            } else if (props.annotationFocus === tagTypes.SENTENCES) {
+              props.setAnnotations(version.data[tagTypes.SENTENCES]);
+            } else {
+              props.setAnnotations([
+                ...version.data[tagTypes.ENTITIES].filter(annotation => annotation.type === props.annotationFocus)
+              ]);
+            }
           }
         }
+        if (!isThereCurrent) {
+          props.setCurrentSections([]);
+          props.setSections([]);
+          props.setCurrentEntities([]);
+          props.setEntities([]);
+          props.setCurrentSentences([]);
+          props.setSentences([]);
+          props.setAnnotations([]);
+        }
+
         props.setVersions(dataVersions);
         props.setVersionIndex(dataVersions.length);
       })
@@ -74,31 +101,31 @@ const FileHistory = props => {
       return;
     }
     props.setVersionIndex(newIndex);
-    props.setAnnotationFocus("");
-    props.setAnnotations([]);
     // switching to something other than current
     if (newIndex !== props.versions.length) {
       props.setEntities(version.data[tagTypes.ENTITIES]);
       props.setSections(version.data[tagTypes.SECTIONS]);
       props.setSentences(version.data[tagTypes.SENTENCES]);
+      props.setAnnotations(version.data[props.annotationFocus]);
+      props.setAnnotationFocus(props.annotationFocus);
       // switching to current
     } else {
       props.setEntities(props.currentEntities);
       props.setSections(props.currentSections);
       props.setSentences(props.currentSentences);
+      if (props.annotationFocus === tagTypes.SECTIONS) {
+        props.setAnnotations(props.currentSections);
+      } else if (props.annotationFocus === tagTypes.SENTENCES) {
+        props.setAnnotations(props.currentSentences);
+      } else {
+        props.setAnnotations([
+          ...props.currentEntities.filter(annotation => annotation.type === props.annotationFocus)
+        ]);
+      }
     }
-    console.log(props.currentSections);
-    // switching away from current, need to store annotations
-    // if (oldIndex === props.versions.length) {
-    //   props.setCurrentEntities(props.entities);
-    //   props.setCurrentSections(props.sections);
-    //   props.setCurrentSentences(props.sentences);
-    // }
   };
 
   const continueFromVersion = () => {
-    // set current store properties
-    // set "current" version
     if (window.confirm("Are you sure? This will overwrite your current annotations.")) {
       props.setCurrentSections(props.sections).then(() => {
         props.setCurrentEntities(props.entities).then(() => {
@@ -208,7 +235,8 @@ const mapStateToProps = state => {
     currentSentences: state.fileViewer.currentSentences,
     versions: state.fileViewer.versions,
     versionIndex: state.fileViewer.versionIndex,
-    sessionId: state.fileViewer.sessionId
+    sessionId: state.fileViewer.sessionId,
+    annotationFocus: state.fileViewer.annotationFocus
   };
 };
 

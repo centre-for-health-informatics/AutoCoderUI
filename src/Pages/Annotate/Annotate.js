@@ -140,6 +140,7 @@ const Annotate = props => {
       annotations.sessionId = props.sessionId;
       annotations.tagTemplates = checkTagsInUse(annotations);
     }
+    console.log("saving", annotations);
     const options = {
       method: "POST",
       body: annotations

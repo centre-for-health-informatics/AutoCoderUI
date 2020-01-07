@@ -116,6 +116,9 @@ export const drawLine = (annotation, i, tagTemplates) => {
 
 // creates the intervals to display
 export const createIntervals = (text, annotations, tagTemplates) => {
+  if (!annotations) {
+    annotations = [];
+  }
   colorIndex = 0;
   // set of breakpoints to create all intervals
   let breakPoints = new Set();
