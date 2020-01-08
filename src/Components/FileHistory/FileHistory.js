@@ -3,6 +3,7 @@ import { connect } from "react-redux";
 import * as actions from "../../Store/Actions/index";
 import * as tagTypes from "../TagManagement/tagTypes";
 import * as APIUtility from "../../Util/API";
+import * as utility from "../../Util/utility";
 import { List, ListItem, makeStyles, Collapse, IconButton, Button } from "@material-ui/core";
 import { AddCircleOutline, RemoveCircleOutline } from "@material-ui/icons";
 
@@ -165,7 +166,7 @@ const FileHistory = props => {
         }}
         style={{ fontWeight: getFontWeightVersion(index) }}
       >
-        {version.updated}
+        {utility.timeFormat(version.updated)}
         {index === props.versionIndex ? (
           <Button
             onClick={() => {
