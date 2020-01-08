@@ -73,9 +73,10 @@ const FileHistory = props => {
             } else if (props.annotationFocus === tagTypes.SENTENCES) {
               props.setAnnotations(version.data[tagTypes.SENTENCES]);
             } else {
-              props.setAnnotations([
-                ...version.data[tagTypes.ENTITIES].filter(annotation => annotation.type === props.annotationFocus)
-              ]);
+              // props.setAnnotations([
+              //   ...version.data[tagTypes.ENTITIES].filter(annotation => annotation.type === props.annotationFocus)
+              // ]);
+              props.setAnnotations(version.data[tagTypes.ENTITIES]); // here
             }
           }
         }
@@ -111,7 +112,11 @@ const FileHistory = props => {
       props.setSections(version.data[tagTypes.SECTIONS]);
       props.setSentences(version.data[tagTypes.SENTENCES]);
       props.setAnnotations(version.data[props.annotationFocus]);
-      props.setAnnotationFocus(props.annotationFocus);
+      if (props.annotationFocus !== tagTypes.SECTIONS && props.annotationFocus !== tagTypes.SENTENCES) {
+        props.setAnnotations(
+          version.data[tagTypes.ENTITIES].filter(annotation => annotation.type === props.annotationFocus)
+        );
+      }
       // switching to current
     } else {
       props.setEntities(props.currentEntities);
