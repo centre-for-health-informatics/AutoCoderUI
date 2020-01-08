@@ -269,7 +269,6 @@ const ManageFiles = props => {
   const switchFile = index => {
     readFile(props.txtList[index], index);
     props.setFileIndex(index);
-    props.setEntitiesInUse([]);
   };
 
   return (
@@ -341,8 +340,6 @@ const mapDispatchToProps = dispatch => {
     setTokens: tokens => dispatch(actions.setTokens(tokens)),
     setEntities: entities => dispatch(actions.setEntities(entities)),
     setFileText: text => dispatch(actions.setFileText(text)),
-    setSectionsInUse: sectionsInUse => dispatch(actions.setSectionsInUse(sectionsInUse)),
-    setEntitiesInUse: entitiesInUse => dispatch(actions.setEntitiesInUse(entitiesInUse)),
     setAnnotationFocus: annotationFocus => dispatch(actions.setAnnotationFocus(annotationFocus)),
     setSpacyLoading: isSpacyLoading => dispatch(actions.setSpacyLoading(isSpacyLoading)),
     updateAnnotationsAfterLoadingSpacy: (data, index) =>

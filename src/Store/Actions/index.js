@@ -17,8 +17,6 @@ export {
   setAnnotationsToEdit,
   setSpacyActive,
   setSnapToWord,
-  setSectionsInUse,
-  setEntitiesInUse,
   setAddingCustomTag,
   setSpansRendered,
   setTxtList,

@@ -112,20 +112,6 @@ export const setSnapToWord = snapToWord => {
   };
 };
 
-export const setSectionsInUse = sectionsInUse => {
-  return {
-    type: actionTypes.SET_SECTIONS_IN_USE,
-    sectionsInUse
-  };
-};
-
-export const setEntitiesInUse = entitiesInUse => {
-  return {
-    type: actionTypes.SET_ENTITIES_IN_USE,
-    entitiesInUse
-  };
-};
-
 export const setAddingCustomTag = addingCustomTag => {
   return {
     type: actionTypes.SET_ADDING_CUSTOM_TAG,

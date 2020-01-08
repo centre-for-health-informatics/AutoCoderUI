@@ -22,8 +22,6 @@ const ProjectOverview = props => {
   const [isLayoutModifiable, setLayoutModifiable] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const alert = useAlert();
-  props.setEntitiesInUse([]);
-  props.setSectionsInUse([]);
 
   const onLayoutChange = layouts => {
     setLayouts(layouts);
@@ -134,9 +132,7 @@ const mapDispatchToProps = dispatch => {
     setAlertMessage: newValue => dispatch(actions.setAlertMessage(newValue)),
     setAnnotationFocus: annotationFocus => dispatch(actions.setAnnotationFocus(annotationFocus)),
     setAnnotations: annotations => dispatch(actions.setAnnotations(annotations)),
-    setEntitiesInUse: entitiesInUse => dispatch(actions.setEntitiesInUse(entitiesInUse)),
     setLinkedListAdd: linkedListAdd => dispatch(actions.setLinkedListAdd(linkedListAdd)),
-    setSectionsInUse: sectionsInUse => dispatch(actions.setSectionsInUse(sectionsInUse)),
     setInitialTagsAdded: initialTagsAdded => dispatch(actions.setInitialTagsAdded(initialTagsAdded)),
     setSessionId: sessionId => dispatch(actions.setSessionId(sessionId)),
     setSnapToWord: snapToWord => dispatch(actions.setSnapToWord(snapToWord))

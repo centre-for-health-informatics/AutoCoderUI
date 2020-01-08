@@ -1,27 +1,25 @@
 import React from "react";
 import { connect } from "react-redux";
-import * as tagTypes from "../TagManagement/tagTypes";
 import * as actions from "../../Store/Actions/index";
 import { List, Chip, ListItem } from "@material-ui/core";
 
 const Legend = props => {
   // makes the list for the final render
   const makeList = () => {
-    let chipList = [];
-    if (props.annotationFocus === tagTypes.SECTIONS) {
-      chipList = makeChipList(props.sectionsInUse);
-    } else if (props.annotationFocus === tagTypes.SENTENCES || props.annotationFocus === tagTypes.TOKENS) {
-      // do nothing
-    } else {
-      chipList = makeChipList(props.entitiesInUse);
+    const tagsInUse = new Set();
+    for (let annotation of props.annotations) {
+      if (annotation.tag !== "") {
+        tagsInUse.add(annotation.tag);
+      }
     }
+    const chipList = makeChipList(tagsInUse);
     return chipList.map((chip, index) => <ListItem key={"listItem-" + index}>{chip}</ListItem>);
   };
 
   // creates the list of chips to be displayed in the legend
-  const makeChipList = itemsInUse => {
+  const makeChipList = tagsInUse => {
     const chipList = [];
-    for (let item of itemsInUse) {
+    for (let item of tagsInUse) {
       chipList.push(
         <Chip
           key={"chip-" + item}
@@ -44,9 +42,11 @@ const Legend = props => {
     if (!idOnly) {
       let tagToLabel;
       for (let tag of props.tagTemplates) {
-        if (item === tag.id) {
-          tagToLabel = tag;
-          break;
+        if (tag.type === props.annotationFocus) {
+          if (item === tag.id) {
+            tagToLabel = tag;
+            break;
+          }
         }
       }
       if (tagToLabel.description) {
@@ -68,7 +68,7 @@ const Legend = props => {
   const handleChipClick = item => {
     let tagToSelect;
     for (let tag of props.tagTemplates) {
-      if (item === tag.id) {
+      if (item === tag.id && tag.type === props.annotationFocus) {
         tagToSelect = tag;
         break;
       }
@@ -79,7 +79,7 @@ const Legend = props => {
   // gets the colour of the chip by checking tags in store
   const getColor = item => {
     for (let tag of props.tagTemplates) {
-      if (item === tag.id) {
+      if (item === tag.id && tag.type === props.annotationFocus) {
         return tag.color;
       }
     }
@@ -94,10 +94,9 @@ const Legend = props => {
 
 const mapStateToProps = state => {
   return {
+    annotations: state.fileViewer.annotations,
     annotationFocus: state.fileViewer.annotationFocus,
     addingTags: state.tagManagement.addingTags,
-    sectionsInUse: state.fileViewer.sectionsInUse,
-    entitiesInUse: state.fileViewer.entitiesInUse,
     tagTemplates: state.fileViewer.tagTemplates
   };
 };

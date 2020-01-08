@@ -64,11 +64,6 @@ const TagSelector = props => {
     switch (newSelection) {
       case tagTypes.SECTIONS:
         props.setAnnotations(props.sections);
-        const sectionsInUse = new Set();
-        for (let annotation of props.sections) {
-          sectionsInUse.add(annotation.tag);
-        }
-        props.setSectionsInUse(Array.from(sectionsInUse));
         break;
       case tagTypes.SENTENCES:
         props.setAnnotations(props.sentences);
@@ -79,13 +74,6 @@ const TagSelector = props => {
 
       default:
         props.setAnnotations(props.entities.filter(annotation => annotation.type === newSelection));
-        const entitiesInUse = new Set();
-        for (let annotation of props.entities.filter(annotation => annotation.type === newSelection)) {
-          if (annotation.type === newSelection) {
-            entitiesInUse.add(annotation.tag);
-          }
-        }
-        props.setEntitiesInUse(Array.from(entitiesInUse));
     }
 
     props.setAddingTags([]);
@@ -262,9 +250,7 @@ const mapDispatchToProps = dispatch => {
     setAnnotationFocus: annotationFocus => dispatch(actions.setAnnotationFocus(annotationFocus)),
     setAnnotations: annotations => dispatch(actions.setAnnotations(annotations)),
     setSpansRendered: spansRendered => dispatch(actions.setSpansRendered(spansRendered)),
-    setLinkedListAdd: linkedListAdd => dispatch(actions.setLinkedListAdd(linkedListAdd)),
-    setEntitiesInUse: entitiesInUse => dispatch(actions.setEntitiesInUse(entitiesInUse)),
-    setSectionsInUse: sectionsInUse => dispatch(actions.setSectionsInUse(sectionsInUse))
+    setLinkedListAdd: linkedListAdd => dispatch(actions.setLinkedListAdd(linkedListAdd))
   };
 };
 

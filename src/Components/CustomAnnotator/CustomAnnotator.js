@@ -162,8 +162,6 @@ class CustomAnnotator extends Component {
 
     this.prevSpan = span;
 
-    this.updateLegend();
-
     // clears selection
     window.getSelection().empty();
   };
@@ -177,30 +175,6 @@ class CustomAnnotator extends Component {
       }
     }
     return false;
-  };
-
-  updateLegend = () => {
-    // Handling updating Legend lists
-    if (this.props.annotationFocus === tagTypes.SECTIONS) {
-      let newSections = Array.from(this.props.sectionsInUse);
-      if (newSections.includes(this.props.addingTags[0].id)) {
-        const index = newSections.indexOf(this.props.addingTags[0].id);
-        newSections.splice(index, 1);
-      }
-      newSections.unshift(this.props.addingTags[0].id);
-      this.props.setSectionsInUse(newSections);
-    } else if (this.props.annotationFocus === tagTypes.TOKENS || this.props.annotationFocus === tagTypes.SENTENCES) {
-      // do nothing
-    } else {
-      // custom entity types
-      let newEntities = Array.from(this.props.entitiesInUse);
-      if (newEntities.includes(this.props.addingTags[0].id)) {
-        const index = newEntities.indexOf(this.props.addingTags[0].id);
-        newEntities.splice(index, 1);
-      }
-      newEntities.unshift(this.props.addingTags[0].id);
-      this.props.setEntitiesInUse(newEntities);
-    }
   };
 
   // this is called whenever the user selects text to annotate or clicks on an annotation to remove it
@@ -289,47 +263,6 @@ class CustomAnnotator extends Component {
    * Called upon to remove annotations
    */
   removeAnnotation = annotationToRemove => {
-    if (this.props.annotationFocus !== tagTypes.TOKENS && this.props.annotationFocus !== tagTypes.SENTENCES) {
-      // removing from legend if it was the last tag of that type
-      const label = annotationToRemove.tag;
-      let labelCount = 0;
-      for (let annotation of this.props.annotations) {
-        if (annotation.tag === label) {
-          labelCount += 1;
-          if (annotation.next) {
-            labelCount -= 1;
-          }
-        }
-      }
-      // if there is only one annotation with a label and it is removed, the legend should remove that label
-      if (labelCount === 1) {
-        if (this.props.annotationFocus === tagTypes.SECTIONS) {
-          // removing label from sections
-          const index = this.props.sectionsInUse.indexOf(label);
-          if (index >= 0) {
-            this.props.setSectionsInUse([
-              ...this.props.sectionsInUse.slice(0, index),
-              ...this.props.sectionsInUse.slice(index + 1)
-            ]);
-          }
-        } else if (
-          this.props.annotationFocus === tagTypes.SENTENCES ||
-          this.props.annotationFocus === tagTypes.TOKENS
-        ) {
-          // do nothing - legend is only for sections and entities
-        } else {
-          // removing label from entities
-          const index = this.props.entitiesInUse.indexOf(label);
-          if (index >= 0) {
-            this.props.setEntitiesInUse([
-              ...this.props.entitiesInUse.slice(0, index),
-              ...this.props.entitiesInUse.slice(index + 1)
-            ]);
-          }
-        }
-      }
-    }
-
     // setting annotations and annotationsToEdit
     let annotationsToRemove = this.getLinkedAnnotations(annotationToRemove);
     const annotations = Array.from(this.props.annotations);
@@ -460,8 +393,6 @@ const mapStateToProps = state => {
     intervalDivHeight: state.fileViewer.intervalDivHeight,
     intervalDivWidth: state.fileViewer.intervalDivWidth,
     snapToWord: state.fileViewer.snapToWord,
-    sectionsInUse: state.fileViewer.sectionsInUse,
-    entitiesInUse: state.fileViewer.entitiesInUse,
     spansRendered: state.fileViewer.spansRendered,
     fileIndex: state.fileViewer.fileIndex,
     annotationsList: state.fileViewer.annotationsList,
@@ -486,8 +417,6 @@ const mapDispatchToProps = dispatch => {
     setAnnotations: annotations => dispatch(actions.setAnnotations(annotations)),
     setAddingTags: tag => dispatch(actions.setAddingTags(tag)),
     setAnnotationsToEdit: annotationsToEdit => dispatch(actions.setAnnotationsToEdit(annotationsToEdit)),
-    setSectionsInUse: sectionsInUse => dispatch(actions.setSectionsInUse(sectionsInUse)),
-    setEntitiesInUse: entitiesInUse => dispatch(actions.setEntitiesInUse(entitiesInUse)),
     setAnnotationsList: annotationsList => dispatch(actions.setAnnotationsList(annotationsList)),
     setSpansRendered: spansRendered => dispatch(actions.setSpansRendered(spansRendered)),
     setAlertMessage: newValue => dispatch(actions.setAlertMessage(newValue)),
