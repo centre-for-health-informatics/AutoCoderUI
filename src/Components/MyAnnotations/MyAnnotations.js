@@ -170,7 +170,7 @@ const MyAnnotations = props => {
             {row.id}
           </TableCell>
           <TableCell align="right">{row.filename}</TableCell>
-          <TableCell align="right">{utility.timeFormat(row.updated)}</TableCell>
+          <TableCell align="right">{utility.timeFormat(row.updated, false)}</TableCell>
         </TableRow>
       );
       outputRows.push(rowHTML);

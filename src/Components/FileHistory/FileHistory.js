@@ -77,7 +77,7 @@ const FileHistory = props => {
               // props.setAnnotations([
               //   ...version.data[tagTypes.ENTITIES].filter(annotation => annotation.type === props.annotationFocus)
               // ]);
-              props.setAnnotations(version.data[tagTypes.ENTITIES]); // here
+              props.setAnnotations(version.data[tagTypes.ENTITIES]);
             }
           }
         }
@@ -156,33 +156,35 @@ const FileHistory = props => {
 
   // shows the list of versions of an annotation when the file is expanded
   const showHistory = () => {
-    return props.versions.map((version, index) => (
-      <ListItem
-        className={classes.nested}
-        button
-        key={version.updated}
-        onClick={() => {
-          switchVersion(version, index, props.versionIndex);
-        }}
-        style={{ fontWeight: getFontWeightVersion(index) }}
-      >
-        {utility.timeFormat(version.updated)}
-        {index === props.versionIndex ? (
-          <Button
-            onClick={() => {
-              continueFromVersion();
-            }}
-            variant="contained"
-            color="default"
-            className={classes.button}
-            size="small"
-            style={{ fontSize: "70%" }}
-          >
-            Continue
-          </Button>
-        ) : null}
-      </ListItem>
-    ));
+    return props.versions
+      .sort((a, b) => (a.updated > b.updated ? -1 : 1))
+      .map((version, index) => (
+        <ListItem
+          className={classes.nested}
+          button
+          key={version.updated}
+          onClick={() => {
+            switchVersion(version, index, props.versionIndex);
+          }}
+          style={{ fontWeight: getFontWeightVersion(index) }}
+        >
+          {"\u2022 " + utility.timeFormat(version.updated, true)}
+          {index === props.versionIndex ? (
+            <Button
+              onClick={() => {
+                continueFromVersion();
+              }}
+              variant="contained"
+              color="default"
+              className={classes.button}
+              size="small"
+              style={{ fontSize: "70%" }}
+            >
+              Continue
+            </Button>
+          ) : null}
+        </ListItem>
+      ));
   };
 
   return (
@@ -217,7 +219,6 @@ const FileHistory = props => {
       {isExpanded && props.fileIndex === props.index && (
         <Collapse in={isExpanded} timeout="auto" unmountOnExit>
           <List dense disablePadding>
-            {showHistory()}
             <ListItem
               className={classes.nested}
               button
@@ -227,8 +228,9 @@ const FileHistory = props => {
               }}
               style={{ fontWeight: getFontWeightVersion(props.versions.length) }}
             >
-              Current
+              {"\u2022 Current Version"}
             </ListItem>
+            {showHistory()}
           </List>
         </Collapse>
       )}
