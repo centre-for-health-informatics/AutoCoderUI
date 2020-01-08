@@ -101,7 +101,7 @@ const Tags = props => {
         isResizable={isLayoutModifiable}
         onLayoutChange={(layout, layouts) => onLayoutChange(layouts)}
       >
-        <div key="tagList" className={highlightEditDiv}>
+        <div key="tagList" className={highlightEditDiv} style={{ overflowY: "auto" }}>
           <TagManager />
         </div>
         <div key="generalSettings" className={highlightEditDiv}>

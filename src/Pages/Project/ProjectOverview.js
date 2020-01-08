@@ -40,21 +40,13 @@ const ProjectOverview = props => {
 
   const highlightEditDiv = isLayoutModifiable ? "grid-border edit-border" : "grid-border";
 
-  // ComponentWillUnmount
-  useEffect(() => {
-    return () => {
-      props.setAnnotationFocus("");
-      props.setAnnotations([]);
-    };
-  }, []);
-
   // ComponentDidMount
   useEffect(() => {
     setLayouts(getFromLS("projectLayouts", "layouts") || defaultLayouts);
     APIUtility.API.verifyLSToken(() => setIsLoading(false));
   }, []);
 
-  // // Display alert message
+  // Display alert message
   useEffect(() => {
     if (props.alertMessage) {
       alert.show(props.alertMessage.message, {

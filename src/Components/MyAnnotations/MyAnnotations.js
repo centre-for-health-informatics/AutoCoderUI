@@ -4,6 +4,7 @@ import PropTypes from "prop-types";
 import * as actions from "../../Store/Actions/index";
 import { connect } from "react-redux";
 import * as APIUtility from "../../Util/API";
+import * as utility from "../../Util/utility";
 import Table from "@material-ui/core/Table";
 import TableBody from "@material-ui/core/TableBody";
 import TableCell from "@material-ui/core/TableCell";
@@ -40,7 +41,7 @@ const useStyles = makeStyles({
 // the id fields must match the model field references in backend for sorting to work
 const tableHeaders = [
   { id: "id", align: "left", disablePadding: false, label: "Id" },
-  { id: "user", align: "left", disablePadding: false, label: "User" },
+  { id: "filename", align: "left", disablePadding: false, label: "Filename" },
   { id: "updated", align: "left", disablePadding: false, label: "Time" }
 ];
 
@@ -168,8 +169,8 @@ const MyAnnotations = props => {
           <TableCell component="th" scope="row">
             {row.id}
           </TableCell>
-          <TableCell align="right">{row.user}</TableCell>
-          <TableCell align="right">{row.updated}</TableCell>
+          <TableCell align="right">{row.filename}</TableCell>
+          <TableCell align="right">{utility.timeFormat(row.updated)}</TableCell>
         </TableRow>
       );
       outputRows.push(rowHTML);
@@ -178,8 +179,8 @@ const MyAnnotations = props => {
   };
 
   return (
-    <Paper className={classes.root}>
-      <div className={classes.tableWrapper}>
+    <Paper className={classes.root} style={{ overflowY: "auto" }}>
+      <div className={classes.tableWrapper} style={{ overflowY: "hidden" }}>
         <Table className={classes.table} aria-label="My Annotation History">
           <PaginationHeader
             headers={tableHeaders}
