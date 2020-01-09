@@ -74,15 +74,15 @@ const FileHistory = props => {
             } else if (props.annotationFocus === tagTypes.SENTENCES) {
               props.setAnnotations(version.data[tagTypes.SENTENCES]);
             } else {
-              // props.setAnnotations([
-              //   ...version.data[tagTypes.ENTITIES].filter(annotation => annotation.type === props.annotationFocus)
-              // ]);
-              props.setAnnotations(version.data[tagTypes.ENTITIES]);
+              props.setAnnotations([
+                ...version.data[tagTypes.ENTITIES].filter(annotation => annotation.type === props.annotationFocus)
+              ]);
+              // props.setAnnotations(version.data[tagTypes.ENTITIES]);
             }
           }
         }
-        // if there is not current annotations, set all annotations to empty
-        if (!isThereCurrent) {
+        // if there is not current annotations and there is no json file, set all annotations to empty
+        if (!isThereCurrent && !props.isJsonAvailable) {
           props.setCurrentSections([]);
           props.setSections([]);
           props.setCurrentEntities([]);
@@ -196,9 +196,9 @@ const FileHistory = props => {
           if (props.index === props.fileIndex) {
             setExpanded(!isExpanded);
           } else {
+            props.switchFile(props.index);
             getAnnotationsForFile();
             setExpanded(false);
-            props.switchFile(props.index);
           }
         }}
         style={{ fontWeight: getFontWeightFile(props.index) }}
@@ -253,7 +253,8 @@ const mapStateToProps = state => {
     versions: state.fileViewer.versions,
     versionIndex: state.fileViewer.versionIndex,
     sessionId: state.fileViewer.sessionId,
-    annotationFocus: state.fileViewer.annotationFocus
+    annotationFocus: state.fileViewer.annotationFocus,
+    isJsonAvailable: state.fileViewer.isJsonAvailable
   };
 };
 
@@ -268,7 +269,8 @@ const mapDispatchToProps = dispatch => {
     setCurrentSections: currentSections => dispatch(actions.setCurrentSectionsWithCallback(currentSections)),
     setCurrentSentences: currentSentences => dispatch(actions.setCurrentSentencesWithCallback(currentSentences)),
     setVersions: versions => dispatch(actions.setVersions(versions)),
-    setVersionIndex: versionIndex => dispatch(actions.setVersionIndex(versionIndex))
+    setVersionIndex: versionIndex => dispatch(actions.setVersionIndex(versionIndex)),
+    setIsJsonAvailable: isJsonAvailable => dispatch(actions.setIsJsonAvailable(isJsonAvailable))
   };
 };
 

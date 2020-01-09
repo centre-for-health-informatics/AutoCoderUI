@@ -203,3 +203,10 @@ export const setVersionIndex = versionIndex => {
     versionIndex
   };
 };
+
+export const setIsJsonAvailable = isJsonAvailable => {
+  return {
+    type: actionTypes.SET_IS_JSON_AVAILABLE,
+    isJsonAvailable
+  };
+};

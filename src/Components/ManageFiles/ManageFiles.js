@@ -73,7 +73,6 @@ const ManageFiles = props => {
         // creating annotation object and pushing into a list
         let annotationsObject = {};
         annotationsObject.name = file.name.slice(0, file.name.length - 1 - ext.length);
-        populateAnnotationsObject(annotationsObject, fileList);
         annotationsList.push(annotationsObject);
         // for json files that aren't already opened
       } else if (ext === "json" && !fileAlreadyOpen(file, props.jsonList)) {
@@ -88,6 +87,7 @@ const ManageFiles = props => {
     // setting spacy loading array
     props.setSpacyLoading([...props.isSpacyLoading, ...isSpacyLoading]);
 
+    // making promise list to add all tags from imported json files to tagTemplates
     const promiseList = makePromiseList(jsonList); // make promise list
     Promise.all(promiseList).then(promises => {
       // once all of the promises are resolved
@@ -134,58 +134,6 @@ const ManageFiles = props => {
     return promiseList;
   };
 
-  // Used to populate annotations from imported json files
-  const populateAnnotationsObject = (annotationsObject, fileList) => {
-    // combining newly and previously imported json files
-    const allJson = Array.from([
-      ...props.jsonList,
-      ...Array.from(fileList).filter(file => file.name.endsWith(".json"))
-    ]);
-    for (let file of allJson) {
-      // if the file matches a json file, load annotations from the json file
-      if (file.name === annotationsObject.name + "_Annotations.json") {
-        let fileReader = new FileReader();
-        fileReader.onload = e => {
-          const json = JSON.parse(e.target.result);
-          if (json[tagTypes.SECTIONS]) {
-            annotationsObject.Sections = json[tagTypes.SECTIONS];
-          } else {
-            annotationsObject[tagTypes.SECTIONS] = [];
-          }
-          if (json[tagTypes.ENTITIES]) {
-            annotationsObject[tagTypes.ENTITIES] = json[tagTypes.ENTITIES];
-          } else {
-            annotationsObject[tagTypes.ENTITIES] = [];
-          }
-          if (json[tagTypes.TOKENS]) {
-            annotationsObject[tagTypes.TOKENS] = json[tagTypes.TOKENS];
-          } else {
-            annotationsObject[tagTypes.TOKENS] = [];
-          }
-          if (json[tagTypes.SENTENCES]) {
-            annotationsObject[tagTypes.SENTENCES] = json[tagTypes.SENTENCES];
-          } else {
-            annotationsObject[tagTypes.SENTENCES] = [];
-          }
-        };
-        fileReader.readAsText(file);
-        break;
-      }
-    }
-    if (!annotationsObject[tagTypes.SECTIONS]) {
-      annotationsObject[tagTypes.SECTIONS] = [];
-    }
-    if (!annotationsObject[tagTypes.TOKENS]) {
-      annotationsObject[tagTypes.TOKENS] = [];
-    }
-    if (!annotationsObject[tagTypes.SENTENCES]) {
-      annotationsObject[tagTypes.SENTENCES] = [];
-    }
-    if (!annotationsObject[tagTypes.ENTITIES]) {
-      annotationsObject[tagTypes.ENTITIES] = [];
-    }
-  };
-
   // used to check if a file has already been opened to avoid opening the same file twice
   const fileAlreadyOpen = (file, openedFiles) => {
     for (let openFile of openedFiles) {
@@ -199,38 +147,78 @@ const ManageFiles = props => {
   // reads a file when it is selected from the list of uploaded files
   const readFile = (file, index) => {
     if (file) {
-      let fileReader = new FileReader();
-      props.setAnnotationFocus(props.annotationFocus);
+      // if empty, check for uploaded json
+      if (
+        props.currentSections.length === 0 &&
+        props.currentEntities.length === 0 &&
+        props.currentSentences.length === 0
+      ) {
+        for (let jsonFile of props.jsonList) {
+          // matching json found
+          if (jsonFile.name.substring(0, jsonFile.name.length - 17) === file.name.substring(0, file.name.length - 4)) {
+            props.setIsJsonAvailable(true);
+            // read json file and assign annotations
+            let fileReader = new FileReader();
+            fileReader.onload = e => {
+              const json = JSON.parse(e.target.result);
+              console.log(json);
 
-      // creating fileData - used to call API
-      let fileData = {};
-
-      fileReader.readAsText(file);
-
-      fileReader.onloadend = () => {
-        let text = fileReader.result.replace(/\r\n/g, "\n"); // Replaces \r\n with \n for Windows OS
-        fileData.content = text;
-
-        props.setFileText(text);
-
-        // if "use spacy" is checked and there are no existing annotations for the file
-        if (props.spacyActive && annotationsEmpty(index)) {
-          fileData.filename = file.name;
-          let ext = file.name.split(".")[file.name.split(".").length - 1];
-          let filename = file.name.slice(0, file.name.length - 1 - ext.length);
-          props.setFileReference(filename);
-          if (ext === "txt") {
-            fileData.format = "plain_text";
-          } else if (ext === "rtf") {
-            fileData.format = "rich_text";
-          } else {
-            fileData.format = "other";
+              if (json[tagTypes.SECTIONS]) {
+                props.setCurrentSections(json[tagTypes.SECTIONS]);
+                props.setSections(json[tagTypes.SECTIONS]);
+              }
+              if (json[tagTypes.ENTITIES]) {
+                props.setCurrentEntities(json[tagTypes.ENTITIES]);
+                props.setEntities(json[tagTypes.ENTITIES]);
+              }
+              if (json[tagTypes.SENTENCES]) {
+                props.setCurrentSentences(json[tagTypes.SENTENCES]);
+                props.setSentences(json[tagTypes.SENTENCES]);
+              }
+              if (props.annotationFocus === tagTypes.SECTIONS) {
+                props.setAnnotations(json[tagTypes.SECTIONS]);
+              } else if (props.annotationFocus === tagTypes.SENTENCES) {
+                props.setAnnotations(json[tagTypes.SENTENCES]);
+              } else {
+                props.setAnnotations(
+                  json[tagTypes.ENTITIES].filter(annotation => annotation.type === props.annotationFocus)
+                );
+              }
+            };
+            fileReader.readAsText(jsonFile);
+            break;
           }
-
-          callApi(fileData, index);
         }
-      };
+        props.setIsJsonAvailable(false);
+      }
     }
+
+    // creating fileData - used to call API
+    let fileData = {};
+    let fileReader = new FileReader();
+    fileReader.readAsText(file);
+    fileReader.onloadend = () => {
+      let text = fileReader.result.replace(/\r\n/g, "\n"); // Replaces \r\n with \n for Windows OS
+      fileData.content = text;
+      props.setFileText(text);
+
+      // if "use spacy" is checked and there are no existing annotations for the file
+      if (props.spacyActive && annotationsEmpty(index)) {
+        fileData.filename = file.name;
+        let ext = file.name.split(".")[file.name.split(".").length - 1];
+        let filename = file.name.slice(0, file.name.length - 1 - ext.length);
+        props.setFileReference(filename);
+        if (ext === "txt") {
+          fileData.format = "plain_text";
+        } else if (ext === "rtf") {
+          fileData.format = "rich_text";
+        } else {
+          fileData.format = "other";
+        }
+
+        callApi(fileData, index);
+      }
+    };
   };
 
   // checks if annotations are empty
@@ -252,17 +240,16 @@ const ManageFiles = props => {
   const exportAnnotations = () => {
     let zip = new JSZip();
 
-    for (let annotation of props.annotationsList) {
-      const tagsInUse = props.checkTagsInUse(annotation);
-      zip.file(
-        annotation.name + "_Annotations.json",
-        '{"tagTemplates":[' + JSON.stringify(tagsInUse).slice(1, -1) + "]," + JSON.stringify(annotation).slice(1)
-      );
-    }
-
-    zip.generateAsync({ type: "blob" }).then(content => {
-      saveAs(content, "annotations.zip");
-    });
+    APIUtility.API.makeAPICall(APIUtility.EXPORT_ANNOTATIONS, props.sessionId)
+      .then(response => response.json())
+      .then(data => {
+        for (let annotation of data) {
+          zip.file(annotation.name + "_Annotations.json", JSON.stringify(annotation));
+        }
+        zip.generateAsync({ type: "blob" }).then(content => {
+          saveAs(content, "annotations.zip");
+        });
+      });
   };
 
   // handles a user clicking on another file that has been uploaded
@@ -327,7 +314,11 @@ const mapStateToProps = state => {
     sessionId: state.fileViewer.sessionId,
     isSpacyLoading: state.fileViewer.isSpacyLoading,
     versionIndex: state.fileViewer.versionIndex,
-    annotationFocus: state.fileViewer.annotationFocus
+    annotationFocus: state.fileViewer.annotationFocus,
+    currentEntities: state.fileViewer.currentEntities,
+    currentSections: state.fileViewer.currentSections,
+    currentSentences: state.fileViewer.currentSentences,
+    isJsonAvailable: state.fileViewer.isJsonAvailable
   };
 };
 
@@ -350,7 +341,13 @@ const mapDispatchToProps = dispatch => {
     setFileIndex: fileIndex => dispatch(actions.setFileIndex(fileIndex)),
     setTagTemplates: tagTemplates => dispatch(actions.setTagTemplates(tagTemplates)),
     setSingleSpacyLoading: (isSpacyLoading, index) => dispatch(actions.setSingleSpacyLoading(isSpacyLoading, index)),
-    setVersionIndex: versionIndex => dispatch(actions.setVersionIndex(versionIndex))
+    setVersionIndex: versionIndex => dispatch(actions.setVersionIndex(versionIndex)),
+    setCurrentEntities: currentEntities => dispatch(actions.setCurrentEntities(currentEntities)),
+    setCurrentSentences: currentSentences => dispatch(actions.setCurrentSentences(currentSentences)),
+    setCurrentSections: currentSections => dispatch(actions.setCurrentSections(currentSections)),
+    setVersions: versions => dispatch(actions.setVersions(versions)),
+    setVersionIndex: versionIndex => dispatch(actions.setVersionIndex(versionIndex)),
+    setIsJsonAvailable: isJsonAvailable => dispatch(actions.setIsJsonAvailable(isJsonAvailable))
   };
 };
 

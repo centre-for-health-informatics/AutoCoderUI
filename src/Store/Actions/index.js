@@ -29,7 +29,8 @@ export {
   setCurrentSections,
   setCurrentSentences,
   setVersions,
-  setVersionIndex
+  setVersionIndex,
+  setIsJsonAvailable
 } from "./fileViewer";
 export {
   setUploadedTags,
