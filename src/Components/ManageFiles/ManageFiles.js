@@ -78,6 +78,7 @@ const ManageFiles = props => {
       } else if (ext === "json" && !fileAlreadyOpen(file, props.jsonList)) {
         jsonList.push(file);
         if (
+          props.annotationsList[props.fileIndex] && // checking that a file is open before trying to match json
           // taking out "_Annotations.json" and comparing with filename
           file.name.substring(0, file.name.length - 17) === props.annotationsList[props.fileIndex].name &&
           annotationsEmpty()
@@ -126,7 +127,7 @@ const ManageFiles = props => {
         props.setCurrentSentences(json[tagTypes.SENTENCES]);
       }
       // if the current version is selected, also set sections/entities/sentences which are used to display annotations
-      if (props.versionIndex === props.versions.length) {
+      if (props.versionIndex === props.versions.length || props.versionIndex === -1) {
         props.setSections(json[tagTypes.SECTIONS]);
         props.setEntities(json[tagTypes.ENTITIES]);
         props.setSentences(json[tagTypes.SENTENCES]);
