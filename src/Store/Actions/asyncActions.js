@@ -73,3 +73,10 @@ export const setCurrentSentencesWithCallback = sentences => {
     return Promise.resolve(getState());
   };
 };
+
+export const setFileIndexWithCallback = fileIndex => {
+  return (dispatch, getState) => {
+    dispatch(actions.setFileIndex(fileIndex));
+    return Promise.resolve(getState());
+  };
+};

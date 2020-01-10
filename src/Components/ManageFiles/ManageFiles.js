@@ -24,6 +24,7 @@ const useStyles = makeStyles(theme => ({
 const ManageFiles = props => {
   const classes = useStyles();
   const fileInputRefBrowse = React.createRef();
+  const [isJsonAvailable, setIsJsonAvailable] = useState(false);
 
   // opens file explorer
   const openExplorerBrowse = () => {
@@ -145,24 +146,18 @@ const ManageFiles = props => {
   };
 
   // reads a file when it is selected from the list of uploaded files
-  const readFile = (file, index) => {
+  const readFile = (index, isThereCurrent) => {
+    const file = props.txtList[index];
     if (file) {
       // if empty, check for uploaded json
-      if (
-        props.currentSections.length === 0 &&
-        props.currentEntities.length === 0 &&
-        props.currentSentences.length === 0
-      ) {
+      if (!isThereCurrent) {
         for (let jsonFile of props.jsonList) {
           // matching json found
           if (jsonFile.name.substring(0, jsonFile.name.length - 17) === file.name.substring(0, file.name.length - 4)) {
-            props.setIsJsonAvailable(true);
             // read json file and assign annotations
             let fileReader = new FileReader();
             fileReader.onload = e => {
               const json = JSON.parse(e.target.result);
-              console.log(json);
-
               if (json[tagTypes.SECTIONS]) {
                 props.setCurrentSections(json[tagTypes.SECTIONS]);
                 props.setSections(json[tagTypes.SECTIONS]);
@@ -189,36 +184,35 @@ const ManageFiles = props => {
             break;
           }
         }
-        props.setIsJsonAvailable(false);
       }
-    }
 
-    // creating fileData - used to call API
-    let fileData = {};
-    let fileReader = new FileReader();
-    fileReader.readAsText(file);
-    fileReader.onloadend = () => {
-      let text = fileReader.result.replace(/\r\n/g, "\n"); // Replaces \r\n with \n for Windows OS
-      fileData.content = text;
-      props.setFileText(text);
+      // creating fileData - used to call API
+      let fileData = {};
+      let fileReader = new FileReader();
+      fileReader.readAsText(file);
+      fileReader.onloadend = () => {
+        let text = fileReader.result.replace(/\r\n/g, "\n"); // Replaces \r\n with \n for Windows OS
+        fileData.content = text;
+        props.setFileText(text);
 
-      // if "use spacy" is checked and there are no existing annotations for the file
-      if (props.spacyActive && annotationsEmpty(index)) {
-        fileData.filename = file.name;
-        let ext = file.name.split(".")[file.name.split(".").length - 1];
-        let filename = file.name.slice(0, file.name.length - 1 - ext.length);
-        props.setFileReference(filename);
-        if (ext === "txt") {
-          fileData.format = "plain_text";
-        } else if (ext === "rtf") {
-          fileData.format = "rich_text";
-        } else {
-          fileData.format = "other";
+        // if "use spacy" is checked and there are no existing annotations for the file
+        if (props.spacyActive && annotationsEmpty(index)) {
+          fileData.filename = file.name;
+          let ext = file.name.split(".")[file.name.split(".").length - 1];
+          let filename = file.name.slice(0, file.name.length - 1 - ext.length);
+          props.setFileReference(filename);
+          if (ext === "txt") {
+            fileData.format = "plain_text";
+          } else if (ext === "rtf") {
+            fileData.format = "rich_text";
+          } else {
+            fileData.format = "other";
+          }
+
+          callApi(fileData, index);
         }
-
-        callApi(fileData, index);
-      }
-    };
+      };
+    }
   };
 
   // checks if annotations are empty
@@ -252,12 +246,6 @@ const ManageFiles = props => {
       });
   };
 
-  // handles a user clicking on another file that has been uploaded
-  const switchFile = index => {
-    readFile(props.txtList[index], index);
-    props.setFileIndex(index);
-  };
-
   return (
     <div className={classes.root}>
       <Button onClick={openExplorerBrowse} variant="contained" color="primary" className={classes.button}>
@@ -289,7 +277,7 @@ const ManageFiles = props => {
             key={file.name}
             file={file}
             index={index}
-            switchFile={switchFile}
+            switchFile={readFile}
             saveAnnotations={props.saveAnnotations}
           />
         ))}
@@ -317,8 +305,7 @@ const mapStateToProps = state => {
     annotationFocus: state.fileViewer.annotationFocus,
     currentEntities: state.fileViewer.currentEntities,
     currentSections: state.fileViewer.currentSections,
-    currentSentences: state.fileViewer.currentSentences,
-    isJsonAvailable: state.fileViewer.isJsonAvailable
+    currentSentences: state.fileViewer.currentSentences
   };
 };
 
@@ -338,7 +325,7 @@ const mapDispatchToProps = dispatch => {
     setJsonList: jsonList => dispatch(actions.setJsonList(jsonList)),
     setTxtList: txtList => dispatch(actions.setTxtList(txtList)),
     setAnnotationsList: annotationsList => dispatch(actions.setAnnotationsList(annotationsList)),
-    setFileIndex: fileIndex => dispatch(actions.setFileIndex(fileIndex)),
+    setFileIndex: fileIndex => dispatch(actions.setFileIndexWithCallback(fileIndex)),
     setTagTemplates: tagTemplates => dispatch(actions.setTagTemplates(tagTemplates)),
     setSingleSpacyLoading: (isSpacyLoading, index) => dispatch(actions.setSingleSpacyLoading(isSpacyLoading, index)),
     setVersionIndex: versionIndex => dispatch(actions.setVersionIndex(versionIndex)),
@@ -346,8 +333,7 @@ const mapDispatchToProps = dispatch => {
     setCurrentSentences: currentSentences => dispatch(actions.setCurrentSentences(currentSentences)),
     setCurrentSections: currentSections => dispatch(actions.setCurrentSections(currentSections)),
     setVersions: versions => dispatch(actions.setVersions(versions)),
-    setVersionIndex: versionIndex => dispatch(actions.setVersionIndex(versionIndex)),
-    setIsJsonAvailable: isJsonAvailable => dispatch(actions.setIsJsonAvailable(isJsonAvailable))
+    setVersionIndex: versionIndex => dispatch(actions.setVersionIndex(versionIndex))
   };
 };
 

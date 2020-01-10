@@ -29,8 +29,7 @@ export {
   setCurrentSections,
   setCurrentSentences,
   setVersions,
-  setVersionIndex,
-  setIsJsonAvailable
+  setVersionIndex
 } from "./fileViewer";
 export {
   setUploadedTags,
@@ -46,5 +45,6 @@ export {
   setTagTemplatesWithCallback,
   setCurrentEntitiesWithCallback,
   setCurrentSectionsWithCallback,
-  setCurrentSentencesWithCallback
+  setCurrentSentencesWithCallback,
+  setFileIndexWithCallback
 } from "./asyncActions";

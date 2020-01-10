@@ -316,6 +316,10 @@ export const selectionIsBackwards2 = (start, end) => {
 
 // checks if selection is empty
 export const selectionIsEmpty = selection => {
-  let position = selection.anchorNode.compareDocumentPosition(selection.focusNode);
-  return position === 0 && selection.focusOffset === selection.anchorOffset;
+  if (selection.anchorNode) {
+    let position = selection.anchorNode.compareDocumentPosition(selection.focusNode);
+    return position === 0 && selection.focusOffset === selection.anchorOffset;
+  } else {
+    return true;
+  }
 };

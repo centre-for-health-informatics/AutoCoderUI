@@ -41,64 +41,67 @@ const FileHistory = props => {
 
   // retrieves all annotation versions for a file after selecting it
   const getAnnotationsForFile = () => {
-    const options = {
-      method: "GET"
-    };
-
-    APIUtility.API.makeAPICall(
-      APIUtility.GET_ANNOTATIONS_FILENAME_USER,
-      props.annotationsList[props.index].name,
-      options
-    )
-      .then(response => response.json())
-      .then(data => {
-        let dataVersions = [];
-        let isThereCurrent = false; // boolean as to whether there is current annotations for the file
-        for (let version of data) {
-          // if version isn't the current one
-          if (version.data.sessionId !== props.sessionId) {
-            dataVersions.push(version);
-            // for the current version
-          } else {
-            isThereCurrent = true; // setting current to true
-            props.setCurrentSections(version.data[tagTypes.SECTIONS]);
-            props.setSections(version.data[tagTypes.SECTIONS]);
-            props.setCurrentEntities(version.data[tagTypes.ENTITIES]);
-            props.setEntities(version.data[tagTypes.ENTITIES]);
-            props.setCurrentSentences(version.data[tagTypes.SENTENCES]);
-            props.setSentences(version.data[tagTypes.SENTENCES]);
-
-            // setting the appropriate annotations to be displayed
-            if (props.annotationFocus === tagTypes.SECTIONS) {
-              props.setAnnotations(version.data[tagTypes.SECTIONS]);
-            } else if (props.annotationFocus === tagTypes.SENTENCES) {
-              props.setAnnotations(version.data[tagTypes.SENTENCES]);
+    return new Promise((resolve, reject) => {
+      const options = {
+        method: "GET"
+      };
+      APIUtility.API.makeAPICall(
+        APIUtility.GET_ANNOTATIONS_FILENAME_USER,
+        props.annotationsList[props.index].name,
+        options
+      )
+        .then(response => response.json())
+        .then(data => {
+          let dataVersions = [];
+          let isThereCurrent = false; // boolean as to whether there is current annotations for the file
+          for (let version of data) {
+            // if version isn't the current one
+            if (version.data.sessionId !== props.sessionId) {
+              dataVersions.push(version);
+              // for the current version
             } else {
-              props.setAnnotations([
-                ...version.data[tagTypes.ENTITIES].filter(annotation => annotation.type === props.annotationFocus)
-              ]);
-              // props.setAnnotations(version.data[tagTypes.ENTITIES]);
+              isThereCurrent = true; // setting current to true
+              props.setCurrentSections(version.data[tagTypes.SECTIONS]);
+              props.setSections(version.data[tagTypes.SECTIONS]);
+              props.setCurrentEntities(version.data[tagTypes.ENTITIES]);
+              props.setEntities(version.data[tagTypes.ENTITIES]);
+              props.setCurrentSentences(version.data[tagTypes.SENTENCES]);
+              props.setSentences(version.data[tagTypes.SENTENCES]);
+
+              // setting the appropriate annotations to be displayed
+              if (props.annotationFocus === tagTypes.SECTIONS) {
+                props.setAnnotations(version.data[tagTypes.SECTIONS]);
+              } else if (props.annotationFocus === tagTypes.SENTENCES) {
+                props.setAnnotations(version.data[tagTypes.SENTENCES]);
+              } else {
+                props.setAnnotations([
+                  ...version.data[tagTypes.ENTITIES].filter(annotation => annotation.type === props.annotationFocus)
+                ]);
+                // props.setAnnotations(version.data[tagTypes.ENTITIES]);
+              }
             }
           }
-        }
-        // if there is not current annotations and there is no json file, set all annotations to empty
-        if (!isThereCurrent && !props.isJsonAvailable) {
-          props.setCurrentSections([]);
-          props.setSections([]);
-          props.setCurrentEntities([]);
-          props.setEntities([]);
-          props.setCurrentSentences([]);
-          props.setSentences([]);
-          props.setAnnotations([]);
-        }
+          // if there is not current annotations set all annotations to empty
+          if (!isThereCurrent) {
+            props.setCurrentSections([]);
+            props.setSections([]);
+            props.setCurrentEntities([]);
+            props.setEntities([]);
+            props.setCurrentSentences([]);
+            props.setSentences([]);
+            props.setAnnotations([]);
+          }
 
-        // setting versions and index
-        props.setVersions(dataVersions);
-        props.setVersionIndex(dataVersions.length);
-      })
-      .catch(error => {
-        console.log("ERROR:", error);
-      });
+          // setting versions and index
+          props.setVersions(dataVersions);
+          props.setVersionIndex(dataVersions.length);
+          // resolve(props.annotations);
+          resolve(isThereCurrent);
+        })
+        .catch(error => {
+          console.log("ERROR:", error);
+        });
+    });
   };
 
   // switching version of annotations for a file
@@ -196,8 +199,10 @@ const FileHistory = props => {
           if (props.index === props.fileIndex) {
             setExpanded(!isExpanded);
           } else {
-            props.switchFile(props.index);
-            getAnnotationsForFile();
+            props.setFileIndex(props.index);
+            getAnnotationsForFile().then(isThereCurrent => {
+              props.switchFile(props.index, isThereCurrent);
+            });
             setExpanded(false);
           }
         }}
@@ -253,8 +258,7 @@ const mapStateToProps = state => {
     versions: state.fileViewer.versions,
     versionIndex: state.fileViewer.versionIndex,
     sessionId: state.fileViewer.sessionId,
-    annotationFocus: state.fileViewer.annotationFocus,
-    isJsonAvailable: state.fileViewer.isJsonAvailable
+    annotationFocus: state.fileViewer.annotationFocus
   };
 };
 
@@ -270,7 +274,7 @@ const mapDispatchToProps = dispatch => {
     setCurrentSentences: currentSentences => dispatch(actions.setCurrentSentencesWithCallback(currentSentences)),
     setVersions: versions => dispatch(actions.setVersions(versions)),
     setVersionIndex: versionIndex => dispatch(actions.setVersionIndex(versionIndex)),
-    setIsJsonAvailable: isJsonAvailable => dispatch(actions.setIsJsonAvailable(isJsonAvailable))
+    setFileIndex: fileIndex => dispatch(actions.setFileIndex(fileIndex))
   };
 };
 

@@ -28,8 +28,7 @@ const initialState = {
   currentSections: [],
   currentSentences: [],
   versionIndex: -1,
-  versions: [],
-  isJsonAvailable: true
+  versions: []
 };
 
 const reducer = (state = initialState, action) => {
@@ -94,8 +93,6 @@ const reducer = (state = initialState, action) => {
       return { ...state, versions: action.versions };
     case actionTypes.SET_VERSION_INDEX:
       return { ...state, versionIndex: action.versionIndex };
-    case actionTypes.SET_IS_JSON_AVAILABLE:
-      return { ...state, isJsonAvailable: action.isJsonAvailable };
     default:
       return state;
   }
