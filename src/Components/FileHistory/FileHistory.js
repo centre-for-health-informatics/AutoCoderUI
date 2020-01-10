@@ -39,6 +39,7 @@ const FileHistory = props => {
     return "normal";
   };
 
+  // adds tags to tagTemplates when loading versions from database
   const addNewTags = data => {
     const newTags = [];
     for (let version of data) {
@@ -56,6 +57,7 @@ const FileHistory = props => {
       const options = {
         method: "GET"
       };
+      // API call to get back all annotations for a specific file for a specific user
       APIUtility.API.makeAPICall(
         APIUtility.GET_ANNOTATIONS_FILENAME_USER,
         props.annotationsList[props.index].name,
@@ -63,6 +65,7 @@ const FileHistory = props => {
       )
         .then(response => response.json())
         .then(data => {
+          // adding tags from all versions
           addNewTags(data);
           let dataVersions = [];
           let isThereCurrent = false; // boolean as to whether there is current annotations for the file
@@ -73,6 +76,7 @@ const FileHistory = props => {
               // for the current version
             } else {
               isThereCurrent = true; // setting current to true
+              // setting version data to current
               props.setCurrentSections(version.data[tagTypes.SECTIONS]);
               props.setSections(version.data[tagTypes.SECTIONS]);
               props.setCurrentEntities(version.data[tagTypes.ENTITIES]);
@@ -89,11 +93,10 @@ const FileHistory = props => {
                 props.setAnnotations([
                   ...version.data[tagTypes.ENTITIES].filter(annotation => annotation.type === props.annotationFocus)
                 ]);
-                // props.setAnnotations(version.data[tagTypes.ENTITIES]);
               }
             }
           }
-          // if there is not current annotations set all annotations to empty
+          // if there is not current annotations, set all annotations to empty
           if (!isThereCurrent) {
             props.setCurrentSections([]);
             props.setSections([]);
@@ -107,7 +110,7 @@ const FileHistory = props => {
           // setting versions and index
           props.setVersions(dataVersions);
           props.setVersionIndex(dataVersions.length);
-          // resolve(props.annotations);
+          // resolving the promise in order to continue with next steps (check for matching json, in ManageFiles.js)
           resolve(isThereCurrent);
         })
         .catch(error => {
@@ -164,42 +167,43 @@ const FileHistory = props => {
         });
       });
       props.setVersionIndex(props.versions.length);
-    } else {
-      // do nothing
     }
   };
 
   // shows the list of versions of an annotation when the file is expanded
   const showHistory = () => {
-    return props.versions
-      .sort((a, b) => (a.updated > b.updated ? -1 : 1))
-      .map((version, index) => (
-        <ListItem
-          className={classes.nested}
-          button
-          key={version.updated}
-          onClick={() => {
-            switchVersion(version, index, props.versionIndex);
-          }}
-          style={{ fontWeight: getFontWeightVersion(index) }}
-        >
-          {"\u2022 " + utility.timeFormat(version.updated, true)}
-          {index === props.versionIndex ? (
-            <Button
-              onClick={() => {
-                continueFromVersion();
-              }}
-              variant="contained"
-              color="default"
-              className={classes.button}
-              size="small"
-              style={{ fontSize: "70%" }}
-            >
-              Continue
-            </Button>
-          ) : null}
-        </ListItem>
-      ));
+    return (
+      props.versions
+        // sorting versions backwards to have most recent on top
+        .sort((a, b) => (a.updated > b.updated ? -1 : 1))
+        .map((version, index) => (
+          <ListItem
+            className={classes.nested}
+            button
+            key={version.updated}
+            onClick={() => {
+              switchVersion(version, index, props.versionIndex);
+            }}
+            style={{ fontWeight: getFontWeightVersion(index) }}
+          >
+            {"\u2022 " + utility.timeFormat(version.updated, true)}
+            {index === props.versionIndex ? (
+              <Button
+                onClick={() => {
+                  continueFromVersion();
+                }}
+                variant="contained"
+                color="default"
+                className={classes.button}
+                size="small"
+                style={{ fontSize: "70%" }}
+              >
+                Continue
+              </Button>
+            ) : null}
+          </ListItem>
+        ))
+    );
   };
 
   return (
@@ -209,8 +213,10 @@ const FileHistory = props => {
         key={props.file.name}
         onClick={() => {
           if (props.index === props.fileIndex) {
+            // if clicking on the selected file, toggle whether it is expanded
             setExpanded(!isExpanded);
           } else {
+            // else, change to that file and get annotations (from database or from uploaded json)
             props.setFileIndex(props.index);
             getAnnotationsForFile().then(isThereCurrent => {
               props.switchFile(props.index, isThereCurrent);
@@ -269,14 +275,12 @@ const mapStateToProps = state => {
     currentSentences: state.fileViewer.currentSentences,
     versions: state.fileViewer.versions,
     versionIndex: state.fileViewer.versionIndex,
-    sessionId: state.fileViewer.sessionId,
     annotationFocus: state.fileViewer.annotationFocus
   };
 };
 
 const mapDispatchToProps = dispatch => {
   return {
-    setAnnotationFocus: annotationFocus => dispatch(actions.setAnnotationFocus(annotationFocus)),
     setAnnotations: annotations => dispatch(actions.setAnnotations(annotations)),
     setSections: sections => dispatch(actions.setSections(sections)),
     setSentences: sentences => dispatch(actions.setSentences(sentences)),

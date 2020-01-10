@@ -298,17 +298,7 @@ export const selectionIsBackwards = selection => {
   }
   let position = selection.anchorNode.compareDocumentPosition(selection.focusNode);
 
-  let backward = false;
   if ((!position && selection.anchorOffset > selection.focusOffset) || position === Node.DOCUMENT_POSITION_PRECEDING) {
-    backward = true;
-  }
-
-  return backward;
-};
-
-// returns true if the user selects text backwards
-export const selectionIsBackwards2 = (start, end) => {
-  if (start > end) {
     return true;
   }
   return false;

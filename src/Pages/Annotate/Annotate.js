@@ -127,7 +127,7 @@ const Annotate = props => {
   };
 
   // Saves annotations to database
-  // option parameter of state for when async actions are an issue, the state is created as a promise then passed into the method
+  // optional parameter of state for when async actions are an issue, the state is created as a promise then passed into the method
   const saveAnnotations = (state = null) => {
     const annotations = {};
     if (state) {
@@ -152,6 +152,7 @@ const Annotate = props => {
       body: annotations
     };
 
+    // making the API call to save annotations
     APIUtility.API.makeAPICall(APIUtility.UPLOAD_ANNOTATIONS, null, options).catch(error => {
       console.log("ERROR:", error);
     });

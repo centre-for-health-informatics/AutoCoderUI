@@ -422,9 +422,7 @@ const mapDispatchToProps = dispatch => {
     setAlertMessage: newValue => dispatch(actions.setAlertMessage(newValue)),
     setCurrentEntities: currentEntities => dispatch(actions.setCurrentEntitiesWithCallback(currentEntities)),
     setCurrentSections: currentSections => dispatch(actions.setCurrentSectionsWithCallback(currentSections)),
-    setCurrentSentences: currentSentences => dispatch(actions.setCurrentSentencesWithCallback(currentSentences)),
-    setVersions: versions => dispatch(actions.setVersions(versions)),
-    setVersionIndex: versionIndex => dispatch(actions.setVersionIndex(versionIndex))
+    setCurrentSentences: currentSentences => dispatch(actions.setCurrentSentencesWithCallback(currentSentences))
   };
 };
 

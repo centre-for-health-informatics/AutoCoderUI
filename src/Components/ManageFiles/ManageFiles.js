@@ -78,6 +78,7 @@ const ManageFiles = props => {
       } else if (ext === "json" && !fileAlreadyOpen(file, props.jsonList)) {
         jsonList.push(file);
         if (
+          // taking out "_Annotations.json" and comparing with filename
           file.name.substring(0, file.name.length - 17) === props.annotationsList[props.fileIndex].name &&
           annotationsEmpty()
         ) {
@@ -108,10 +109,13 @@ const ManageFiles = props => {
     });
   };
 
+  // function to add annotations from a json file to the currently open txt file
   const addAnnotationsFromJson = file => {
     let fileReader = new FileReader();
     fileReader.onload = e => {
+      // reading json
       const json = JSON.parse(e.target.result);
+      // setting current sections/entities/sentences
       if (json[tagTypes.SECTIONS]) {
         props.setCurrentSections(json[tagTypes.SECTIONS]);
       }
@@ -121,10 +125,12 @@ const ManageFiles = props => {
       if (json[tagTypes.SENTENCES]) {
         props.setCurrentSentences(json[tagTypes.SENTENCES]);
       }
+      // if the current version is selected, also set sections/entities/sentences which are used to display annotations
       if (props.versionIndex === props.versions.length) {
         props.setSections(json[tagTypes.SECTIONS]);
         props.setEntities(json[tagTypes.ENTITIES]);
         props.setSentences(json[tagTypes.SENTENCES]);
+        // set the appropriate set of annotations to be displayed
         if (props.annotationFocus === tagTypes.SECTIONS) {
           props.setAnnotations(json[tagTypes.SECTIONS]);
         } else if (props.annotationFocus === tagTypes.SENTENCES) {
@@ -137,6 +143,7 @@ const ManageFiles = props => {
     fileReader.readAsText(file);
   };
 
+  // checks if the current annotations are empty or not
   const annotationsEmpty = () => {
     if (props.currentEntities.length > 0 || props.currentSections.length > 0 || props.currentSentences.length > 0) {
       return false;
@@ -235,6 +242,8 @@ const ManageFiles = props => {
   const exportAnnotations = () => {
     let zip = new JSZip();
 
+    // calls API to export the annotations for the current session
+    // creates a zip file with json files for each txt file
     APIUtility.API.makeAPICall(APIUtility.EXPORT_ANNOTATIONS, props.sessionId)
       .then(response => response.json())
       .then(data => {
@@ -290,10 +299,8 @@ const ManageFiles = props => {
 
 const mapStateToProps = state => {
   return {
-    fileReference: state.fileViewer.fileReference,
     sections: state.fileViewer.sections,
     sentences: state.fileViewer.sentences,
-    tokens: state.fileViewer.tokens,
     entities: state.fileViewer.entities,
     spacyActive: state.fileViewer.spacyActive,
     jsonList: state.fileViewer.jsonList,
@@ -308,8 +315,7 @@ const mapStateToProps = state => {
     currentEntities: state.fileViewer.currentEntities,
     currentSections: state.fileViewer.currentSections,
     currentSentences: state.fileViewer.currentSentences,
-    versions: state.fileViewer.versions,
-    versionIndex: state.fileViewer.versionIndex
+    versions: state.fileViewer.versions
   };
 };
 
@@ -319,7 +325,6 @@ const mapDispatchToProps = dispatch => {
     setFileReference: fileReference => dispatch(actions.setFileReference(fileReference)),
     setSections: sections => dispatch(actions.setSections(sections)),
     setSentences: sentences => dispatch(actions.setSentences(sentences)),
-    setTokens: tokens => dispatch(actions.setTokens(tokens)),
     setEntities: entities => dispatch(actions.setEntities(entities)),
     setFileText: text => dispatch(actions.setFileText(text)),
     setAnnotationFocus: annotationFocus => dispatch(actions.setAnnotationFocus(annotationFocus)),
@@ -329,15 +334,11 @@ const mapDispatchToProps = dispatch => {
     setJsonList: jsonList => dispatch(actions.setJsonList(jsonList)),
     setTxtList: txtList => dispatch(actions.setTxtList(txtList)),
     setAnnotationsList: annotationsList => dispatch(actions.setAnnotationsList(annotationsList)),
-    setFileIndex: fileIndex => dispatch(actions.setFileIndexWithCallback(fileIndex)),
     setTagTemplates: tagTemplates => dispatch(actions.setTagTemplates(tagTemplates)),
     setSingleSpacyLoading: (isSpacyLoading, index) => dispatch(actions.setSingleSpacyLoading(isSpacyLoading, index)),
-    setVersionIndex: versionIndex => dispatch(actions.setVersionIndex(versionIndex)),
     setCurrentEntities: currentEntities => dispatch(actions.setCurrentEntities(currentEntities)),
     setCurrentSentences: currentSentences => dispatch(actions.setCurrentSentences(currentSentences)),
-    setCurrentSections: currentSections => dispatch(actions.setCurrentSections(currentSections)),
-    setVersions: versions => dispatch(actions.setVersions(versions)),
-    setVersionIndex: versionIndex => dispatch(actions.setVersionIndex(versionIndex))
+    setCurrentSections: currentSections => dispatch(actions.setCurrentSections(currentSections))
   };
 };
 
