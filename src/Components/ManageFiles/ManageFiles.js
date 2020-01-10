@@ -24,7 +24,6 @@ const useStyles = makeStyles(theme => ({
 const ManageFiles = props => {
   const classes = useStyles();
   const fileInputRefBrowse = React.createRef();
-  const [isJsonAvailable, setIsJsonAvailable] = useState(false);
 
   // opens file explorer
   const openExplorerBrowse = () => {
@@ -78,6 +77,12 @@ const ManageFiles = props => {
         // for json files that aren't already opened
       } else if (ext === "json" && !fileAlreadyOpen(file, props.jsonList)) {
         jsonList.push(file);
+        if (
+          file.name.substring(0, file.name.length - 17) === props.annotationsList[props.fileIndex].name &&
+          annotationsEmpty()
+        ) {
+          addAnnotationsFromJson(file);
+        }
       }
     }
     // combining lists with store
@@ -101,6 +106,42 @@ const ManageFiles = props => {
       }
       addNewTags(newTags);
     });
+  };
+
+  const addAnnotationsFromJson = file => {
+    let fileReader = new FileReader();
+    fileReader.onload = e => {
+      const json = JSON.parse(e.target.result);
+      if (json[tagTypes.SECTIONS]) {
+        props.setCurrentSections(json[tagTypes.SECTIONS]);
+      }
+      if (json[tagTypes.ENTITIES]) {
+        props.setCurrentEntities(json[tagTypes.ENTITIES]);
+      }
+      if (json[tagTypes.SENTENCES]) {
+        props.setCurrentSentences(json[tagTypes.SENTENCES]);
+      }
+      if (props.versionIndex === props.versions.length) {
+        props.setSections(json[tagTypes.SECTIONS]);
+        props.setEntities(json[tagTypes.ENTITIES]);
+        props.setSentences(json[tagTypes.SENTENCES]);
+        if (props.annotationFocus === tagTypes.SECTIONS) {
+          props.setAnnotations(json[tagTypes.SECTIONS]);
+        } else if (props.annotationFocus === tagTypes.SENTENCES) {
+          props.setAnnotations(json[tagTypes.SENTENCES]);
+        } else {
+          props.setAnnotations(json[tagTypes.ENTITIES].filter(annotation => annotation.type === props.annotationFocus));
+        }
+      }
+    };
+    fileReader.readAsText(file);
+  };
+
+  const annotationsEmpty = () => {
+    if (props.currentEntities.length > 0 || props.currentSections.length > 0 || props.currentSentences.length > 0) {
+      return false;
+    }
+    return true;
   };
 
   // checking duplicate tags and adding new tags to tagTemplates
@@ -155,32 +196,7 @@ const ManageFiles = props => {
           // matching json found
           if (jsonFile.name.substring(0, jsonFile.name.length - 17) === file.name.substring(0, file.name.length - 4)) {
             // read json file and assign annotations
-            let fileReader = new FileReader();
-            fileReader.onload = e => {
-              const json = JSON.parse(e.target.result);
-              if (json[tagTypes.SECTIONS]) {
-                props.setCurrentSections(json[tagTypes.SECTIONS]);
-                props.setSections(json[tagTypes.SECTIONS]);
-              }
-              if (json[tagTypes.ENTITIES]) {
-                props.setCurrentEntities(json[tagTypes.ENTITIES]);
-                props.setEntities(json[tagTypes.ENTITIES]);
-              }
-              if (json[tagTypes.SENTENCES]) {
-                props.setCurrentSentences(json[tagTypes.SENTENCES]);
-                props.setSentences(json[tagTypes.SENTENCES]);
-              }
-              if (props.annotationFocus === tagTypes.SECTIONS) {
-                props.setAnnotations(json[tagTypes.SECTIONS]);
-              } else if (props.annotationFocus === tagTypes.SENTENCES) {
-                props.setAnnotations(json[tagTypes.SENTENCES]);
-              } else {
-                props.setAnnotations(
-                  json[tagTypes.ENTITIES].filter(annotation => annotation.type === props.annotationFocus)
-                );
-              }
-            };
-            fileReader.readAsText(jsonFile);
+            addAnnotationsFromJson(jsonFile);
             break;
           }
         }
@@ -196,7 +212,7 @@ const ManageFiles = props => {
         props.setFileText(text);
 
         // if "use spacy" is checked and there are no existing annotations for the file
-        if (props.spacyActive && annotationsEmpty(index)) {
+        if (props.spacyActive && !isThereCurrent) {
           fileData.filename = file.name;
           let ext = file.name.split(".")[file.name.split(".").length - 1];
           let filename = file.name.slice(0, file.name.length - 1 - ext.length);
@@ -208,25 +224,10 @@ const ManageFiles = props => {
           } else {
             fileData.format = "other";
           }
-
           callApi(fileData, index);
         }
       };
     }
-  };
-
-  // checks if annotations are empty
-  const annotationsEmpty = index => {
-    let annotationsObject = props.annotationsList[index];
-    if (
-      annotationsObject[tagTypes.SECTIONS].length > 0 ||
-      annotationsObject[tagTypes.ENTITIES].length > 0 ||
-      annotationsObject[tagTypes.SENTENCES].length > 0 ||
-      annotationsObject[tagTypes.TOKENS].length > 0
-    ) {
-      return false;
-    }
-    return true;
   };
 
   // exports annotations for each opened file into json files
@@ -279,6 +280,7 @@ const ManageFiles = props => {
             index={index}
             switchFile={readFile}
             saveAnnotations={props.saveAnnotations}
+            addNewTags={addNewTags}
           />
         ))}
       </List>
@@ -305,7 +307,9 @@ const mapStateToProps = state => {
     annotationFocus: state.fileViewer.annotationFocus,
     currentEntities: state.fileViewer.currentEntities,
     currentSections: state.fileViewer.currentSections,
-    currentSentences: state.fileViewer.currentSentences
+    currentSentences: state.fileViewer.currentSentences,
+    versions: state.fileViewer.versions,
+    versionIndex: state.fileViewer.versionIndex
   };
 };
 

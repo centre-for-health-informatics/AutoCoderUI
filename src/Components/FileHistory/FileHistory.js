@@ -39,6 +39,17 @@ const FileHistory = props => {
     return "normal";
   };
 
+  const addNewTags = data => {
+    const newTags = [];
+    for (let version of data) {
+      const tagTemplates = Array.from(version.data.tagTemplates);
+      for (let tag of tagTemplates) {
+        newTags.push(tag);
+      }
+    }
+    props.addNewTags(newTags);
+  };
+
   // retrieves all annotation versions for a file after selecting it
   const getAnnotationsForFile = () => {
     return new Promise((resolve, reject) => {
@@ -52,6 +63,7 @@ const FileHistory = props => {
       )
         .then(response => response.json())
         .then(data => {
+          addNewTags(data);
           let dataVersions = [];
           let isThereCurrent = false; // boolean as to whether there is current annotations for the file
           for (let version of data) {
