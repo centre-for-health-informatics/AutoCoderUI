@@ -34,8 +34,8 @@ const ManageFiles = props => {
   };
 
   // calls API to receive annotations from Spacy
-  const callApi = (fileData, index) => {
-    props.setSingleSpacyLoading(true, index);
+  const callSpacy = (fileData, index) => {
+    props.setSpacyLoading(true);
     const options = {
       method: "POST",
       body: fileData
@@ -44,11 +44,23 @@ const ManageFiles = props => {
     APIUtility.API.makeAPICall(APIUtility.UPLOAD_DOCUMENT, null, options)
       .then(response => response.json())
       .then(data => {
-        props.updateAnnotationsAfterLoadingSpacy(data, index);
-        if (props.fileIndex === index) {
+        console.log(data);
+        props.setCurrentSections(data[tagTypes.SECTIONS]);
+        props.setCurrentSentences(data[tagTypes.SENTENCES]);
+        props.setCurrentEntities(data[tagTypes.ENTITIES]);
+        console.log(props.versionIndex);
+        console.log(props.versions.length);
+        if (props.versionIndex === props.versions.length) {
+          props.setSections(data[tagTypes.SECTIONS]);
+          props.setSentences(data[tagTypes.SENTENCES]);
+          props.setEntities(data[tagTypes.ENTITIES]);
           props.setAnnotationFocus(props.annotationFocus);
         }
-        props.setSingleSpacyLoading(false, index);
+        // props.updateAnnotationsAfterLoadingSpacy(data, index);
+        if (props.fileIndex === index) {
+          // props.setAnnotationFocus(props.annotationFocus);
+        }
+        props.setSpacyLoading(false);
       })
       .catch(error => {
         console.log("ERROR:", error);
@@ -63,13 +75,11 @@ const ManageFiles = props => {
     const txtList = [];
     const jsonList = [];
     const annotationsList = [];
-    const isSpacyLoading = [];
     for (let file of fileList) {
       const ext = file.name.split(".")[file.name.split(".").length - 1];
       // for text files that aren't already opened
       if (ext === "txt" && !fileAlreadyOpen(file, props.txtList)) {
         txtList.push(file);
-        isSpacyLoading.push(false);
         // creating annotation object and pushing into a list
         let annotationsObject = {};
         annotationsObject.name = file.name.slice(0, file.name.length - 1 - ext.length);
@@ -91,9 +101,6 @@ const ManageFiles = props => {
     props.setJsonList([...props.jsonList, ...jsonList]);
     props.setTxtList([...props.txtList, ...txtList]);
     props.setAnnotationsList([...props.annotationsList, ...annotationsList]);
-
-    // setting spacy loading array
-    props.setSpacyLoading([...props.isSpacyLoading, ...isSpacyLoading]);
 
     // making promise list to add all tags from imported json files to tagTemplates
     const promiseList = makePromiseList(jsonList); // make promise list
@@ -194,50 +201,6 @@ const ManageFiles = props => {
     return false;
   };
 
-  // reads a file when it is selected from the list of uploaded files
-  const readFile = (index, isThereCurrent) => {
-    const file = props.txtList[index];
-    if (file) {
-      // if empty, check for uploaded json
-      if (!isThereCurrent) {
-        for (let jsonFile of props.jsonList) {
-          // matching json found
-          if (jsonFile.name.substring(0, jsonFile.name.length - 17) === file.name.substring(0, file.name.length - 4)) {
-            // read json file and assign annotations
-            addAnnotationsFromJson(jsonFile);
-            break;
-          }
-        }
-      }
-
-      // creating fileData - used to call API
-      let fileData = {};
-      let fileReader = new FileReader();
-      fileReader.readAsText(file);
-      fileReader.onloadend = () => {
-        let text = fileReader.result.replace(/\r\n/g, "\n"); // Replaces \r\n with \n for Windows OS
-        fileData.content = text;
-        props.setFileText(text);
-
-        // if "use spacy" is checked and there are no existing annotations for the file
-        if (props.spacyActive && !isThereCurrent) {
-          fileData.filename = file.name;
-          let ext = file.name.split(".")[file.name.split(".").length - 1];
-          let filename = file.name.slice(0, file.name.length - 1 - ext.length);
-          props.setFileReference(filename);
-          if (ext === "txt") {
-            fileData.format = "plain_text";
-          } else if (ext === "rtf") {
-            fileData.format = "rich_text";
-          } else {
-            fileData.format = "other";
-          }
-          callApi(fileData, index);
-        }
-      };
-    }
-  };
-
   // exports annotations for each opened file into json files
   // creates zip file with all json files inside and downloads it
   const exportAnnotations = () => {
@@ -288,9 +251,10 @@ const ManageFiles = props => {
             key={file.name}
             file={file}
             index={index}
-            switchFile={readFile}
             saveAnnotations={props.saveAnnotations}
             addNewTags={addNewTags}
+            callSpacy={callSpacy}
+            addAnnotationsFromJson={addAnnotationsFromJson}
           />
         ))}
       </List>
@@ -303,7 +267,6 @@ const mapStateToProps = state => {
     sections: state.fileViewer.sections,
     sentences: state.fileViewer.sentences,
     entities: state.fileViewer.entities,
-    spacyActive: state.fileViewer.spacyActive,
     jsonList: state.fileViewer.jsonList,
     txtList: state.fileViewer.txtList,
     annotationsList: state.fileViewer.annotationsList,
@@ -316,18 +279,17 @@ const mapStateToProps = state => {
     currentEntities: state.fileViewer.currentEntities,
     currentSections: state.fileViewer.currentSections,
     currentSentences: state.fileViewer.currentSentences,
-    versions: state.fileViewer.versions
+    versions: state.fileViewer.versions,
+    versionIndex: state.fileViewer.versionIndex
   };
 };
 
 const mapDispatchToProps = dispatch => {
   return {
     setAnnotations: annotations => dispatch(actions.setAnnotations(annotations)),
-    setFileReference: fileReference => dispatch(actions.setFileReference(fileReference)),
     setSections: sections => dispatch(actions.setSections(sections)),
     setSentences: sentences => dispatch(actions.setSentences(sentences)),
     setEntities: entities => dispatch(actions.setEntities(entities)),
-    setFileText: text => dispatch(actions.setFileText(text)),
     setAnnotationFocus: annotationFocus => dispatch(actions.setAnnotationFocus(annotationFocus)),
     setSpacyLoading: isSpacyLoading => dispatch(actions.setSpacyLoading(isSpacyLoading)),
     updateAnnotationsAfterLoadingSpacy: (data, index) =>
@@ -336,7 +298,6 @@ const mapDispatchToProps = dispatch => {
     setTxtList: txtList => dispatch(actions.setTxtList(txtList)),
     setAnnotationsList: annotationsList => dispatch(actions.setAnnotationsList(annotationsList)),
     setTagTemplates: tagTemplates => dispatch(actions.setTagTemplates(tagTemplates)),
-    setSingleSpacyLoading: (isSpacyLoading, index) => dispatch(actions.setSingleSpacyLoading(isSpacyLoading, index)),
     setCurrentEntities: currentEntities => dispatch(actions.setCurrentEntities(currentEntities)),
     setCurrentSentences: currentSentences => dispatch(actions.setCurrentSentences(currentSentences)),
     setCurrentSections: currentSections => dispatch(actions.setCurrentSections(currentSections))

@@ -6,12 +6,10 @@ const initialState = {
   sentences: [],
   tokens: [],
   entities: [],
-  isSpacyLoading: [],
-  spacyActive: false,
+  isSpacyLoading: false,
   annotationFocus: "Sections",
   annotations: [],
   tagTemplates: [],
-  fileReference: "",
   linkedListAdd: false,
   intervalDivHeight: 0,
   intervalDivWidth: 0,
@@ -45,16 +43,12 @@ const reducer = (state = initialState, action) => {
       return { ...state, entities: action.entities };
     case actionTypes.SET_SPACY_LOADING:
       return { ...state, isSpacyLoading: action.isSpacyLoading };
-    case actionTypes.SET_SPACY_ACTIVE:
-      return { ...state, spacyActive: action.spacyActive };
     case actionTypes.SET_ANNOTATION_FOCUS:
       return { ...state, annotationFocus: action.annotationFocus };
     case actionTypes.SET_ANNOTATIONS:
       return { ...state, annotations: action.annotations };
     case actionTypes.SET_TAG_TEMPLATES:
       return { ...state, tagTemplates: action.tagTemplates };
-    case actionTypes.SET_FILE_REFERENCE:
-      return { ...state, fileReference: action.fileReference };
     case actionTypes.SET_LINKED_LIST_ADD:
       return { ...state, linkedListAdd: action.linkedListAdd };
     case actionTypes.SET_INTERVAL_DIV_HEIGHT:
@@ -79,10 +73,6 @@ const reducer = (state = initialState, action) => {
       return { ...state, fileIndex: action.fileIndex };
     case actionTypes.SET_SESSION_ID:
       return { ...state, sessionId: action.sessionId };
-    case actionTypes.SET_SINGLE_SPACY_LOADING:
-      let isSpacyLoading = Array.from(state.isSpacyLoading);
-      isSpacyLoading[action.index] = action.isSpacyLoading;
-      return { ...state, isSpacyLoading: isSpacyLoading };
     case actionTypes.SET_CURRENT_ENTITIES:
       return { ...state, currentEntities: action.currentEntities };
     case actionTypes.SET_CURRENT_SECTIONS:

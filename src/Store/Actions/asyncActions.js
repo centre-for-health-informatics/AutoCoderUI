@@ -30,8 +30,6 @@ export const updateAnnotationsAfterLoadingSpacy = (data, index) => {
     }
 
     dispatch(actions.setAnnotationsList(annotationsListCopy));
-
-    // if opening more files while spacy is loading, can maybe cause issue?
   };
 };
 

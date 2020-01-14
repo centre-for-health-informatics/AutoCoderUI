@@ -22,6 +22,7 @@ const useStyles = makeStyles(theme => ({
 const FileHistory = props => {
   const classes = useStyles();
   const [isExpanded, setExpanded] = React.useState(false);
+  const [fileInfo, setFileInfo] = React.useState({});
 
   // returns bold for the currently selected file, normal otherwise
   const getFontWeightFile = index => {
@@ -170,6 +171,47 @@ const FileHistory = props => {
     }
   };
 
+  // reads a file when it is selected from the list of uploaded files
+  const switchFile = (index, isThereCurrent) => {
+    const file = props.txtList[index];
+    if (file) {
+      // if empty, check for uploaded json
+      if (!isThereCurrent) {
+        for (let jsonFile of props.jsonList) {
+          // matching json found
+          if (jsonFile.name.substring(0, jsonFile.name.length - 17) === file.name.substring(0, file.name.length - 4)) {
+            // read json file and assign annotations
+            props.addAnnotationsFromJson(jsonFile);
+            break;
+          }
+        }
+      }
+
+      // creating fileData - used to call API
+      let fileData = {};
+      let fileReader = new FileReader();
+      fileReader.readAsText(file);
+      fileReader.onloadend = () => {
+        let text = fileReader.result.replace(/\r\n/g, "\n"); // Replaces \r\n with \n for Windows OS
+        fileData.content = text;
+        props.setFileText(text);
+
+        fileData.filename = file.name;
+        let ext = file.name.split(".")[file.name.split(".").length - 1];
+        if (ext === "txt") {
+          fileData.format = "plain_text";
+        } else if (ext === "rtf") {
+          fileData.format = "rich_text";
+        } else {
+          fileData.format = "other";
+        }
+        setFileInfo(fileData);
+
+        // call api on click
+      };
+    }
+  };
+
   // shows the list of versions of an annotation when the file is expanded
   const showHistory = () => {
     return (
@@ -219,7 +261,7 @@ const FileHistory = props => {
             // else, change to that file and get annotations (from database or from uploaded json)
             props.setFileIndex(props.index);
             getAnnotationsForFile().then(isThereCurrent => {
-              props.switchFile(props.index, isThereCurrent);
+              switchFile(props.index, isThereCurrent);
             });
             setExpanded(false);
           }
@@ -252,6 +294,20 @@ const FileHistory = props => {
               style={{ fontWeight: getFontWeightVersion(props.versions.length) }}
             >
               {"\u2022 Current Version"}
+              {props.versionIndex === props.versions.length && (
+                <Button
+                  onClick={() => {
+                    props.callSpacy();
+                  }}
+                  variant="contained"
+                  color="default"
+                  className={classes.button}
+                  size="small"
+                  style={{ fontSize: "70%" }}
+                >
+                  Call API
+                </Button>
+              )}
             </ListItem>
             {showHistory()}
           </List>
@@ -275,7 +331,9 @@ const mapStateToProps = state => {
     currentSentences: state.fileViewer.currentSentences,
     versions: state.fileViewer.versions,
     versionIndex: state.fileViewer.versionIndex,
-    annotationFocus: state.fileViewer.annotationFocus
+    annotationFocus: state.fileViewer.annotationFocus,
+    txtList: state.fileViewer.txtList,
+    jsonList: state.fileViewer.jsonList
   };
 };
 

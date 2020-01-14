@@ -42,13 +42,6 @@ export const setSpacyLoading = isSpacyLoading => {
   };
 };
 
-export const setSpacyActive = spacyActive => {
-  return {
-    type: actionTypes.SET_SPACY_ACTIVE,
-    spacyActive
-  };
-};
-
 export const setAnnotationFocus = annotationFocus => {
   return {
     type: actionTypes.SET_ANNOTATION_FOCUS,
@@ -67,13 +60,6 @@ export const setTagTemplates = tagTemplates => {
   return {
     type: actionTypes.SET_TAG_TEMPLATES,
     tagTemplates
-  };
-};
-
-export const setFileReference = fileReference => {
-  return {
-    type: actionTypes.SET_FILE_REFERENCE,
-    fileReference
   };
 };
 
@@ -158,14 +144,6 @@ export const setSessionId = sessionId => {
   return {
     type: actionTypes.SET_SESSION_ID,
     sessionId
-  };
-};
-
-export const setSingleSpacyLoading = (isSpacyLoading, index) => {
-  return {
-    type: actionTypes.SET_SINGLE_SPACY_LOADING,
-    isSpacyLoading,
-    index
   };
 };
 

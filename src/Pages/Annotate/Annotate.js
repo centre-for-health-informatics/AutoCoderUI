@@ -120,7 +120,7 @@ const Annotate = props => {
 
   // renders the text and annotations if Spacy is not loading
   const renderCustomAnnotator = () => {
-    if (props.isSpacyLoading[props.fileIndex]) {
+    if (props.isSpacyLoading) {
       return <LoadingIndicator />;
     }
     return <CustomAnnotator saveAnnotations={saveAnnotations} checkTagsInUse={checkTagsInUse} />;

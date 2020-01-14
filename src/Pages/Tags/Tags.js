@@ -10,7 +10,6 @@ import { Redirect } from "react-router";
 import Loading from "../Loading/Loading";
 import * as APIUtility from "../../Util/API";
 import TagManager from "../../Components/TagManagement/TagManager";
-import GeneralSettings from "../../Components/GeneralSettings/GeneralSettings";
 import { mapColors, setDefaultTags } from "../../Components/TagManagement/tagUtil";
 
 const ResponsiveReactGridLayout = WidthProvider(Responsive);
@@ -103,9 +102,6 @@ const Tags = props => {
       >
         <div key="tagList" className={highlightEditDiv} style={{ overflowY: "auto" }}>
           <TagManager />
-        </div>
-        <div key="generalSettings" className={highlightEditDiv}>
-          <GeneralSettings />
         </div>
       </ResponsiveReactGridLayout>
     </div>
