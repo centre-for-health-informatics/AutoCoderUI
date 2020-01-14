@@ -206,8 +206,6 @@ const FileHistory = props => {
           fileData.format = "other";
         }
         setFileInfo(fileData);
-
-        // call api on click
       };
     }
   };
@@ -260,6 +258,7 @@ const FileHistory = props => {
           } else {
             // else, change to that file and get annotations (from database or from uploaded json)
             props.setFileIndex(props.index);
+            props.setSpacyLoading(false);
             getAnnotationsForFile().then(isThereCurrent => {
               switchFile(props.index, isThereCurrent);
             });
@@ -297,7 +296,7 @@ const FileHistory = props => {
               {props.versionIndex === props.versions.length && (
                 <Button
                   onClick={() => {
-                    props.callSpacy();
+                    props.callSpacy(fileInfo, props.index);
                   }}
                   variant="contained"
                   color="default"
@@ -348,7 +347,9 @@ const mapDispatchToProps = dispatch => {
     setCurrentSentences: currentSentences => dispatch(actions.setCurrentSentencesWithCallback(currentSentences)),
     setVersions: versions => dispatch(actions.setVersions(versions)),
     setVersionIndex: versionIndex => dispatch(actions.setVersionIndex(versionIndex)),
-    setFileIndex: fileIndex => dispatch(actions.setFileIndex(fileIndex))
+    setFileIndex: fileIndex => dispatch(actions.setFileIndex(fileIndex)),
+    setFileText: fileText => dispatch(actions.setFileText(fileText)),
+    setSpacyLoading: isSpacyLoading => dispatch(actions.setSpacyLoading(isSpacyLoading))
   };
 };
 

@@ -44,23 +44,16 @@ const ManageFiles = props => {
     APIUtility.API.makeAPICall(APIUtility.UPLOAD_DOCUMENT, null, options)
       .then(response => response.json())
       .then(data => {
-        console.log(data);
-        props.setCurrentSections(data[tagTypes.SECTIONS]);
-        props.setCurrentSentences(data[tagTypes.SENTENCES]);
-        props.setCurrentEntities(data[tagTypes.ENTITIES]);
-        console.log(props.versionIndex);
-        console.log(props.versions.length);
-        if (props.versionIndex === props.versions.length) {
-          props.setSections(data[tagTypes.SECTIONS]);
-          props.setSentences(data[tagTypes.SENTENCES]);
-          props.setEntities(data[tagTypes.ENTITIES]);
-          props.setAnnotationFocus(props.annotationFocus);
-        }
-        // props.updateAnnotationsAfterLoadingSpacy(data, index);
-        if (props.fileIndex === index) {
-          // props.setAnnotationFocus(props.annotationFocus);
-        }
-        props.setSpacyLoading(false);
+        props.updateAnnotationsAfterLoadingSpacy(data, index).then(state => {
+          if (props.annotationFocus === tagTypes.SECTIONS) {
+            props.setAnnotations(state.fileViewer.sections);
+          } else if (props.annotationFocus === tagTypes.SENTENCES) {
+            props.setAnnotations(state.fileViewer.sentences);
+          } else {
+            props.setAnnotations(state.fileViewer.entities.filter(entity => entity.type === props.annotationFocus));
+          }
+          props.setSpacyLoading(false);
+        });
       })
       .catch(error => {
         console.log("ERROR:", error);
