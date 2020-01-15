@@ -183,13 +183,10 @@ class CustomAnnotator extends Component {
       this.props.setAlertMessage({ message: "Can't modify previous versions", messageType: "error" });
       return;
     }
-    // copying annotation object from annotationsList
-    let annotationObject = JSON.parse(JSON.stringify(this.props.annotationsList[this.props.fileIndex]));
     if (this.props.annotationFocus === tagTypes.SECTIONS) {
       // setting annotations to sections for current file, as well as for the annotationList
       this.props.setCurrentSections([...annotations, span]);
       this.props.setSections([...annotations, span]);
-      annotationObject[tagTypes.SECTIONS] = [...annotations, span];
     } else if (this.props.annotationFocus === tagTypes.SENTENCES) {
       // sorting sentences in order to have alternating sentences in different colors
       annotations = [...annotations, span];
@@ -199,7 +196,6 @@ class CustomAnnotator extends Component {
       // setting annotations to sentences for current file, as well as for the annotationList
       this.props.setCurrentSentences([...annotations, span]);
       this.props.setSentences(annotations);
-      annotationObject[tagTypes.SENTENCES] = annotations;
     } else if (this.props.annotationFocus === tagTypes.TOKENS) {
       // sorting tokens in order to have alternating token in different colors
       annotations = [...annotations, span];
@@ -208,22 +204,16 @@ class CustomAnnotator extends Component {
       });
       // setting annotations to tokens for current file, as well as for the annotationList
       this.props.setTokens(annotations);
-      annotationObject[tagTypes.TOKENS] = annotations;
     } else {
       // setting annotations to entities for current file, as well as for the annotationList
       this.props.setCurrentEntities([...this.props.entities, span]);
       this.props.setEntities([...this.props.entities, span]);
-      annotationObject[tagTypes.ENTITIES] = [...this.props.entities, span];
     }
     // setting annotations to all annotations that match the selected type
     this.props.setAnnotations([
       ...this.props.annotations.filter(annotation => annotation.type === this.props.annotationFocus),
       span
     ]);
-    // updating annotationsList
-    const annotationsList = Array.from(this.props.annotationsList);
-    annotationsList[this.props.fileIndex] = annotationObject;
-    this.props.setAnnotationsList(annotationsList);
     this.props.saveAnnotations();
   };
 
@@ -395,7 +385,6 @@ const mapStateToProps = state => {
     snapToWord: state.fileViewer.snapToWord,
     spansRendered: state.fileViewer.spansRendered,
     fileIndex: state.fileViewer.fileIndex,
-    annotationsList: state.fileViewer.annotationsList,
     tagTemplates: state.fileViewer.tagTemplates,
     currentEntities: state.fileViewer.currentEntities,
     currentSections: state.fileViewer.currentSections,
@@ -417,7 +406,6 @@ const mapDispatchToProps = dispatch => {
     setAnnotations: annotations => dispatch(actions.setAnnotations(annotations)),
     setAddingTags: tag => dispatch(actions.setAddingTags(tag)),
     setAnnotationsToEdit: annotationsToEdit => dispatch(actions.setAnnotationsToEdit(annotationsToEdit)),
-    setAnnotationsList: annotationsList => dispatch(actions.setAnnotationsList(annotationsList)),
     setSpansRendered: spansRendered => dispatch(actions.setSpansRendered(spansRendered)),
     setAlertMessage: newValue => dispatch(actions.setAlertMessage(newValue)),
     setCurrentEntities: currentEntities => dispatch(actions.setCurrentEntitiesWithCallback(currentEntities)),
