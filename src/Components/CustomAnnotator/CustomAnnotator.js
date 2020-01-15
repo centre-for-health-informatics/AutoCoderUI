@@ -194,7 +194,7 @@ class CustomAnnotator extends Component {
         return a.start - b.start;
       });
       // setting annotations to sentences for current file, as well as for the annotationList
-      this.props.setCurrentSentences([...annotations, span]);
+      this.props.setCurrentSentences([...annotations]);
       this.props.setSentences(annotations);
     } else if (this.props.annotationFocus === tagTypes.TOKENS) {
       // sorting tokens in order to have alternating token in different colors
