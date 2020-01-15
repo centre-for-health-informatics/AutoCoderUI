@@ -35,6 +35,11 @@ const ManageFiles = props => {
 
   // calls API to receive annotations from Spacy
   const callSpacy = (fileData, index) => {
+    if (!annotationsEmpty()) {
+      if (!window.confirm("Are you sure? This will overwrite your current annotations.")) {
+        return;
+      }
+    }
     props.setSpacyLoading(true);
     const options = {
       method: "POST",
