@@ -19,5 +19,6 @@ export const DEFAULTS = [
   { id: "followup", description: "", color: "", disabled: false, type: tagTypes.SECTIONS },
   { id: "main_dx", description: "", color: "", disabled: false, type: tagTypes.SECTIONS },
   { id: "allergies", description: "", color: "", disabled: false, type: tagTypes.SECTIONS },
-  { id: "id", description: "", color: "", disabled: false, type: tagTypes.SECTIONS }
+  { id: "id", description: "", color: "", disabled: false, type: tagTypes.SECTIONS },
+  { id: "NA", description: "NOT APPLICABLE", color: "", disabled: false, type: tagTypes.SECTIONS }
 ];
