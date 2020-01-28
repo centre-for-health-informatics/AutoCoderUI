@@ -49,6 +49,22 @@ const ManageFiles = props => {
     APIUtility.API.makeAPICall(APIUtility.UPLOAD_DOCUMENT, null, options)
       .then(response => response.json())
       .then(data => {
+        const tagTemplates = Array.from(props.tagTemplates);
+        console.log(tagTemplates);
+        for (let entity of data[tagTypes.ENTITIES]) {
+          let duplicateTag = tagTemplates.find(tag => tag.id === entity.tag && tag.type === entity.type);
+          if (duplicateTag === undefined) {
+            tagTemplates.push({ id: entity.tag, type: entity.type });
+          }
+        }
+        for (let section of data[tagTypes.SECTIONS]) {
+          let duplicateTag = tagTemplates.find(tag => tag.id === section.tag && tag.type === section.type);
+          if (duplicateTag === undefined) {
+            tagTemplates.push({ id: section.tag, type: section.type });
+          }
+        }
+        props.setTagTemplates(tagTemplates);
+        console.log(JSON.stringify(data));
         props.updateAnnotationsAfterLoadingSpacy(data, index).then(state => {
           if (props.annotationFocus === tagTypes.SECTIONS) {
             props.setAnnotations(state.fileViewer.sections);
