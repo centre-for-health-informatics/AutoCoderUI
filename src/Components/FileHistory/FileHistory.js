@@ -302,9 +302,9 @@ const FileHistory = props => {
                   color="default"
                   className={classes.button}
                   size="small"
-                  style={{ fontSize: "70%" }}
+                  style={{ fontSize: "70%", textTransform: "none" }}
                 >
-                  Call API
+                  A.I.
                 </Button>
               )}
             </ListItem>
