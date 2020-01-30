@@ -114,17 +114,17 @@ const MyAnnotations = props => {
     let sortOrder = order;
     let orderByProperty = orderBy;
 
-    if (!(options == null)) {
-      if ("page" in options) {
+    if (options !== undefined) {
+      if (options.hasOwnProperty("page")) {
         page = options["page"];
       }
-      if ("pageSize" in options) {
+      if (options.hasOwnProperty("pageSize")) {
         pageSize = options["pageSize"];
       }
-      if ("order" in options) {
+      if (options.hasOwnProperty("order")) {
         sortOrder = options["order"];
       }
-      if ("orderBy" in options) {
+      if (options.hasOwnProperty("orderBy")) {
         orderByProperty = options["orderBy"];
       }
     }
