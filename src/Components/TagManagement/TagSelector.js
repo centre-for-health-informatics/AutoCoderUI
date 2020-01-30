@@ -177,18 +177,33 @@ const TagSelector = props => {
     return html;
   };
 
+  const renderSections = () => {
+    let isThereSectionLabel = false;
+    for (let tag of props.tagTemplates) {
+      if (tag.type === tagTypes.SECTIONS) {
+        isThereSectionLabel = true;
+        break;
+      }
+    }
+    if (isThereSectionLabel) {
+      return (
+        <FormControlLabel
+          value={tagTypes.SECTIONS}
+          control={<Radio />}
+          label={tagTypes.SECTIONS}
+          labelPlacement="end"
+        />
+      );
+    }
+  };
+
   return (
     <div className={classes.root}>
       <div className={classes.radioButtonForm}>
         <FormControl component="fieldset">
           <FormLabel component="legend">Annotation Type</FormLabel>
           <RadioGroup aria-label="type" name="type" value={props.annotationFocus} onChange={handleTypeChange} row>
-            <FormControlLabel
-              value={tagTypes.SECTIONS}
-              control={<Radio />}
-              label={tagTypes.SECTIONS}
-              labelPlacement="end"
-            />
+            {renderSections()}
             {props.areSentencesAvailable && (
               <FormControlLabel
                 value={tagTypes.SENTENCES}

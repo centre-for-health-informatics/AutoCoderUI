@@ -63,7 +63,6 @@ const ManageFiles = props => {
           }
         }
         props.setTagTemplates(tagTemplates);
-        console.log(JSON.stringify(data));
         props.updateAnnotationsAfterLoadingSpacy(data, index).then(state => {
           if (props.annotationFocus === tagTypes.SECTIONS) {
             props.setAnnotations(state.fileViewer.sections);
