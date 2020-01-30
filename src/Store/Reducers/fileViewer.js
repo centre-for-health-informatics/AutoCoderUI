@@ -26,7 +26,8 @@ const initialState = {
   currentSections: [],
   currentSentences: [],
   versionIndex: -1,
-  versions: []
+  versions: [],
+  sentencesAvailable: true
 };
 
 const reducer = (state = initialState, action) => {
@@ -83,6 +84,8 @@ const reducer = (state = initialState, action) => {
       return { ...state, versions: action.versions };
     case actionTypes.SET_VERSION_INDEX:
       return { ...state, versionIndex: action.versionIndex };
+    case actionTypes.SET_SENTENCES_AVAILABLE:
+      return { ...state, sentencesAvailable: action.sentencesAvailable };
     default:
       return state;
   }

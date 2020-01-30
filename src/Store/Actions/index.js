@@ -26,7 +26,8 @@ export {
   setCurrentSections,
   setCurrentSentences,
   setVersions,
-  setVersionIndex
+  setVersionIndex,
+  setSentencesAvailable
 } from "./fileViewer";
 export {
   setUploadedTags,

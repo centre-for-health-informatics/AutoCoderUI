@@ -181,3 +181,10 @@ export const setVersionIndex = versionIndex => {
     versionIndex
   };
 };
+
+export const setSentencesAvailable = sentencesAvailable => {
+  return {
+    type: actionTypes.SET_SENTENCES_AVAILABLE,
+    sentencesAvailable
+  };
+};

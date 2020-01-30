@@ -189,12 +189,14 @@ const TagSelector = props => {
               label={tagTypes.SECTIONS}
               labelPlacement="end"
             />
-            <FormControlLabel
-              value={tagTypes.SENTENCES}
-              control={<Radio />}
-              label={tagTypes.SENTENCES}
-              labelPlacement="end"
-            />
+            {props.areSentencesAvailable && (
+              <FormControlLabel
+                value={tagTypes.SENTENCES}
+                control={<Radio />}
+                label={tagTypes.SENTENCES}
+                labelPlacement="end"
+              />
+            )}
             {/* <FormControlLabel
               value={tagTypes.TOKENS}
               control={<Radio />}
@@ -240,7 +242,8 @@ const mapStateToProps = state => {
     sentences: state.fileViewer.sentences,
     tokens: state.fileViewer.tokens,
     entities: state.fileViewer.entities,
-    entityTagsList: state.tagManagement.uploadedTags // a selection of tags for labelling entities
+    entityTagsList: state.tagManagement.uploadedTags, // a selection of tags for labelling entities
+    areSentencesAvailable: state.fileViewer.sentencesAvailable
   };
 };
 
