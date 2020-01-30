@@ -21,4 +21,4 @@ export const DEFAULTS = [
   { id: "allergies", description: "", color: "", disabled: false, type: tagTypes.SECTIONS },
   { id: "id", description: "", color: "", disabled: false, type: tagTypes.SECTIONS },
   { id: "NA", description: "NOT APPLICABLE", color: "", disabled: false, type: tagTypes.SECTIONS }
-];
+].sort((a, b) => (a.id > b.id ? 1 : -1));

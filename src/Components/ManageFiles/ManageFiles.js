@@ -50,7 +50,6 @@ const ManageFiles = props => {
       .then(response => response.json())
       .then(data => {
         const tagTemplates = Array.from(props.tagTemplates);
-        console.log(tagTemplates);
         for (let entity of data[tagTypes.ENTITIES]) {
           let duplicateTag = tagTemplates.find(tag => tag.id === entity.tag && tag.type === entity.type);
           if (duplicateTag === undefined) {
