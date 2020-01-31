@@ -23,6 +23,7 @@ const FileHistory = props => {
   const classes = useStyles();
   const [isExpanded, setExpanded] = React.useState(false);
   const [fileInfo, setFileInfo] = React.useState({});
+  const showAPIButton = process.env.REACT_APP_USE_SPACY_API.toLowerCase() === "true";
 
   // returns bold for the currently selected file, normal otherwise
   const getFontWeightFile = index => {
@@ -293,7 +294,7 @@ const FileHistory = props => {
               style={{ fontWeight: getFontWeightVersion(props.versions.length) }}
             >
               {"\u2022 Current Version"}
-              {props.versionIndex === props.versions.length && (
+              {props.versionIndex === props.versions.length && showAPIButton && (
                 <Button
                   onClick={() => {
                     props.callSpacy(fileInfo, props.index);
