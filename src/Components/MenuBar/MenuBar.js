@@ -70,12 +70,6 @@ function ButtonAppBar(props) {
       open={isMenuOpen}
       onClose={handleMenuClose}
     >
-      {props.projectLink ? (
-        <MenuItem component={Link} to="/project">
-          Project
-        </MenuItem>
-      ) : null}
-
       {props.annotateLink ? (
         <MenuItem component={Link} to="/annotate">
           Annotate
@@ -88,9 +82,21 @@ function ButtonAppBar(props) {
         </MenuItem>
       ) : null}
 
+      {props.projectLink ? (
+        <MenuItem component={Link} to="/project">
+          Project
+        </MenuItem>
+      ) : null}
+
       {props.sandboxLink ? (
         <MenuItem component={Link} to="/sandbox">
           Sandbox
+        </MenuItem>
+      ) : null}
+
+      {props.adminLink ? (
+        <MenuItem component={Link} to="/admin">
+          Admin
         </MenuItem>
       ) : null}
 

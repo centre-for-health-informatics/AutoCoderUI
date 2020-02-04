@@ -1,5 +1,5 @@
 export { setAlertMessage } from "./alert";
-export { setIsAuthorized, setIsServerDown } from "./authentication";
+export { setIsAuthorized, setIsServerDown, setUserRole } from "./authentication";
 export {
   setFileText,
   setSections,

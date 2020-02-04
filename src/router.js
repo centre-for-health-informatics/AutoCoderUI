@@ -13,6 +13,7 @@ import SignUpSuccess from "./Pages/SignUpSuccess/SignUpSuccess";
 import ForgotPassword from "./Pages/ForgotPassword/ForgotPassword";
 import SignedOut from "./Pages/SignedOut/SignedOut";
 import ProjectOverview from "./Pages/Project/ProjectOverview";
+import Admin from "./Pages/Admin/Admin";
 
 const router = (
   <Provider store={store}>
@@ -29,6 +30,7 @@ const router = (
           <Route exact path="/forgot-password" component={ForgotPassword} />
           <Route exact path="/signed-out" component={SignedOut} />
           <Route exact path="/project" component={ProjectOverview} />
+          <Route exact path="/admin" component={Admin} />
         </Switch>
       </BrowserRouter>
     </AlertProvider>

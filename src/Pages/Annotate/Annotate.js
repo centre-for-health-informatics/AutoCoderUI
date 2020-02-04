@@ -165,6 +165,7 @@ const Annotate = props => {
           title="Annotate"
           projectLink
           tagsLink
+          adminLink={props.userRole === "admin"}
           sandboxLink
           handleLayoutConfirm={() => handleLayoutModifierButton()}
           handleResetLayout={resetLayout}
@@ -245,7 +246,8 @@ const mapStateToProps = state => {
     currentSentences: state.fileViewer.currentSentences,
     currentSections: state.fileViewer.currentSections,
     fileIndex: state.fileViewer.fileIndex,
-    annotationsList: state.fileViewer.annotationsList
+    annotationsList: state.fileViewer.annotationsList,
+    userRole: state.authentication.userRole
   };
 };
 

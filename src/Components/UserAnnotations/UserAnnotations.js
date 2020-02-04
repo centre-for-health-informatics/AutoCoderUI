@@ -42,7 +42,7 @@ const tableHeaders = [
   { id: "download", align: "left", disablePadding: false, label: "Download" }
 ];
 
-const MyAnnotations = props => {
+const UserAnnotations = props => {
   const classes = useStyles();
   const [data, setData] = useState([]);
   const [order, setOrder] = React.useState("desc");
@@ -134,23 +134,34 @@ const MyAnnotations = props => {
    */
   const getAnnotations = params => {
     const paramString = makeRequestParams(params);
-    APIUtility.API.makeAPICall(APIUtility.GET_ALL_ANNOTE_BY_CURRENT_USER, paramString)
-      .then(response => response.json())
-      .then(result => {
-        setData(result.data);
-        console.log(result);
-        setPaginationSettings({
-          page: result.page,
-          pageSize: result.per_page,
-          totalPage: result.total_pages,
-          total: result.total,
-          next: result.next,
-          previous: result.previous
+    console.log(paramString);
+    if (props.user === "current") {
+      APIUtility.API.makeAPICall(APIUtility.GET_ALL_ANNOTE_BY_CURRENT_USER, paramString)
+        .then(response => response.json())
+        .then(result => handleApiResults(result))
+        .catch(error => {
+          console.log("ERROR: ", error);
         });
-      })
-      .catch(error => {
-        console.log("ERROR: ", error);
-      });
+    } else if (props.user === "admin") {
+      APIUtility.API.makeAPICall(APIUtility.GET_ALL_ANNOTE, paramString)
+        .then(response => response.json())
+        .then(result => handleApiResults(result))
+        .catch(error => {
+          console.log("ERROR: ", error);
+        });
+    }
+  };
+
+  const handleApiResults = result => {
+    setData(result.data);
+    setPaginationSettings({
+      page: result.page,
+      pageSize: result.per_page,
+      totalPage: result.total_pages,
+      total: result.total,
+      next: result.next,
+      previous: result.previous
+    });
   };
 
   const downloadAnnotations = index => {
@@ -158,8 +169,6 @@ const MyAnnotations = props => {
       .then(response => response.json())
       .then(annotation => {
         let text = JSON.stringify(annotation[0]);
-
-        console.log(annotation);
 
         downloader(annotation[0].name + "_Annotations.json", text);
       });
@@ -249,4 +258,4 @@ const mapDispatchToProps = dispatch => {
   };
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(MyAnnotations);
+export default connect(mapStateToProps, mapDispatchToProps)(UserAnnotations);

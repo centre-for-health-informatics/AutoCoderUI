@@ -64,7 +64,6 @@ function ForgotPassword(props) {
       method: "POST",
       body: body
     };
-    console.log(options);
     APIUtility.API.makeAPICall(APIUtility.FORGOT_PASSWORD, null, options)
       .then(response => {
         return response.status;

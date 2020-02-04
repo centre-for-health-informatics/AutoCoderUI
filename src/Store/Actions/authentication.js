@@ -13,3 +13,10 @@ export const setIsServerDown = serverDownBool => {
     serverDownBool
   };
 };
+
+export const setUserRole = userRole => {
+  return {
+    type: actionTypes.SET_USER_ROLE,
+    userRole
+  };
+};

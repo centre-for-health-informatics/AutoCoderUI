@@ -235,12 +235,10 @@ function TagManager(props) {
   };
 
   const removeAnnotationsForDeletedTags = (itemsToUpdate, functionToSetItems, oldData) => {
-    console.log(itemsToUpdate);
     let indicesToRemove = [];
     let items = Array.from(itemsToUpdate);
     for (let i = 0; i < items.length; i++) {
       if (items[i].tag === oldData.id && items[i].type === oldData.type) {
-        console.log(items[i]);
         indicesToRemove.push(i);
       }
     }

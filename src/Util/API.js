@@ -12,6 +12,7 @@ export const UPLOAD_DOCUMENT = "UPLOAD_DOCUMENT";
 export const UPLOAD_ANNOTATIONS = "UPLOAD_ANNOTATIONS";
 export const GET_LAST_ANNOTE = "GET_LAST_ANNOTE";
 export const GET_ALL_ANNOTE_BY_CURRENT_USER = "GET_ALL_ANNOTE_BY_CURRENT_USER";
+export const GET_ALL_ANNOTE = "GET_ALL_ANNOTE";
 export const GET_ANNOTATIONS_FILENAME_USER = "GET_ANNOTATIONS_FILENAME_USER";
 export const EXPORT_CURRENT_ANNOTATIONS = "EXPORT_CURRENT_ANNOTATIONS";
 export const DOWNLOAD_ANNOTATIONS_BY_ID = "DOWNLOAD_ANNOTATIONS_BY_ID";
@@ -33,7 +34,7 @@ export class API {
    */
   static _revokeUserAuthorizationFromStore() {
     store.dispatch(actions.setIsAuthorized(false));
-    // store.dispatch(actions.setUserRole(null));
+    store.dispatch(actions.setUserRole(null));
   }
 
   // METHODS DEALING WITH TOKENS---------------------------------------------------------
@@ -46,9 +47,10 @@ export class API {
     this.makeAPICall(GET_TOKEN, null, options)
       .then(response => response.json())
       .then(response => {
+        console.log(response);
         if (response.access_token !== undefined) {
           localStorage.setItem("tokenObject", JSON.stringify(response));
-          // store.dispatch(actions.setUserRole(response.user.role));
+          store.dispatch(actions.setUserRole(response.user.role));
           store.dispatch(actions.setIsAuthorized(true));
         } else {
           store.dispatch(actions.setAlertMessage({ message: "Invalid username or password", messageType: "error" }));
@@ -101,7 +103,7 @@ export class API {
       .then(response => {
         if (response.status === 200) {
           store.dispatch(actions.setIsAuthorized(true));
-          // store.dispatch(actions.setUserRole(JSON.parse(localStorage.getItem("tokenObject")).user.role));
+          store.dispatch(actions.setUserRole(JSON.parse(localStorage.getItem("tokenObject")).user.role));
         }
         store.dispatch(actions.setIsServerDown(false));
         callBackFunction();
@@ -219,6 +221,8 @@ export class API {
         return this._addAuthorization(this.urlBeginning + "getLastAnnot/" + input + this.json);
       case GET_ALL_ANNOTE_BY_CURRENT_USER:
         return this._addAuthorization(this.urlBeginning + "getAllMyAnnots/" + (input == null ? "" : input));
+      case GET_ALL_ANNOTE:
+        return this._addAuthorization(this.urlBeginning + "getAllAnnots/" + (input == null ? "" : input));
       case GET_ANNOTATIONS_FILENAME_USER:
         return this._addAuthorization(this.urlBeginning + "getAnnotationsByFilenameUser/" + input + this.json);
       case EXPORT_CURRENT_ANNOTATIONS:

@@ -76,7 +76,6 @@ const Tags = props => {
   // }
 
   if (!props.isAuthorized) {
-    console.log("Tags:", props.isAuthorized);
     return <Redirect to="/sign-in" />;
   }
 
@@ -86,6 +85,8 @@ const Tags = props => {
         <MenuBar
           title="Manage Tags"
           annotateLink
+          projectLink
+          adminLink={props.userRole === "admin"}
           sandboxLink
           handleLayoutConfirm={() => handleLayoutModifierButton()}
           handleResetLayout={resetLayout}
@@ -118,7 +119,8 @@ const mapStateToProps = state => {
     alertMessage: state.alert.alertMessage,
     isAuthorized: state.authentication.isAuthorized,
     isServerDown: state.authentication.isServerDown,
-    initialTagsAdded: state.tagManagement.initialTagsAdded
+    initialTagsAdded: state.tagManagement.initialTagsAdded,
+    userRole: state.authentication.userRole
   };
 };
 

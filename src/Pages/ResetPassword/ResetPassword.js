@@ -48,7 +48,6 @@ function ResetPassword(props) {
 
   useEffect(() => {
     const params = new URLSearchParams(props.location.search);
-    console.log(params);
     setToken(params.get("token"));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -80,7 +79,6 @@ function ResetPassword(props) {
       method: "POST",
       body: body
     };
-    console.log(options);
 
     APIUtility.API.makeAPICall(APIUtility.RESET_PASSWORD, null, options)
       .then(response => {

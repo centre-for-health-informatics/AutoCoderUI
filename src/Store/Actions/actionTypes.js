@@ -3,6 +3,7 @@ export const SET_ALERT_MESSAGE = "SET_ALERT_MESSAGE";
 
 // Authentication action types
 export const SET_IS_AUTHORIZED = "SET_IS_AUTHORIZED";
+export const SET_USER_ROLE = "SET_USER_ROLE";
 export const SET_IS_SERVER_DOWN = "SET_IS_SERVER_DOWN";
 
 // File Viewer
