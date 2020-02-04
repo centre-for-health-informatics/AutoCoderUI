@@ -220,7 +220,7 @@ const ManageFiles = props => {
 
     // calls API to export the annotations for the current session
     // creates a zip file with json files for each txt file
-    APIUtility.API.makeAPICall(APIUtility.EXPORT_ANNOTATIONS, props.sessionId)
+    APIUtility.API.makeAPICall(APIUtility.EXPORT_CURRENT_ANNOTATIONS, props.sessionId)
       .then(response => response.json())
       .then(data => {
         for (let annotation of data) {

@@ -5,15 +5,11 @@ import * as actions from "../../Store/Actions/index";
 import { connect } from "react-redux";
 import * as APIUtility from "../../Util/API";
 import * as utility from "../../Util/utility";
-import Table from "@material-ui/core/Table";
-import TableBody from "@material-ui/core/TableBody";
-import TableCell from "@material-ui/core/TableCell";
-import TableFooter from "@material-ui/core/TableFooter";
-import TableRow from "@material-ui/core/TableRow";
-import Paper from "@material-ui/core/Paper";
-
+import { Button, Table, TableBody, TableCell, TableFooter, TableRow, Paper } from "@material-ui/core";
+import downloader from "../../Util/download";
 import PaginationFooter from "../Pagination/PaginationFooter";
 import PaginationHeader from "../Pagination/PaginationHeader";
+import { CloudDownload } from "@material-ui/icons";
 
 const useStyles = makeStyles({
   root: {
@@ -42,7 +38,8 @@ const useStyles = makeStyles({
 const tableHeaders = [
   { id: "id", align: "left", disablePadding: false, label: "Id" },
   { id: "filename", align: "left", disablePadding: false, label: "Filename" },
-  { id: "updated", align: "left", disablePadding: false, label: "Time" }
+  { id: "updated", align: "left", disablePadding: false, label: "Time" },
+  { id: "download", align: "left", disablePadding: false, label: "Download" }
 ];
 
 const MyAnnotations = props => {
@@ -156,6 +153,18 @@ const MyAnnotations = props => {
       });
   };
 
+  const downloadAnnotations = index => {
+    APIUtility.API.makeAPICall(APIUtility.DOWNLOAD_ANNOTATIONS_BY_ID, data[index].id)
+      .then(response => response.json())
+      .then(annotation => {
+        let text = JSON.stringify(annotation[0]);
+
+        console.log(annotation);
+
+        downloader(annotation[0].name + "_Annotations.json", text);
+      });
+  };
+
   const makeTableRowsHTML = () => {
     if (data == null || data.length === 0) {
       return;
@@ -171,6 +180,18 @@ const MyAnnotations = props => {
           </TableCell>
           <TableCell align="right">{row.filename}</TableCell>
           <TableCell align="right">{utility.timeFormat(row.updated, false)}</TableCell>
+          <TableCell align="right">
+            <Button
+              onClick={() => {
+                downloadAnnotations(i);
+              }}
+              variant="contained"
+              color="primary"
+              className={classes.button}
+            >
+              Download
+            </Button>
+          </TableCell>
         </TableRow>
       );
       outputRows.push(rowHTML);
