@@ -172,6 +172,11 @@ class CustomAnnotator extends Component {
     for (let annotation of annotations) {
       if ((start > annotation.start && start < annotation.end) || (end < annotation.end && end > annotation.start)) {
         return true;
+      } else if (
+        (start < annotation.end && end >= annotation.end) ||
+        (start < annotation.start && end >= annotation.start)
+      ) {
+        return true;
       }
     }
     return false;
