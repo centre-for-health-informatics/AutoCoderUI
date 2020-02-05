@@ -79,7 +79,6 @@ const ProjectOverview = props => {
           title="Project"
           annotateLink
           tagsLink
-          sandboxLink
           adminLink={props.userRole === "admin"}
           handleLayoutConfirm={() => handleLayoutModifierButton()}
           handleResetLayout={resetLayout}

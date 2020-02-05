@@ -166,7 +166,6 @@ const Annotate = props => {
           projectLink
           tagsLink
           adminLink={props.userRole === "admin"}
-          sandboxLink
           handleLayoutConfirm={() => handleLayoutModifierButton()}
           handleResetLayout={resetLayout}
           inModifyMode={isLayoutModifiable}

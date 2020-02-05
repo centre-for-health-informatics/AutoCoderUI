@@ -49,10 +49,12 @@ const PaginationFooter = props => {
     <div className={classes.root}>
       <Grid container spacing={1}>
         <Grid item xs={3}>
-          <div className={classes.paginationItem}>Rows per Page: </div>
+          <div className={classes.paginationItem} style={{ position: "relative", top: "3px" }}>
+            <Typography>Rows per Page:</Typography>
+          </div>
         </Grid>
         <Grid item xs={3}>
-          <div className={classes.paginationItem}>
+          <div className={classes.paginationItem} style={{ position: "relative", top: "2px" }}>
             <Slider
               onChangeCommitted={onPageSizeChange}
               defaultValue={props.defaultPageSize}
@@ -66,7 +68,7 @@ const PaginationFooter = props => {
           </div>
         </Grid>
         <Grid item xs={2}>
-          <div className={classes.paginationItem}>
+          <div className={classes.paginationItem} style={{ position: "relative", top: "4px" }}>
             <Typography>
               Page {props.page} of {props.totalPage}
             </Typography>

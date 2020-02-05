@@ -1,15 +1,13 @@
 import React, { useState, useEffect } from "react";
 import { makeStyles, useTheme } from "@material-ui/core/styles";
-import PropTypes from "prop-types";
 import * as actions from "../../Store/Actions/index";
 import { connect } from "react-redux";
 import * as APIUtility from "../../Util/API";
 import * as utility from "../../Util/utility";
-import { Button, Table, TableBody, TableCell, TableFooter, TableRow, Paper } from "@material-ui/core";
+import { Button, Table, TableBody, TableCell, TableRow, Paper } from "@material-ui/core";
 import downloader from "../../Util/download";
 import PaginationFooter from "../Pagination/PaginationFooter";
 import PaginationHeader from "../Pagination/PaginationHeader";
-import { CloudDownload } from "@material-ui/icons";
 
 const useStyles = makeStyles({
   root: {
@@ -58,7 +56,11 @@ const UserAnnotations = props => {
 
   const [paginationSettings, setPaginationSettings] = useState({
     page: 1,
-    pageSize: 5
+    pageSize: 5,
+    totalPage: 0,
+    total: 0,
+    next: null,
+    previous: null
   });
 
   const emptyRows = Math.max(paginationSettings.pageSize - data.length, 0);
@@ -194,10 +196,10 @@ const UserAnnotations = props => {
           <TableCell component="th" scope="row">
             {row.id}
           </TableCell>
-          {props.user === "admin" && <TableCell align="right">{row.user}</TableCell>}
-          <TableCell align="right">{row.filename}</TableCell>
-          <TableCell align="right">{utility.timeFormat(row.updated, false)}</TableCell>
-          <TableCell align="right">
+          {props.user === "admin" && <TableCell align="left">{row.user}</TableCell>}
+          <TableCell align="left">{row.filename}</TableCell>
+          <TableCell align="left">{utility.timeFormat(row.updated, false)}</TableCell>
+          <TableCell align="left">
             <Button
               onClick={() => {
                 downloadAnnotations(i);
@@ -205,6 +207,7 @@ const UserAnnotations = props => {
               variant="contained"
               color="primary"
               className={classes.button}
+              size="small"
             >
               Download
             </Button>
