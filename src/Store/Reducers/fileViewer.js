@@ -51,7 +51,9 @@ const reducer = (state = initialState, action) => {
     case actionTypes.SET_TAG_TEMPLATES:
       return { ...state, tagTemplates: action.tagTemplates };
     case actionTypes.SET_LINKED_LIST_ADD:
-      return { ...state, linkedListAdd: action.linkedListAdd };
+      if (state.annotations.length > 0) {
+        return { ...state, linkedListAdd: action.linkedListAdd };
+      }
     case actionTypes.SET_INTERVAL_DIV_HEIGHT:
       return { ...state, intervalDivHeight: action.intervalDivHeight };
     case actionTypes.SET_INTERVAL_DIV_WIDTH:

@@ -16,7 +16,7 @@ import TagSelector from "../../Components/TagManagement/TagSelector";
 import Legend from "../../Components/CustomAnnotator/Legend";
 import ManageFiles from "../../Components/ManageFiles/ManageFiles";
 import { mapColors, setDefaultTags } from "../../Components/TagManagement/tagUtil";
-import { Switch, FormControlLabel } from "@material-ui/core";
+import { Switch, FormControlLabel, Tooltip } from "@material-ui/core";
 import LoadingIndicator from "../../Components/LoadingIndicator/LoadingIndicator";
 import CustomAnnotator from "../../Components/CustomAnnotator/CustomAnnotator";
 
@@ -187,32 +187,44 @@ const Annotate = props => {
             <TagSelector />
           </div>
           <div style={{ flex: 1 }}>
-            <FormControlLabel
-              control={
-                <Switch
-                  size="small"
-                  color="primary"
-                  checked={props.snapToWord}
-                  onChange={() => {
-                    props.setSnapToWord(!props.snapToWord);
-                  }}
-                />
+            <Tooltip
+              title={
+                "Enabling this will make annotations snap to the whole word. This removes the need for precision when selecting text."
               }
-              label="Snap to Whole Word"
-            />
-            <FormControlLabel
-              control={
-                <Switch
-                  size="small"
-                  color="primary"
-                  checked={props.linkedListAdd}
-                  onChange={() => {
-                    props.setLinkedListAdd(!props.linkedListAdd);
-                  }}
-                />
+            >
+              <FormControlLabel
+                control={
+                  <Switch
+                    size="small"
+                    color="primary"
+                    checked={props.snapToWord}
+                    onChange={() => {
+                      props.setSnapToWord(!props.snapToWord);
+                    }}
+                  />
+                }
+                label="Snap"
+              />
+            </Tooltip>
+            <Tooltip
+              title={
+                "Enabling this will cause the next annotation to be linked to the previous one. It is not possible to enable this if there are currently no annotations. Shortcut key: 'A'"
               }
-              label="Link Next Annotation"
-            />
+            >
+              <FormControlLabel
+                control={
+                  <Switch
+                    size="small"
+                    color="primary"
+                    checked={props.linkedListAdd}
+                    onChange={() => {
+                      props.setLinkedListAdd(!props.linkedListAdd);
+                    }}
+                  />
+                }
+                label="Link"
+              />
+            </Tooltip>
           </div>
         </div>
         <div key="manageFiles" className={highlightEditDiv} style={{ overflowY: "auto" }}>

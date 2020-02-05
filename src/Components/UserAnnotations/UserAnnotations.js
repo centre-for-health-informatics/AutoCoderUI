@@ -35,11 +35,19 @@ const useStyles = makeStyles({
 });
 
 // the id fields must match the model field references in backend for sorting to work
-const tableHeaders = [
-  { id: "id", align: "left", disablePadding: false, label: "Id" },
-  { id: "filename", align: "left", disablePadding: false, label: "Filename" },
-  { id: "updated", align: "left", disablePadding: false, label: "Time" },
-  { id: "download", align: "left", disablePadding: false, label: "Download" }
+const tableHeadersAdmin = [
+  { id: "id", align: "left", disablePadding: false, label: "Id", sortable: true },
+  { id: "user", align: "left", disablePadding: false, label: "User", sortable: true },
+  { id: "filename", align: "left", disablePadding: false, label: "Filename", sortable: true },
+  { id: "updated", align: "left", disablePadding: false, label: "Time", sortable: true },
+  { id: "download", align: "left", disablePadding: false, label: "Download", sortable: false }
+];
+
+const tableHeadersCurrent = [
+  { id: "id", align: "left", disablePadding: false, label: "Id", sortable: true },
+  { id: "filename", align: "left", disablePadding: false, label: "Filename", sortable: true },
+  { id: "updated", align: "left", disablePadding: false, label: "Time", sortable: true },
+  { id: "download", align: "left", disablePadding: false, label: "Download", sortable: false }
 ];
 
 const UserAnnotations = props => {
@@ -134,7 +142,6 @@ const UserAnnotations = props => {
    */
   const getAnnotations = params => {
     const paramString = makeRequestParams(params);
-    console.log(paramString);
     if (props.user === "current") {
       APIUtility.API.makeAPICall(APIUtility.GET_ALL_ANNOTE_BY_CURRENT_USER, paramString)
         .then(response => response.json())
@@ -187,6 +194,7 @@ const UserAnnotations = props => {
           <TableCell component="th" scope="row">
             {row.id}
           </TableCell>
+          {props.user === "admin" && <TableCell align="right">{row.user}</TableCell>}
           <TableCell align="right">{row.filename}</TableCell>
           <TableCell align="right">{utility.timeFormat(row.updated, false)}</TableCell>
           <TableCell align="right">
@@ -213,7 +221,7 @@ const UserAnnotations = props => {
       <div className={classes.tableWrapper} style={{ overflowY: "hidden" }}>
         <Table className={classes.table} aria-label="My Annotation History">
           <PaginationHeader
-            headers={tableHeaders}
+            headers={props.user === "admin" ? tableHeadersAdmin : tableHeadersCurrent}
             onRequestSort={handleRequestSort}
             order={order}
             orderBy={orderBy}

@@ -20,18 +20,21 @@ const PaginationHeader = props => {
             padding={headers.disablePadding ? "none" : "default"}
             sortDirection={orderBy === headers.id ? order : false}
           >
-            <TableSortLabel
-              active={orderBy === headers.id}
-              direction={orderBy === headers.id ? order : "asc"}
-              onClick={createSortHandler(headers.id)}
-            >
-              {headers.label}
-              {orderBy === headers.id ? (
-                <span className={classes.visuallyHidden}>
-                  {order === "desc" ? "sorted descending" : "sorted ascending"}
-                </span>
-              ) : null}
-            </TableSortLabel>
+            {!headers.sortable && headers.label}
+            {headers.sortable && (
+              <TableSortLabel
+                active={orderBy === headers.id}
+                direction={orderBy === headers.id ? order : "asc"}
+                onClick={createSortHandler(headers.id)}
+              >
+                {headers.label}
+                {orderBy === headers.id ? (
+                  <span className={classes.visuallyHidden}>
+                    {order === "desc" ? "sorted descending" : "sorted ascending"}
+                  </span>
+                ) : null}
+              </TableSortLabel>
+            )}
           </TableCell>
         ))}
       </TableRow>

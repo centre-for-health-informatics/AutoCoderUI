@@ -39,7 +39,7 @@ const Admin = props => {
 
   // ComponentDidMount
   useEffect(() => {
-    setLayouts(getFromLS("projectLayouts", "layouts") || defaultLayouts);
+    setLayouts(getFromLS("adminLayouts", "layouts") || defaultLayouts);
     APIUtility.API.verifyLSToken(() => setIsLoading(false));
   }, []);
 
