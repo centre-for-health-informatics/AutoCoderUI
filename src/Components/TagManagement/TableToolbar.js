@@ -412,7 +412,6 @@ export class MTableToolbar extends React.Component {
 
   handleRemoveAllTags = () => {
     this.props.setTagTemplates([]);
-    this.props.setSections([]);
     this.props.setEntities([]);
   };
 
@@ -543,7 +542,6 @@ const mapDispatchToProps = dispatch => {
     setTagTemplates: tags => dispatch(actions.setTagTemplatesWithCallback(tags)),
     setAlertMessage: newValue => dispatch(actions.setAlertMessage(newValue)),
     setAnnotations: annotations => dispatch(actions.setAnnotations(annotations)),
-    setSections: sections => dispatch(actions.setSections(sections)),
     setEntities: entities => dispatch(actions.setEntities(entities))
   };
 };

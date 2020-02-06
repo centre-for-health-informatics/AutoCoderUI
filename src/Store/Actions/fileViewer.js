@@ -7,13 +7,6 @@ export const setFileText = fileText => {
   };
 };
 
-export const setSections = sections => {
-  return {
-    type: actionTypes.SET_SECTIONS,
-    sections
-  };
-};
-
 export const setSentences = sentences => {
   return {
     type: actionTypes.SET_SENTENCES,
@@ -151,13 +144,6 @@ export const setCurrentEntities = currentEntities => {
   return {
     type: actionTypes.SET_CURRENT_ENTITIES,
     currentEntities
-  };
-};
-
-export const setCurrentSections = currentSections => {
-  return {
-    type: actionTypes.SET_CURRENT_SECTIONS,
-    currentSections
   };
 };
 

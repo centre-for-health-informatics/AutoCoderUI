@@ -5,12 +5,7 @@ import * as tagTypes from "../../Components/TagManagement/tagTypes";
 export const updateAnnotationsAfterLoadingSpacy = (data, index) => {
   return (dispatch, getState) => {
     if (index === getState().fileViewer.fileIndex) {
-      let sections, sentences, entities;
-      if (data[tagTypes.SECTIONS]) {
-        sections = data[tagTypes.SECTIONS];
-        dispatch(actions.setCurrentSections(sections));
-        dispatch(actions.setSections(sections));
-      }
+      let sentences, entities;
       if (data[tagTypes.SENTENCES]) {
         sentences = data[tagTypes.SENTENCES];
         dispatch(actions.setCurrentSentences(sentences));
@@ -36,13 +31,6 @@ export const setTagTemplatesWithCallback = tagTemplates => {
 export const setCurrentEntitiesWithCallback = entities => {
   return (dispatch, getState) => {
     dispatch(actions.setCurrentEntities(entities));
-    return Promise.resolve(getState());
-  };
-};
-
-export const setCurrentSectionsWithCallback = sections => {
-  return (dispatch, getState) => {
-    dispatch(actions.setCurrentSections(sections));
     return Promise.resolve(getState());
   };
 };

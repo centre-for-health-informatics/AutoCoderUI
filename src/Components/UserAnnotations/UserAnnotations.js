@@ -255,15 +255,13 @@ const UserAnnotations = props => {
 const mapStateToProps = state => {
   return {
     tagTemplates: state.fileViewer.tagTemplates,
-    entities: state.fileViewer.entities,
-    sections: state.fileViewer.sections
+    entities: state.fileViewer.entities
   };
 };
 
 const mapDispatchToProps = dispatch => {
   return {
     setTagTemplates: tags => dispatch(actions.setTagTemplatesWithCallback(tags)),
-    setSections: sections => dispatch(actions.setSections(sections)),
     setEntities: entities => dispatch(actions.setEntities(entities)),
     setAlertMessage: newValue => dispatch(actions.setAlertMessage(newValue))
   };

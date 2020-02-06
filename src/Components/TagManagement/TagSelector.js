@@ -62,9 +62,6 @@ const TagSelector = props => {
     props.setAnnotationFocus(newSelection);
 
     switch (newSelection) {
-      case tagTypes.SECTIONS:
-        props.setAnnotations(props.sections);
-        break;
       case tagTypes.SENTENCES:
         props.setAnnotations(props.sentences);
         break;
@@ -100,10 +97,6 @@ const TagSelector = props => {
 
   const getTextLabel = () => {
     switch (props.annotationFocus) {
-      case tagTypes.SECTIONS:
-        return "Search " + tagTypes.SECTIONS;
-      case tagTypes.ENTITIES:
-        return "Search " + tagTypes.ENTITIES;
       case tagTypes.SENTENCES:
         return "";
       // case tagTypes.TOKENS:
@@ -115,8 +108,6 @@ const TagSelector = props => {
 
   const shouldDisableAutoComplete = () => {
     switch (props.annotationFocus) {
-      case tagTypes.SECTIONS:
-        return false;
       case tagTypes.SENTENCES:
         return true;
       // case tagTypes.TOKENS:
@@ -148,11 +139,7 @@ const TagSelector = props => {
     const customTagTypes = new Set();
 
     props.tagTemplates.forEach(tagTemplate => {
-      if (
-        tagTemplate.type !== tagTypes.TOKENS &&
-        tagTemplate.type !== tagTypes.SECTIONS &&
-        tagTypes !== tagTypes.SENTENCES
-      ) {
+      if (tagTemplate.type !== tagTypes.TOKENS && tagTemplate.type !== tagTypes.SENTENCES) {
         if (tagTemplate.type && tagTemplate.type !== "") {
           customTagTypes.add(tagTemplate.type);
         } else {
@@ -177,33 +164,12 @@ const TagSelector = props => {
     return html;
   };
 
-  const renderSections = () => {
-    let isThereSectionLabel = false;
-    for (let tag of props.tagTemplates) {
-      if (tag.type === tagTypes.SECTIONS) {
-        isThereSectionLabel = true;
-        break;
-      }
-    }
-    if (isThereSectionLabel) {
-      return (
-        <FormControlLabel
-          value={tagTypes.SECTIONS}
-          control={<Radio />}
-          label={tagTypes.SECTIONS}
-          labelPlacement="end"
-        />
-      );
-    }
-  };
-
   return (
     <div className={classes.root}>
       <div className={classes.radioButtonForm}>
         <FormControl component="fieldset">
           <FormLabel component="legend">Annotation Type</FormLabel>
           <RadioGroup aria-label="type" name="type" value={props.annotationFocus} onChange={handleTypeChange} row>
-            {renderSections()}
             {props.areSentencesAvailable && (
               <FormControlLabel
                 value={tagTypes.SENTENCES}
@@ -253,7 +219,6 @@ const mapStateToProps = state => {
     tagTemplates: state.fileViewer.tagTemplates,
     annotationFocus: state.fileViewer.annotationFocus, // the currently active type
     addingTags: state.tagManagement.addingTags, // the currently active tag
-    sections: state.fileViewer.sections,
     sentences: state.fileViewer.sentences,
     tokens: state.fileViewer.tokens,
     entities: state.fileViewer.entities,

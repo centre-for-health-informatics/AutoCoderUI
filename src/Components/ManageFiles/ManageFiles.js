@@ -50,23 +50,16 @@ const ManageFiles = props => {
       .then(response => response.json())
       .then(data => {
         const tagTemplates = Array.from(props.tagTemplates);
+        console.log(data);
         for (let entity of data[tagTypes.ENTITIES]) {
           let duplicateTag = tagTemplates.find(tag => tag.id === entity.tag && tag.type === entity.type);
           if (duplicateTag === undefined) {
             tagTemplates.push({ id: entity.tag, type: entity.type });
           }
         }
-        for (let section of data[tagTypes.SECTIONS]) {
-          let duplicateTag = tagTemplates.find(tag => tag.id === section.tag && tag.type === section.type);
-          if (duplicateTag === undefined) {
-            tagTemplates.push({ id: section.tag, type: section.type });
-          }
-        }
         props.setTagTemplates(tagTemplates);
         props.updateAnnotationsAfterLoadingSpacy(data, index).then(state => {
-          if (props.annotationFocus === tagTypes.SECTIONS) {
-            props.setAnnotations(state.fileViewer.sections);
-          } else if (props.annotationFocus === tagTypes.SENTENCES) {
+          if (props.annotationFocus === tagTypes.SENTENCES) {
             props.setAnnotations(state.fileViewer.sentences);
           } else {
             props.setAnnotations(state.fileViewer.entities.filter(entity => entity.type === props.annotationFocus));
@@ -135,25 +128,19 @@ const ManageFiles = props => {
     fileReader.onload = e => {
       // reading json
       const json = JSON.parse(e.target.result);
-      // setting current sections/entities/sentences
-      if (json[tagTypes.SECTIONS]) {
-        props.setCurrentSections(json[tagTypes.SECTIONS]);
-      }
+      // setting current entities/sentences
       if (json[tagTypes.ENTITIES]) {
         props.setCurrentEntities(json[tagTypes.ENTITIES]);
       }
       if (json[tagTypes.SENTENCES]) {
         props.setCurrentSentences(json[tagTypes.SENTENCES]);
       }
-      // if the current version is selected, also set sections/entities/sentences which are used to display annotations
+      // if the current version is selected, also set entities/sentences which are used to display annotations
       if (props.versionIndex === props.versions.length || props.versionIndex === -1) {
-        props.setSections(json[tagTypes.SECTIONS]);
         props.setEntities(json[tagTypes.ENTITIES]);
         props.setSentences(json[tagTypes.SENTENCES]);
         // set the appropriate set of annotations to be displayed
-        if (props.annotationFocus === tagTypes.SECTIONS) {
-          props.setAnnotations(json[tagTypes.SECTIONS]);
-        } else if (props.annotationFocus === tagTypes.SENTENCES) {
+        if (props.annotationFocus === tagTypes.SENTENCES) {
           props.setAnnotations(json[tagTypes.SENTENCES]);
         } else {
           props.setAnnotations(json[tagTypes.ENTITIES].filter(annotation => annotation.type === props.annotationFocus));
@@ -165,7 +152,7 @@ const ManageFiles = props => {
 
   // checks if the current annotations are empty or not
   const annotationsEmpty = () => {
-    if (props.currentEntities.length > 0 || props.currentSections.length > 0 || props.currentSentences.length > 0) {
+    if (props.currentEntities.length > 0 || props.currentSentences.length > 0) {
       return false;
     }
     return true;
@@ -276,7 +263,6 @@ const ManageFiles = props => {
 
 const mapStateToProps = state => {
   return {
-    sections: state.fileViewer.sections,
     sentences: state.fileViewer.sentences,
     entities: state.fileViewer.entities,
     jsonList: state.fileViewer.jsonList,
@@ -289,7 +275,6 @@ const mapStateToProps = state => {
     versionIndex: state.fileViewer.versionIndex,
     annotationFocus: state.fileViewer.annotationFocus,
     currentEntities: state.fileViewer.currentEntities,
-    currentSections: state.fileViewer.currentSections,
     currentSentences: state.fileViewer.currentSentences,
     versions: state.fileViewer.versions,
     versionIndex: state.fileViewer.versionIndex
@@ -299,7 +284,6 @@ const mapStateToProps = state => {
 const mapDispatchToProps = dispatch => {
   return {
     setAnnotations: annotations => dispatch(actions.setAnnotations(annotations)),
-    setSections: sections => dispatch(actions.setSections(sections)),
     setSentences: sentences => dispatch(actions.setSentences(sentences)),
     setEntities: entities => dispatch(actions.setEntities(entities)),
     setAnnotationFocus: annotationFocus => dispatch(actions.setAnnotationFocus(annotationFocus)),
@@ -311,8 +295,7 @@ const mapDispatchToProps = dispatch => {
     setAnnotationsList: annotationsList => dispatch(actions.setAnnotationsList(annotationsList)),
     setTagTemplates: tagTemplates => dispatch(actions.setTagTemplates(tagTemplates)),
     setCurrentEntities: currentEntities => dispatch(actions.setCurrentEntities(currentEntities)),
-    setCurrentSentences: currentSentences => dispatch(actions.setCurrentSentences(currentSentences)),
-    setCurrentSections: currentSections => dispatch(actions.setCurrentSections(currentSections))
+    setCurrentSentences: currentSentences => dispatch(actions.setCurrentSentences(currentSentences))
   };
 };
 

@@ -65,7 +65,7 @@ class CustomAnnotator extends Component {
       return;
     }
 
-    // can't set a section or entity annotation without a tag
+    // can't set an entity annotation without a tag
     if (
       this.props.annotationFocus !== tagTypes.SENTENCES &&
       this.props.annotationFocus !== tagTypes.TOKENS &&
@@ -188,11 +188,7 @@ class CustomAnnotator extends Component {
       this.props.setAlertMessage({ message: "Can't modify previous versions", messageType: "error" });
       return;
     }
-    if (this.props.annotationFocus === tagTypes.SECTIONS) {
-      // setting annotations to sections for current file, as well as for the annotationList
-      this.props.setCurrentSections([...annotations, span]);
-      this.props.setSections([...annotations, span]);
-    } else if (this.props.annotationFocus === tagTypes.SENTENCES) {
+    if (this.props.annotationFocus === tagTypes.SENTENCES) {
       // sorting sentences in order to have alternating sentences in different colors
       annotations = [...annotations, span];
       annotations = annotations.sort((a, b) => {
@@ -269,12 +265,7 @@ class CustomAnnotator extends Component {
     this.props.setAnnotationsToEdit(newAnnotationsToEdit);
     // setting annotations and saving
     this.props.setAnnotations(newAnnotations);
-    if (this.props.annotationFocus === tagTypes.SECTIONS) {
-      this.props.setSections(newAnnotations);
-      this.props.setCurrentSections(newAnnotations).then(() => {
-        this.props.saveAnnotations();
-      });
-    } else if (this.props.annotationFocus === tagTypes.SENTENCES) {
+    if (this.props.annotationFocus === tagTypes.SENTENCES) {
       this.props.setSentences(newAnnotations);
       this.props.setCurrentSentences(newAnnotations).then(() => {
         this.props.saveAnnotations();
@@ -392,7 +383,6 @@ const mapStateToProps = state => {
     fileIndex: state.fileViewer.fileIndex,
     tagTemplates: state.fileViewer.tagTemplates,
     currentEntities: state.fileViewer.currentEntities,
-    currentSections: state.fileViewer.currentSections,
     currentSentences: state.fileViewer.currentSentences,
     versions: state.fileViewer.versions,
     versionIndex: state.fileViewer.versionIndex
@@ -404,7 +394,6 @@ const mapDispatchToProps = dispatch => {
     setLinkedListAdd: linkedListAdd => dispatch(actions.setLinkedListAdd(linkedListAdd)),
     setIntervalDivHeight: intervalDivHeight => dispatch(actions.setIntervalDivHeight(intervalDivHeight)),
     setIntervalDivWidth: intervalDivWidth => dispatch(actions.setIntervalDivWidth(intervalDivWidth)),
-    setSections: sections => dispatch(actions.setSections(sections)),
     setSentences: sentences => dispatch(actions.setSentences(sentences)),
     setTokens: tokens => dispatch(actions.setTokens(tokens)),
     setEntities: entities => dispatch(actions.setEntities(entities)),
@@ -414,7 +403,6 @@ const mapDispatchToProps = dispatch => {
     setSpansRendered: spansRendered => dispatch(actions.setSpansRendered(spansRendered)),
     setAlertMessage: newValue => dispatch(actions.setAlertMessage(newValue)),
     setCurrentEntities: currentEntities => dispatch(actions.setCurrentEntitiesWithCallback(currentEntities)),
-    setCurrentSections: currentSections => dispatch(actions.setCurrentSectionsWithCallback(currentSections)),
     setCurrentSentences: currentSentences => dispatch(actions.setCurrentSentencesWithCallback(currentSentences))
   };
 };
