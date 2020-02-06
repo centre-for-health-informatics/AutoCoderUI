@@ -2,12 +2,11 @@ import * as actionTypes from "../Actions/actionTypes";
 
 const initialState = {
   fileViewerText: "",
-  sections: [],
   sentences: [],
   tokens: [],
   entities: [],
   isSpacyLoading: false,
-  annotationFocus: "Sections",
+  annotationFocus: "Sentences",
   annotations: [],
   tagTemplates: [],
   linkedListAdd: false,
@@ -23,7 +22,6 @@ const initialState = {
   fileIndex: -1,
   sessionId: null,
   currentEntities: [],
-  currentSections: [],
   currentSentences: [],
   versionIndex: -1,
   versions: [],
@@ -34,8 +32,6 @@ const reducer = (state = initialState, action) => {
   switch (action.type) {
     case actionTypes.SET_FILE_VIEWER_TEXT:
       return { ...state, fileViewerText: action.fileText };
-    case actionTypes.SET_SECTIONS:
-      return { ...state, sections: action.sections };
     case actionTypes.SET_SENTENCES:
       return { ...state, sentences: action.sentences };
     case actionTypes.SET_TOKENS:
@@ -78,8 +74,6 @@ const reducer = (state = initialState, action) => {
       return { ...state, sessionId: action.sessionId };
     case actionTypes.SET_CURRENT_ENTITIES:
       return { ...state, currentEntities: action.currentEntities };
-    case actionTypes.SET_CURRENT_SECTIONS:
-      return { ...state, currentSections: action.currentSections };
     case actionTypes.SET_CURRENT_SENTENCES:
       return { ...state, currentSentences: action.currentSentences };
     case actionTypes.SET_VERSIONS:

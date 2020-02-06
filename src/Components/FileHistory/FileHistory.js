@@ -79,17 +79,13 @@ const FileHistory = props => {
             } else {
               isThereCurrent = true; // setting current to true
               // setting version data to current
-              props.setCurrentSections(version.data[tagTypes.SECTIONS]);
-              props.setSections(version.data[tagTypes.SECTIONS]);
               props.setCurrentEntities(version.data[tagTypes.ENTITIES]);
               props.setEntities(version.data[tagTypes.ENTITIES]);
               props.setCurrentSentences(version.data[tagTypes.SENTENCES]);
               props.setSentences(version.data[tagTypes.SENTENCES]);
 
               // setting the appropriate annotations to be displayed
-              if (props.annotationFocus === tagTypes.SECTIONS) {
-                props.setAnnotations(version.data[tagTypes.SECTIONS]);
-              } else if (props.annotationFocus === tagTypes.SENTENCES) {
+              if (props.annotationFocus === tagTypes.SENTENCES) {
                 props.setAnnotations(version.data[tagTypes.SENTENCES]);
               } else {
                 props.setAnnotations([
@@ -100,8 +96,6 @@ const FileHistory = props => {
           }
           // if there is not current annotations, set all annotations to empty
           if (!isThereCurrent) {
-            props.setCurrentSections([]);
-            props.setSections([]);
             props.setCurrentEntities([]);
             props.setEntities([]);
             props.setCurrentSentences([]);
@@ -130,10 +124,9 @@ const FileHistory = props => {
     // switching to something other than current
     if (newIndex !== props.versions.length) {
       props.setEntities(version.data[tagTypes.ENTITIES]);
-      props.setSections(version.data[tagTypes.SECTIONS]);
       props.setSentences(version.data[tagTypes.SENTENCES]);
       props.setAnnotations(version.data[props.annotationFocus]);
-      if (props.annotationFocus !== tagTypes.SECTIONS && props.annotationFocus !== tagTypes.SENTENCES) {
+      if (props.annotationFocus !== tagTypes.ENTITIES) {
         props.setAnnotations(
           version.data[tagTypes.ENTITIES].filter(annotation => annotation.type === props.annotationFocus)
         );
@@ -141,12 +134,9 @@ const FileHistory = props => {
       // switching to current
     } else {
       props.setEntities(props.currentEntities);
-      props.setSections(props.currentSections);
       props.setSentences(props.currentSentences);
       // setting appropriate annotations
-      if (props.annotationFocus === tagTypes.SECTIONS) {
-        props.setAnnotations(props.currentSections);
-      } else if (props.annotationFocus === tagTypes.SENTENCES) {
+      if (props.annotationFocus === tagTypes.SENTENCES) {
         props.setAnnotations(props.currentSentences);
       } else {
         props.setAnnotations([
@@ -161,11 +151,9 @@ const FileHistory = props => {
     // prompt the user to confirm that they wish to continue
     if (window.confirm("Are you sure? This will overwrite your current annotations.")) {
       // set current annotations and then save
-      props.setCurrentSections(props.sections).then(() => {
-        props.setCurrentEntities(props.entities).then(() => {
-          props.setCurrentSentences(props.sentences).then(state => {
-            props.saveAnnotations(state);
-          });
+      props.setCurrentEntities(props.entities).then(() => {
+        props.setCurrentSentences(props.sentences).then(state => {
+          props.saveAnnotations(state);
         });
       });
       props.setVersionIndex(props.versions.length);
@@ -323,11 +311,9 @@ const mapStateToProps = state => {
     annotationsList: state.fileViewer.annotationsList,
     sessionId: state.fileViewer.sessionId,
     annotations: state.fileViewer.annotations,
-    sections: state.fileViewer.sections,
     sentences: state.fileViewer.sentences,
     entities: state.fileViewer.entities,
     currentEntities: state.fileViewer.currentEntities,
-    currentSections: state.fileViewer.currentSections,
     currentSentences: state.fileViewer.currentSentences,
     versions: state.fileViewer.versions,
     versionIndex: state.fileViewer.versionIndex,
@@ -340,11 +326,9 @@ const mapStateToProps = state => {
 const mapDispatchToProps = dispatch => {
   return {
     setAnnotations: annotations => dispatch(actions.setAnnotations(annotations)),
-    setSections: sections => dispatch(actions.setSections(sections)),
     setSentences: sentences => dispatch(actions.setSentences(sentences)),
     setEntities: entities => dispatch(actions.setEntities(entities)),
     setCurrentEntities: currentEntities => dispatch(actions.setCurrentEntitiesWithCallback(currentEntities)),
-    setCurrentSections: currentSections => dispatch(actions.setCurrentSectionsWithCallback(currentSections)),
     setCurrentSentences: currentSentences => dispatch(actions.setCurrentSentencesWithCallback(currentSentences)),
     setVersions: versions => dispatch(actions.setVersions(versions)),
     setVersionIndex: versionIndex => dispatch(actions.setVersionIndex(versionIndex)),

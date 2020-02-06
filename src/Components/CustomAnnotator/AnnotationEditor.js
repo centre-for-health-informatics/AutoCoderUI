@@ -240,7 +240,6 @@ const mapStateToProps = state => {
     tagTemplates: state.fileViewer.tagTemplates,
     annotationFocus: state.fileViewer.annotationFocus, // the currently active type
     addingTags: state.tagManagement.addingTags, // the currently active tag
-    sections: state.fileViewer.sections,
     sentences: state.fileViewer.sentences,
     tokens: state.fileViewer.tokens,
     entities: state.fileViewer.entities

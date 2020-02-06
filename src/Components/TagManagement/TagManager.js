@@ -153,12 +153,7 @@ function TagManager(props) {
   };
 
   const updateAnnotations = (newData, oldData) => {
-    // changing tag and color of annotations
-    if (oldData.type === tagTypes.SECTIONS) {
-      updateAnnotationSimple(newData, oldData, props.sections, props.setSections);
-    } else {
-      updateAnnotationSimple(newData, oldData, props.entities, props.setEntities);
-    }
+    updateAnnotationSimple(newData, oldData, props.entities, props.setEntities);
 
     // if type changes - move annotations to other type
     // and then change whatever else changed
@@ -168,37 +163,12 @@ function TagManager(props) {
   };
 
   const updateAnnotationsTypeChange = (newData, oldData) => {
-    if (oldData.type === tagTypes.SECTIONS) {
-      // changing from section to entity
-      switchAnnotationType(props.sections, oldData, props.entities, props.setEntities, newData);
-      removeAnnotationsForDeletedTags(props.sections, props.setSections, oldData);
-    } else {
-      // changing from entity
-      if (newData.type === tagTypes.SECTIONS) {
-        // changing from entity to section
-        switchAnnotationType(props.entities, oldData, props.sections, props.setSections, newData);
-        removeAnnotationsForDeletedTags(props.entities, props.setEntities, oldData);
-      } else {
-        // changing from entity to different entity type
-        for (let annotation of props.entities) {
-          if (annotation.type === oldData.type && annotation.tag === oldData.id) {
-            annotation.type = newData.type;
-          }
-        }
-      }
-    }
-  };
-
-  const switchAnnotationType = (oldAnnotations, oldData, newAnnotations, newSetter, newData) => {
-    const copy = JSON.parse(JSON.stringify(oldAnnotations));
-    const copiesToKeep = [];
-    for (let annotation of copy) {
-      if (annotation.tag === oldData.id) {
+    // changing from entity to different entity type
+    for (let annotation of props.entities) {
+      if (annotation.type === oldData.type && annotation.tag === oldData.id) {
         annotation.type = newData.type;
-        copiesToKeep.push(annotation);
       }
     }
-    newSetter([...newAnnotations, ...copiesToKeep]);
   };
 
   /**
@@ -217,11 +187,7 @@ function TagManager(props) {
 
   const onRowDelete = oldData => {
     // removing annotations for appropriate type
-    if (oldData.type === tagTypes.SECTIONS) {
-      removeAnnotationsForDeletedTags(props.sections, props.setSections, oldData);
-    } else {
-      removeAnnotationsForDeletedTags(props.entities, props.setEntities, oldData);
-    }
+    removeAnnotationsForDeletedTags(props.entities, props.setEntities, oldData);
 
     // returning promise
     return new Promise(resolve => {
@@ -282,15 +248,13 @@ function TagManager(props) {
 const mapStateToProps = state => {
   return {
     tagTemplates: state.fileViewer.tagTemplates,
-    entities: state.fileViewer.entities,
-    sections: state.fileViewer.sections
+    entities: state.fileViewer.entities
   };
 };
 
 const mapDispatchToProps = dispatch => {
   return {
     setTagTemplates: tags => dispatch(actions.setTagTemplatesWithCallback(tags)),
-    setSections: sections => dispatch(actions.setSections(sections)),
     setEntities: entities => dispatch(actions.setEntities(entities)),
     setAlertMessage: newValue => dispatch(actions.setAlertMessage(newValue))
   };

@@ -97,11 +97,6 @@ const Annotate = props => {
           tagsInUse.add(tag);
         }
       }
-      for (let section of annotation[tagTypes.SECTIONS]) {
-        if (tag.id === section.tag && tag.type === section.type) {
-          tagsInUse.add(tag);
-        }
-      }
     }
     return Array.from(tagsInUse);
   };
@@ -133,7 +128,6 @@ const Annotate = props => {
     if (state) {
       // creating object to save
       annotations[tagTypes.ENTITIES] = state.fileViewer.currentEntities;
-      annotations[tagTypes.SECTIONS] = state.fileViewer.currentSections;
       annotations[tagTypes.SENTENCES] = state.fileViewer.currentSentences;
       annotations.name = state.fileViewer.annotationsList[state.fileViewer.fileIndex].name;
       annotations.sessionId = state.fileViewer.sessionId;
@@ -141,7 +135,6 @@ const Annotate = props => {
     } else {
       // creating object to save
       annotations[tagTypes.ENTITIES] = props.currentEntities;
-      annotations[tagTypes.SECTIONS] = props.currentSections;
       annotations[tagTypes.SENTENCES] = props.currentSentences;
       annotations.name = props.annotationsList[props.fileIndex].name;
       annotations.sessionId = props.sessionId;
@@ -255,7 +248,6 @@ const mapStateToProps = state => {
     snapToWord: state.fileViewer.snapToWord,
     currentEntities: state.fileViewer.currentEntities,
     currentSentences: state.fileViewer.currentSentences,
-    currentSections: state.fileViewer.currentSections,
     fileIndex: state.fileViewer.fileIndex,
     annotationsList: state.fileViewer.annotationsList,
     userRole: state.authentication.userRole

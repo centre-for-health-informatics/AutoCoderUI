@@ -2,7 +2,6 @@ export { setAlertMessage } from "./alert";
 export { setIsAuthorized, setIsServerDown, setUserRole } from "./authentication";
 export {
   setFileText,
-  setSections,
   setSentences,
   setTokens,
   setEntities,
@@ -23,7 +22,6 @@ export {
   setFileIndex,
   setSessionId,
   setCurrentEntities,
-  setCurrentSections,
   setCurrentSentences,
   setVersions,
   setVersionIndex,
@@ -42,7 +40,6 @@ export {
   updateAnnotationsAfterLoadingSpacy,
   setTagTemplatesWithCallback,
   setCurrentEntitiesWithCallback,
-  setCurrentSectionsWithCallback,
   setCurrentSentencesWithCallback,
   setFileIndexWithCallback
 } from "./asyncActions";
