@@ -47,6 +47,21 @@ export class API {
       .then(response => response.json())
       .then(response => {
         if (response.access_token !== undefined) {
+          // revoking old token if it exists
+          const localStorageToken = this.getTokenFromLS();
+          const url = this.authUrlBeginning + "revoke_token/";
+          const data = { token: localStorageToken, client_id: process.env.REACT_APP_CLIENT_ID };
+          const options = {
+            headers: {
+              "Content-Type": "application/json"
+            },
+            method: "POST",
+            body: data
+          };
+
+          this._fetchFromAPI(url, options);
+
+          // setting new token into local storage
           localStorage.setItem("tokenObject", JSON.stringify(response));
           store.dispatch(actions.setUserRole(response.user.role));
           store.dispatch(actions.setIsAuthorized(true));
