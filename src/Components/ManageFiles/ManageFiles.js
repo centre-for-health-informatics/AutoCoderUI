@@ -49,8 +49,11 @@ const ManageFiles = props => {
     APIUtility.API.makeAPICall(APIUtility.UPLOAD_DOCUMENT, null, options)
       .then(response => response.json())
       .then(data => {
+        // setting pointers for next
+        setLinkedPointers(data[tagTypes.ENTITIES]);
+
+        // adding to tag templates
         const tagTemplates = Array.from(props.tagTemplates);
-        console.log(data);
         for (let entity of data[tagTypes.ENTITIES]) {
           let duplicateTag = tagTemplates.find(tag => tag.id === entity.tag && tag.type === entity.type);
           if (duplicateTag === undefined) {
@@ -128,22 +131,27 @@ const ManageFiles = props => {
     fileReader.onload = e => {
       // reading json
       const json = JSON.parse(e.target.result);
+
+      let entities;
+
       // setting current entities/sentences
       if (json[tagTypes.ENTITIES]) {
-        props.setCurrentEntities(json[tagTypes.ENTITIES]);
+        entities = json[tagTypes.ENTITIES];
+        setLinkedPointers(entities);
+        props.setCurrentEntities(entities);
       }
       if (json[tagTypes.SENTENCES]) {
         props.setCurrentSentences(json[tagTypes.SENTENCES]);
       }
       // if the current version is selected, also set entities/sentences which are used to display annotations
       if (props.versionIndex === props.versions.length || props.versionIndex === -1) {
-        props.setEntities(json[tagTypes.ENTITIES]);
+        props.setEntities(entities);
         props.setSentences(json[tagTypes.SENTENCES]);
         // set the appropriate set of annotations to be displayed
         if (props.annotationFocus === tagTypes.SENTENCES) {
           props.setAnnotations(json[tagTypes.SENTENCES]);
         } else {
-          props.setAnnotations(json[tagTypes.ENTITIES].filter(annotation => annotation.type === props.annotationFocus));
+          props.setAnnotations(entities.filter(annotation => annotation.type === props.annotationFocus));
         }
       }
     };
@@ -219,6 +227,20 @@ const ManageFiles = props => {
       });
   };
 
+  // when receiving annotations from the backend, or uploaded json, "next" attribute is only a copy, not a pointer
+  // this method changes it to a pointer
+  const setLinkedPointers = entities => {
+    for (let outer of entities) {
+      if (outer.next) {
+        for (let inner of entities) {
+          if (JSON.stringify(outer.next) === JSON.stringify(inner)) {
+            outer.next = inner;
+          }
+        }
+      }
+    }
+  };
+
   return (
     <div className={classes.root}>
       <Button onClick={openExplorerBrowse} variant="contained" color="primary" className={classes.button}>
@@ -254,6 +276,7 @@ const ManageFiles = props => {
             addNewTags={addNewTags}
             callSpacy={callSpacy}
             addAnnotationsFromJson={addAnnotationsFromJson}
+            setLinkedPointers={setLinkedPointers}
           />
         ))}
       </List>

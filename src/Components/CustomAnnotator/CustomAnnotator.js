@@ -41,6 +41,7 @@ class CustomAnnotator extends Component {
 
   // removing mouse listener and resetting annotation linking
   componentWillUnmount() {
+    this.props.setSpansRendered(false);
     this.rootRef.current.removeEventListener("mouseup", this.handleMouseUp);
     this.props.setLinkedListAdd(false);
   }
@@ -160,6 +161,8 @@ class CustomAnnotator extends Component {
       this.props.setLinkedListAdd(false);
     }
 
+    this.props.saveAnnotations();
+
     this.prevSpan = span;
 
     // clears selection
@@ -215,7 +218,6 @@ class CustomAnnotator extends Component {
       ...this.props.annotations.filter(annotation => annotation.type === this.props.annotationFocus),
       span
     ]);
-    this.props.saveAnnotations();
   };
 
   // handles clicking on an interval to open AnnotationEditor popup
@@ -399,6 +401,7 @@ const mapDispatchToProps = dispatch => {
     setEntities: entities => dispatch(actions.setEntities(entities)),
     setAnnotations: annotations => dispatch(actions.setAnnotations(annotations)),
     setAddingTags: tag => dispatch(actions.setAddingTags(tag)),
+    setAnnotationFocus: annotationFocus => dispatch(actions.setAnnotationFocus(annotationFocus)),
     setAnnotationsToEdit: annotationsToEdit => dispatch(actions.setAnnotationsToEdit(annotationsToEdit)),
     setSpansRendered: spansRendered => dispatch(actions.setSpansRendered(spansRendered)),
     setAlertMessage: newValue => dispatch(actions.setAlertMessage(newValue)),
