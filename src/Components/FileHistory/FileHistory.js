@@ -72,8 +72,11 @@ const FileHistory = props => {
           let dataVersions = [];
           let isThereCurrent = false; // boolean as to whether there is current annotations for the file
           for (let version of data) {
+            props.setLinkedPointers(version.data[tagTypes.ENTITIES]);
+
             // if version isn't the current one
             if (version.data.sessionId !== props.sessionId) {
+              console.log(version);
               dataVersions.push(version);
               // for the current version
             } else {
@@ -117,6 +120,7 @@ const FileHistory = props => {
 
   // switching version of annotations for a file
   const switchVersion = (version, newIndex, oldIndex) => {
+    props.setSpansRendered(false);
     if (newIndex === oldIndex) {
       return;
     }
@@ -329,6 +333,7 @@ const mapDispatchToProps = dispatch => {
     setSentences: sentences => dispatch(actions.setSentences(sentences)),
     setEntities: entities => dispatch(actions.setEntities(entities)),
     setCurrentEntities: currentEntities => dispatch(actions.setCurrentEntitiesWithCallback(currentEntities)),
+    setSpansRendered: spansRendered => dispatch(actions.setSpansRendered(spansRendered)),
     setCurrentSentences: currentSentences => dispatch(actions.setCurrentSentencesWithCallback(currentSentences)),
     setVersions: versions => dispatch(actions.setVersions(versions)),
     setVersionIndex: versionIndex => dispatch(actions.setVersionIndex(versionIndex)),
