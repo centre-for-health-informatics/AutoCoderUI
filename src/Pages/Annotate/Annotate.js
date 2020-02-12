@@ -16,17 +16,21 @@ import TagSelector from "../../Components/TagManagement/TagSelector";
 import Legend from "../../Components/CustomAnnotator/Legend";
 import ManageFiles from "../../Components/ManageFiles/ManageFiles";
 import { mapColors, setDefaultTags } from "../../Components/TagManagement/tagUtil";
-import { Switch, FormControlLabel, Tooltip } from "@material-ui/core";
+import { Switch, FormControlLabel, Tooltip, Tabs, Tab, MenuItem, Select } from "@material-ui/core";
 import LoadingIndicator from "../../Components/LoadingIndicator/LoadingIndicator";
 import CustomAnnotator from "../../Components/CustomAnnotator/CustomAnnotator";
+import TreeViewer from "../../Components/TreeViewer/TreeViewer";
+import SwipeableViews from "react-swipeable-views";
 
 const ResponsiveReactGridLayout = WidthProvider(Responsive);
 const originalLayouts = getFromLS("annotateLayouts", "layouts") || defaultLayouts;
+const treeViewDiv = React.createRef();
 
 const Annotate = props => {
   const [layouts, setLayouts] = useState(originalLayouts);
   const [isLayoutModifiable, setLayoutModifiable] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [swipeIndex, setSwipeIndex] = useState(0);
   const alert = useAlert();
 
   const onLayoutChange = layouts => {
@@ -152,6 +156,17 @@ const Annotate = props => {
     });
   };
 
+  const handleTreeChange = () => {
+    if (treeViewDiv.current !== null) {
+      treeViewDiv.current.handleResize();
+    }
+  };
+
+  const handleTabChange = (event, index) => {
+    setSwipeIndex(index);
+    console.log(layouts);
+  };
+
   return (
     <div>
       <div>
@@ -223,14 +238,34 @@ const Annotate = props => {
         <div key="manageFiles" className={highlightEditDiv} style={{ overflowY: "auto" }}>
           <ManageFiles checkTagsInUse={checkTagsInUse} saveAnnotations={saveAnnotations} />
         </div>
-        <div key="document" className={highlightEditDiv} style={{ overflowY: "auto" }}>
-          <div id="docDisplay" style={{ whiteSpace: "pre-wrap" }}>
+
+        <div id="swipeDiv" key="document" className={highlightEditDiv} style={{ overflowY: "auto" }}>
+          <Tabs value={swipeIndex} fullWidth onChange={handleTabChange}>
+            <Tab label="Document" />
+            <Tab label="Code Browser" />
+          </Tabs>
+
+          <SwipeableViews index={swipeIndex}>
+            <div id="docDisplay" style={{ whiteSpace: "pre-wrap" }}>
+              {renderCustomAnnotator()}
+            </div>
+
+            <div style={{ height: 450 }}>
+              <TreeViewer ref={treeViewDiv} onChange={handleTreeChange()} />
+            </div>
+          </SwipeableViews>
+
+          {/* <div id="docDisplay" style={{ whiteSpace: "pre-wrap" }}>
             {renderCustomAnnotator()}
-          </div>
+          </div> */}
         </div>
-        <div key="legend" className={highlightEditDiv}>
+
+        <div key="legend" className={highlightEditDiv} style={{ overflowY: "auto" }}>
           <Legend />
         </div>
+        {/* <div key="tree" className={highlightEditDiv}>
+          <TreeViewer ref={treeViewDiv} onChange={handleTreeChange()} />
+        </div> */}
       </ResponsiveReactGridLayout>
     </div>
   );
