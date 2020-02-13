@@ -13,7 +13,7 @@ class TreeViewer extends Component {
     this.oldWidth = 0;
     this.oldHeight = 0;
     this.fontType = "sans-serif"; // Font type
-    this.treeClass = "treeVis" + this.props.id; // Class name
+    this.treeClass = "treeVis"; // Class name
     this.selectedColor = "#3748ac"; // Colour of selected node
     this.indicatorColor = "green"; // Colour of the indicator for whether the node has children
     this.otherColor = "pink"; // Colour of other nodes
@@ -2101,7 +2101,7 @@ class TreeViewer extends Component {
 
   // Renders the tree
   render() {
-    return <div id={"tree" + this.props.id} className={this.treeClass} />;
+    return <div id={"tree"} className={this.treeClass} style={{ overflowY: "hidden" }} />;
   }
 }
 
