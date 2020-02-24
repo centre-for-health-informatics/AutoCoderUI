@@ -6,6 +6,9 @@ export const SET_IS_AUTHORIZED = "SET_IS_AUTHORIZED";
 export const SET_USER_ROLE = "SET_USER_ROLE";
 export const SET_IS_SERVER_DOWN = "SET_IS_SERVER_DOWN";
 
+// Cached code action types
+export const APPEND_TO_CACHE = "APPEND_TO_CACHE";
+
 // File Viewer
 export const SET_FILE_VIEWER_TEXT = "SET_FILE_VIEWER_TEXT";
 export const SET_SENTENCES = "SET_SENTENCES";

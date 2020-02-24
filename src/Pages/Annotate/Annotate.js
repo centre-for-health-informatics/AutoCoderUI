@@ -259,7 +259,7 @@ const Annotate = props => {
         </div>
 
         <div id="swipeDiv" key="document" className={highlightEditDiv}>
-          <Tabs value={swipeIndex} fullWidth onChange={handleTabChange}>
+          <Tabs value={swipeIndex} onChange={handleTabChange}>
             <Tab label="Document" />
             <Tab label="Code Browser" />
           </Tabs>

@@ -76,10 +76,17 @@ const TagSelector = props => {
     props.setAddingTags([]);
   };
 
+  const onInputChange = (event, value) => {
+    console.log(value);
+    // call api on value
+  };
+
   const getCurrentTagOptions = () => {
     let options;
 
-    if (props.annotationFocus !== "NA") {
+    if (props.annotationFocus === tagTypes.ICD) {
+      // pass results from api call here
+    } else if (props.annotationFocus !== "") {
       options = props.tagTemplates.filter(tag => {
         return tag.type.toLowerCase() === props.annotationFocus.toLowerCase();
       });
@@ -185,6 +192,7 @@ const TagSelector = props => {
               labelPlacement="end"
             /> */}
             {makeCustomTypesRadioButtons()}
+            <FormControlLabel value={tagTypes.ICD} control={<Radio />} label={tagTypes.ICD} labelPlacement="end" />
           </RadioGroup>
         </FormControl>
       </div>
@@ -197,7 +205,9 @@ const TagSelector = props => {
           filterSelectedOptions
           options={getCurrentTagOptions()}
           onChange={searchboxSelectionChange}
+          onInputChange={onInputChange}
           getOptionLabel={getOptionLabelFunc()}
+          noOptionsText={props.annotationFocus === tagTypes.ICD ? "Search for a code" : "No options"}
           renderInput={params => (
             <TextField
               {...params}
@@ -229,6 +239,7 @@ const mapStateToProps = state => {
 
 const mapDispatchToProps = dispatch => {
   return {
+    appendToCache: codeObjArray => dispatch(actions.appendToCache(codeObjArray)),
     setAddingTags: tags => dispatch(actions.setAddingTags(tags)),
     setAnnotationFocus: annotationFocus => dispatch(actions.setAnnotationFocus(annotationFocus)),
     setAnnotations: annotations => dispatch(actions.setAnnotations(annotations)),

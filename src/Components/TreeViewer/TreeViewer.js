@@ -558,8 +558,6 @@ class TreeViewer extends Component {
       .attr("class", "buttonG")
       .on("click", () => {
         console.log(document.getElementById("swipeDiv").offsetHeight);
-        // this.checkRecommendationsAccepted(this.createAncestorList(this.data.self.code));
-        // this.props.addSelectedCode(this.data.self);
       });
 
     // Create rectangle for colour
