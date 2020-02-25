@@ -210,7 +210,7 @@ const Annotate = props => {
         onBreakpointChange={(newBreakpoint, newCols) => onBreakPointChange(newBreakpoint)}
       >
         <div key="tagSelector" className={highlightEditDiv} style={{ display: "flex", flexDirection: "row" }}>
-          <div style={{ flex: 2.5 }}>
+          <div style={{ flex: 4 }}>
             <TagSelector />
           </div>
           <div style={{ flex: 1 }}>

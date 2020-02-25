@@ -8,7 +8,7 @@ const defaultLayoutMd = [
   { w: 25, h: 7, x: 0, y: 0, i: "tagSelector", minH: 7 },
   { w: 8, h: 40, x: 32, y: 0, i: "manageFiles" },
   { w: 25, h: 33, x: 0, y: 7, i: "document" },
-  { w: 7, h: 40, x: 25, y: 7, i: "legend" }
+  { w: 8, h: 40, x: 25, y: 7, i: "legend" }
 ];
 const defaultLayoutSm = [
   { w: 16, h: 7, x: 0, y: 0, i: "tagSelector", minH: 7 },

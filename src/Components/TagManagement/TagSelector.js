@@ -146,7 +146,11 @@ const TagSelector = props => {
     const customTagTypes = new Set();
 
     props.tagTemplates.forEach(tagTemplate => {
-      if (tagTemplate.type !== tagTypes.TOKENS && tagTemplate.type !== tagTypes.SENTENCES) {
+      if (
+        tagTemplate.type !== tagTypes.TOKENS &&
+        tagTemplate.type !== tagTypes.SENTENCES &&
+        tagTemplate.type !== tagTypes.ICD
+      ) {
         if (tagTemplate.type && tagTemplate.type !== "") {
           customTagTypes.add(tagTemplate.type);
         } else {
