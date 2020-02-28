@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { connect } from "react-redux";
 import * as actions from "../../Store/Actions/index";
 import * as tagTypes from "./tagTypes";
+import * as APIUtility from "../../Util/API";
 import Autocomplete from "@material-ui/lab/AutoComplete";
 import { TextField, createMuiTheme } from "@material-ui/core";
 import { makeStyles } from "@material-ui/styles";
@@ -54,6 +55,7 @@ const useStyles = makeStyles(() => ({
 
 const TagSelector = props => {
   const classes = useStyles();
+  const [autoCompleteList, setAutoCompleteList] = useState([]);
 
   const handleTypeChange = event => {
     let newSelection = event.target.value;
@@ -77,15 +79,46 @@ const TagSelector = props => {
   };
 
   const onInputChange = (event, value) => {
-    console.log(value);
-    // call api on value
+    if (value !== "") {
+      APIUtility.API.makeAPICall(APIUtility.CODE_AUTO_SUGGESTIONS, value)
+        .then(response => response.json())
+        .then(results => {
+          populateAutoCompleteList(results);
+        })
+        .catch(error => {
+          console.log("ERROR:", error);
+        });
+    } else {
+      populateAutoCompleteList({ "code matches": [], "description matches": [], "keyword matches": [] });
+    }
+  };
+
+  const populateAutoCompleteList = suggestionsFromAPI => {
+    let tempAutoCompleteList = [];
+
+    for (let codeMatch of suggestionsFromAPI["code matches"]) {
+      codeMatch.type = tagTypes.ICD;
+      tempAutoCompleteList.push(codeMatch);
+    }
+
+    for (let descMatch of suggestionsFromAPI["description matches"]) {
+      descMatch.type = tagTypes.ICD;
+      tempAutoCompleteList.push(descMatch);
+    }
+
+    for (let keyMatch of suggestionsFromAPI["keyword matches"]) {
+      keyMatch.type = tagTypes.ICD;
+      tempAutoCompleteList.push(keyMatch);
+    }
+
+    setAutoCompleteList(tempAutoCompleteList);
   };
 
   const getCurrentTagOptions = () => {
     let options;
 
     if (props.annotationFocus === tagTypes.ICD) {
-      // pass results from api call here
+      options = autoCompleteList;
     } else if (props.annotationFocus !== "") {
       options = props.tagTemplates.filter(tag => {
         return tag.type.toLowerCase() === props.annotationFocus.toLowerCase();
@@ -95,11 +128,12 @@ const TagSelector = props => {
         return tag.type === "" || tag.type === null || tag.type === undefined;
       });
     }
+    console.log(options);
     return options;
   };
 
   const getOptionLabelFunc = () => {
-    return x => x.id + (x.description !== "" ? ": " + x.description : "");
+    return x => (x.id ? x.id : x.code) + (x.description !== "" ? ": " + x.description : "");
   };
 
   const getTextLabel = () => {
@@ -206,7 +240,7 @@ const TagSelector = props => {
           id={"tagSearchInputField"}
           value={getSearchTextValue()}
           disabled={shouldDisableAutoComplete()}
-          filterSelectedOptions
+          filterSelectedOptions={props.annotationFocus === tagTypes.ICD ? false : true}
           options={getCurrentTagOptions()}
           onChange={searchboxSelectionChange}
           onInputChange={onInputChange}

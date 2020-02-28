@@ -19,6 +19,7 @@ export const DOWNLOAD_ANNOTATIONS_BY_ID = "DOWNLOAD_ANNOTATIONS_BY_ID";
 // ICD APIs
 export const ANCESTORS = "ANCESTORS";
 export const FAMILY = "FAMILY";
+export const CODE_AUTO_SUGGESTIONS = "CODE_AUTO_SUGGESTIONS";
 
 /**
  * API class used to connect to the backend
@@ -250,6 +251,8 @@ export class API {
         return this._addAuthorization(this.urlBeginning + "ancestors/" + input + this.json);
       case FAMILY:
         return this._addAuthorization(this.urlBeginning + "family/" + input + this.json);
+      case CODE_AUTO_SUGGESTIONS:
+        return this._addAuthorization(this.urlBeginning + "codeAutosuggestions/" + input + this.json);
       default:
         return null;
     }
