@@ -12,6 +12,7 @@ import FormControlLabel from "@material-ui/core/FormControlLabel";
 import FormControl from "@material-ui/core/FormControl";
 import FormLabel from "@material-ui/core/FormLabel";
 import { green, red } from "@material-ui/core/colors";
+import { addDotToCode } from "../../Util/icdUtility";
 
 const theme = createMuiTheme({
   pallete: {
@@ -80,7 +81,7 @@ const TagSelector = props => {
 
   const onInputChange = (event, value) => {
     if (value !== "") {
-      APIUtility.API.makeAPICall(APIUtility.CODE_AUTO_SUGGESTIONS, value)
+      APIUtility.API.makeAPICall(APIUtility.CODE_AUTO_SUGGESTIONS, value.replace(".", ""))
         .then(response => response.json())
         .then(results => {
           populateAutoCompleteList(results);
@@ -128,12 +129,11 @@ const TagSelector = props => {
         return tag.type === "" || tag.type === null || tag.type === undefined;
       });
     }
-    console.log(options);
     return options;
   };
 
   const getOptionLabelFunc = () => {
-    return x => (x.id ? x.id : x.code) + (x.description !== "" ? ": " + x.description : "");
+    return x => (x.id ? x.id : addDotToCode(x.code)) + (x.description !== "" ? ": " + x.description : "");
   };
 
   const getTextLabel = () => {
@@ -159,12 +159,25 @@ const TagSelector = props => {
   };
 
   const searchboxSelectionChange = (event, selections) => {
-    if (Array.isArray(selections)) {
-      props.setAddingTags(selections);
-    } else if (selections === null) {
-      props.setAddingTags([]);
-    } else {
-      props.setAddingTags([selections]);
+    if (selections) {
+      if (selections.code) {
+        selections.id = selections.code;
+      }
+      if (props.annotationFocus === tagTypes.ICD) {
+        const tagTemplates = Array.from(props.tagTemplates);
+        let duplicateTag = tagTemplates.find(tag => tag.id === selections.code && tag.type === selections.type);
+        if (duplicateTag === undefined) {
+          tagTemplates.push(selections);
+        }
+        props.setTagTemplates(tagTemplates);
+      }
+      if (Array.isArray(selections)) {
+        props.setAddingTags(selections);
+      } else if (selections === null) {
+        props.setAddingTags([]);
+      } else {
+        props.setAddingTags([selections]);
+      }
     }
   };
 
@@ -209,6 +222,28 @@ const TagSelector = props => {
     return html;
   };
 
+  const filterSearchBoxOptions = (options, state) => {
+    if (props.annotationFocus === tagTypes.ICD) {
+      return options;
+    } else {
+      const validOptions = [];
+      const inputWords = state.inputValue.toLowerCase().split(" ");
+      for (let option of options) {
+        const optionName = option.id.toLowerCase() + (option.description ? " " + option.description.toLowerCase() : "");
+        let shouldAdd = true; // whether the option should be added to validOptions
+        for (let word of inputWords) {
+          if (!optionName.includes(word)) {
+            shouldAdd = false;
+          }
+        }
+        if (shouldAdd) {
+          validOptions.push(option);
+        }
+      }
+      return validOptions;
+    }
+  };
+
   return (
     <div className={classes.root}>
       <div className={classes.radioButtonForm}>
@@ -240,6 +275,7 @@ const TagSelector = props => {
           id={"tagSearchInputField"}
           value={getSearchTextValue()}
           disabled={shouldDisableAutoComplete()}
+          filterOptions={filterSearchBoxOptions}
           filterSelectedOptions={props.annotationFocus === tagTypes.ICD ? false : true}
           options={getCurrentTagOptions()}
           onChange={searchboxSelectionChange}
@@ -277,6 +313,7 @@ const mapStateToProps = state => {
 
 const mapDispatchToProps = dispatch => {
   return {
+    setTagTemplates: tags => dispatch(actions.setTagTemplatesWithCallback(tags)),
     appendToCache: codeObjArray => dispatch(actions.appendToCache(codeObjArray)),
     setAddingTags: tags => dispatch(actions.setAddingTags(tags)),
     setAnnotationFocus: annotationFocus => dispatch(actions.setAnnotationFocus(annotationFocus)),

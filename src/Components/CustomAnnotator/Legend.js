@@ -1,7 +1,9 @@
 import React from "react";
 import { connect } from "react-redux";
 import * as actions from "../../Store/Actions/index";
+import * as tagTypes from "../TagManagement/tagTypes";
 import { List, Chip, ListItem } from "@material-ui/core";
+import { addDotToCode } from "../../Util/icdUtility";
 
 const Legend = props => {
   // makes the list for the final render
@@ -26,7 +28,7 @@ const Legend = props => {
           variant="outlined"
           clickable={true}
           size="small"
-          label={getLabel(item, true)}
+          label={getLabel(item, false)}
           style={{ backgroundColor: getColor(item), fontWeight: getFontWeight(item) }}
           onClick={() => handleChipClick(item)}
         />
@@ -50,8 +52,14 @@ const Legend = props => {
         }
       }
       if (tagToLabel.description) {
+        if (props.annotationFocus === tagTypes.ICD) {
+          return addDotToCode(tagToLabel.id) + ": " + tagToLabel.description;
+        }
         return tagToLabel.id + ": " + tagToLabel.description;
       }
+    }
+    if (props.annotationFocus === tagTypes.ICD) {
+      return addDotToCode(item);
     }
     return item;
   };
