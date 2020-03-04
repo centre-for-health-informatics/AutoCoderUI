@@ -131,7 +131,7 @@ class TreeViewer extends Component {
   componentDidMount() {
     this.isMountedFlag = true;
     window.addEventListener("resize", this.updateDimensions);
-    this.getDataFromAPI("Chapter 01")
+    this.getDataFromAPI(this.props.selectedCode)
       .then(() => {
         this.redrawTree();
       })
@@ -145,8 +145,8 @@ class TreeViewer extends Component {
   }
 
   componentDidUpdate(prevProps, prevState) {
-    if (prevProps.codeToDisplay !== this.props.codeToDisplay) {
-      this.changeTree(this.props.codeToDisplay);
+    if (prevProps.selectedCode !== this.props.selectedCode) {
+      this.changeTree(this.props.selectedCode);
     }
   }
 
@@ -156,6 +156,9 @@ class TreeViewer extends Component {
    * @param {*} code string ie 'A000'
    */
   async changeTree(code) {
+    if (this.handlingClick) {
+      return;
+    }
     if (code[code.length - 1] === "-") {
       code = code.slice(0, -1);
     }
@@ -429,6 +432,7 @@ class TreeViewer extends Component {
         .then(() => this.getAncestorsFromAPI(this.data.self.code))
         // Gets new ancestors
         .then(async () => {
+          this.props.setSelectedCode(this.data.self.code);
           this.removeChildren(); // Removes children
           this.moveSiblingsToChildren(); // Transitions the siblings to children spots
           this.moveParentToSibling(); // Moves the parent to sibling spot
@@ -464,6 +468,7 @@ class TreeViewer extends Component {
         .then(async () => {
           // No need to do anything if they clicked on the already selected circle
           if (i !== this.selfIndex) {
+            this.props.setSelectedCode(this.data.self.code);
             this.removeChildren(); // Remove the children
             this.findIndex(); // Find the self index
             this.calcSiblingColours(); // Calculate the colours (self node different)
@@ -512,6 +517,7 @@ class TreeViewer extends Component {
         .then(() => this.getAncestorsFromAPI(this.data.self.code))
         // Gets ancestor data
         .then(async () => {
+          this.props.setSelectedCode(this.data.self.code);
           this.createNewParent(); // Creates new parent
           this.removeParentAndSiblings(); // Transitions parent and siblings to the current self
           await this.sleep(this.duration);
@@ -540,7 +546,7 @@ class TreeViewer extends Component {
   handleChainClick(d, i) {
     // Only change if the circle clicked isn't self
     if (this.ancestors[i].code !== this.data.self.code) {
-      this.changeTree(this.ancestors[i].code);
+      this.props.setSelectedCode(this.ancestors[i].code);
     }
   }
 
@@ -2103,15 +2109,15 @@ class TreeViewer extends Component {
   }
 }
 
-const mapDispatchToProps = dispatch => {
+const mapStateToProps = state => {
   return {
-    //
+    selectedCode: state.tree.selectedCode
   };
 };
 
-const mapStateToProps = state => {
+const mapDispatchToProps = dispatch => {
   return {
-    //
+    setSelectedCode: selectedCode => dispatch(actions.setSelectedCode(selectedCode))
   };
 };
 

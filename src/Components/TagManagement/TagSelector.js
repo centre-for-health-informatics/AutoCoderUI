@@ -161,6 +161,7 @@ const TagSelector = props => {
   const searchboxSelectionChange = (event, selections) => {
     if (selections) {
       if (selections.code) {
+        props.setSelectedCode(selections.code);
         selections.id = selections.code;
       }
       if (props.annotationFocus === tagTypes.ICD) {
@@ -326,7 +327,8 @@ const mapDispatchToProps = dispatch => {
     setAnnotationFocus: annotationFocus => dispatch(actions.setAnnotationFocus(annotationFocus)),
     setAnnotations: annotations => dispatch(actions.setAnnotations(annotations)),
     setSpansRendered: spansRendered => dispatch(actions.setSpansRendered(spansRendered)),
-    setLinkedListAdd: linkedListAdd => dispatch(actions.setLinkedListAdd(linkedListAdd))
+    setLinkedListAdd: linkedListAdd => dispatch(actions.setLinkedListAdd(linkedListAdd)),
+    setSelectedCode: selectedCode => dispatch(actions.setSelectedCode(selectedCode))
   };
 };
 

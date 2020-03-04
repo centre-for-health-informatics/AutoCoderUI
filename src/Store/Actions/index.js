@@ -44,3 +44,4 @@ export {
   setFileIndexWithCallback
 } from "./asyncActions";
 export { appendToCache } from "./cached";
+export { setSelectedCode } from "./tree";
