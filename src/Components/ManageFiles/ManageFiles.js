@@ -6,6 +6,7 @@ import * as tagTypes from "../TagManagement/tagTypes";
 import { List, Button, makeStyles, ListSubheader } from "@material-ui/core";
 import { saveAs } from "file-saver";
 import FileHistory from "../FileHistory/FileHistory";
+import { mapColors, setDefaultTags } from "../../Components/TagManagement/tagUtil";
 
 var JSZip = require("jszip");
 
@@ -46,6 +47,7 @@ const ManageFiles = props => {
       body: fileData
     };
 
+    let tagTemplates;
     APIUtility.API.makeAPICall(APIUtility.UPLOAD_DOCUMENT, null, options)
       .then(response => response.json())
       .then(data => {
@@ -53,14 +55,31 @@ const ManageFiles = props => {
         setLinkedPointers(data[tagTypes.ENTITIES]);
 
         // adding to tag templates
-        const tagTemplates = Array.from(props.tagTemplates);
+        tagTemplates = Array.from(props.tagTemplates);
+        let promiseList = [];
+
         for (let entity of data[tagTypes.ENTITIES]) {
           let duplicateTag = tagTemplates.find(tag => tag.id === entity.tag && tag.type === entity.type);
           if (duplicateTag === undefined) {
-            tagTemplates.push({ id: entity.tag, type: entity.type });
+            if (entity.type === tagTypes.ICD) {
+              promiseList.push(
+                // call API to get description for code
+                APIUtility.API.makeAPICall(APIUtility.CODE_DESCRIPTION, entity.tag)
+                  .then(response => response.json())
+                  .then(result => {
+                    tagTemplates.push({ id: entity.tag, description: result.description, type: entity.type });
+                  })
+              );
+            } else {
+              tagTemplates.push({ id: entity.tag, type: entity.type });
+            }
           }
         }
-        props.setTagTemplates(tagTemplates);
+
+        Promise.all(promiseList).then(() => {
+          props.setTagTemplates(tagTemplates);
+        });
+
         props.updateAnnotationsAfterLoadingSpacy(data, index).then(state => {
           if (props.annotationFocus === tagTypes.SENTENCES) {
             props.setAnnotations(state.fileViewer.sentences);
@@ -316,7 +335,7 @@ const mapDispatchToProps = dispatch => {
     setJsonList: jsonList => dispatch(actions.setJsonList(jsonList)),
     setTxtList: txtList => dispatch(actions.setTxtList(txtList)),
     setAnnotationsList: annotationsList => dispatch(actions.setAnnotationsList(annotationsList)),
-    setTagTemplates: tagTemplates => dispatch(actions.setTagTemplates(tagTemplates)),
+    setTagTemplates: tagTemplates => dispatch(actions.setTagTemplatesWithCallback(tagTemplates)),
     setCurrentEntities: currentEntities => dispatch(actions.setCurrentEntities(currentEntities)),
     setCurrentSentences: currentSentences => dispatch(actions.setCurrentSentences(currentSentences))
   };

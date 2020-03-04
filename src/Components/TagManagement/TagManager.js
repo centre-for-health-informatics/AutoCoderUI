@@ -141,14 +141,12 @@ function TagManager(props) {
 
     // updating tag templates
     return new Promise(resolve => {
-      // setTimeout(() => {
       if (oldData) {
         const data = [...props.tagTemplates];
         data[data.indexOf(oldData)] = newData;
         props.setTagTemplates(data);
       }
       resolve();
-      // }, 600);
     });
   };
 

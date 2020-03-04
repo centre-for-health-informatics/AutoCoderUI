@@ -20,6 +20,7 @@ export const DOWNLOAD_ANNOTATIONS_BY_ID = "DOWNLOAD_ANNOTATIONS_BY_ID";
 export const ANCESTORS = "ANCESTORS";
 export const FAMILY = "FAMILY";
 export const CODE_AUTO_SUGGESTIONS = "CODE_AUTO_SUGGESTIONS";
+export const CODE_DESCRIPTION = "CODE_DESCRIPTION";
 
 /**
  * API class used to connect to the backend
@@ -253,6 +254,8 @@ export class API {
         return this._addAuthorization(this.urlBeginning + "family/" + input + this.json);
       case CODE_AUTO_SUGGESTIONS:
         return this._addAuthorization(this.urlBeginning + "codeAutosuggestions/" + input + this.json);
+      case CODE_DESCRIPTION:
+        return this._addAuthorization(this.urlBeginning + "codeDescription/" + input + this.json);
       default:
         return null;
     }

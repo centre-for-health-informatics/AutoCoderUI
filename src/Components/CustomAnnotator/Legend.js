@@ -44,14 +44,12 @@ const Legend = props => {
     if (!idOnly) {
       let tagToLabel;
       for (let tag of props.tagTemplates) {
-        if (tag.type === props.annotationFocus) {
-          if (item === tag.id) {
-            tagToLabel = tag;
-            break;
-          }
+        if (tag.type === props.annotationFocus && item === tag.id) {
+          tagToLabel = tag;
+          break;
         }
       }
-      if (tagToLabel.description) {
+      if (tagToLabel && tagToLabel.description) {
         if (props.annotationFocus === tagTypes.ICD) {
           return addDotToCode(tagToLabel.id) + ": " + tagToLabel.description;
         }
