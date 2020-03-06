@@ -133,7 +133,9 @@ const TagSelector = props => {
   };
 
   const getOptionLabelFunc = () => {
-    return x => (x.id ? x.id : addDotToCode(x.code)) + (x.description !== "" ? ": " + x.description : "");
+    return x =>
+      (x.id ? (props.annotationFocus === tagTypes.ICD ? addDotToCode(x.id) : x.id) : addDotToCode(x.code)) +
+      (x.description !== "" ? ": " + x.description : "");
   };
 
   const getTextLabel = () => {
@@ -163,10 +165,11 @@ const TagSelector = props => {
       if (selections.code) {
         props.setSelectedCode(selections.code);
         selections.id = selections.code;
+        delete selections.code;
       }
       if (props.annotationFocus === tagTypes.ICD) {
         const tagTemplates = Array.from(props.tagTemplates);
-        let duplicateTag = tagTemplates.find(tag => tag.id === selections.code && tag.type === selections.type);
+        let duplicateTag = tagTemplates.find(tag => tag.id === selections.id && tag.type === selections.type);
         if (duplicateTag === undefined) {
           tagTemplates.push(selections);
         }
@@ -184,13 +187,6 @@ const TagSelector = props => {
 
   const getSearchTextValue = () => {
     if (Array.isArray(props.addingTags) && props.addingTags.length > 0) {
-      if (props.annotationFocus === tagTypes.ICD) {
-        const newObj = props.addingTags[0];
-        if (!newObj.id) {
-          newObj.id = addDotToCode(newObj.code);
-        }
-        return newObj;
-      }
       return props.addingTags[0];
     } else {
       return null;

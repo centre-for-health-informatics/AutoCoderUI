@@ -72,6 +72,9 @@ const Legend = props => {
 
   // sets active tag to the chip when clicked
   const handleChipClick = item => {
+    if (props.annotationFocus === tagTypes.ICD) {
+      item = item.replace(".", "");
+    }
     let tagToSelect;
     for (let tag of props.tagTemplates) {
       if (item === tag.id && tag.type === props.annotationFocus) {
@@ -80,6 +83,9 @@ const Legend = props => {
       }
     }
     props.setAddingTags([tagToSelect]);
+    if (props.annotationFocus === tagTypes.ICD) {
+      props.setSelectedCode(tagToSelect.id);
+    }
   };
 
   // gets the colour of the chip by checking tags in store
@@ -109,7 +115,8 @@ const mapStateToProps = state => {
 
 const mapDispatchToProps = dispatch => {
   return {
-    setAddingTags: tags => dispatch(actions.setAddingTags(tags))
+    setAddingTags: tags => dispatch(actions.setAddingTags(tags)),
+    setSelectedCode: selectedCode => dispatch(actions.setSelectedCode(selectedCode))
   };
 };
 

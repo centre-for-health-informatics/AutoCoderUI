@@ -57,19 +57,23 @@ const ManageFiles = props => {
         // adding to tag templates
         tagTemplates = Array.from(props.tagTemplates);
         let promiseList = [];
+        const icdSet = new Set();
 
         for (let entity of data[tagTypes.ENTITIES]) {
           let duplicateTag = tagTemplates.find(tag => tag.id === entity.tag && tag.type === entity.type);
           if (duplicateTag === undefined) {
             if (entity.type === tagTypes.ICD) {
-              promiseList.push(
-                // call API to get description for code
-                APIUtility.API.makeAPICall(APIUtility.CODE_DESCRIPTION, entity.tag)
-                  .then(response => response.json())
-                  .then(result => {
-                    tagTemplates.push({ id: entity.tag, description: result.description, type: entity.type });
-                  })
-              );
+              if (!icdSet.has(entity.tag)) {
+                icdSet.add(entity.tag);
+                promiseList.push(
+                  // call API to get description for code
+                  APIUtility.API.makeAPICall(APIUtility.CODE_DESCRIPTION, entity.tag)
+                    .then(response => response.json())
+                    .then(result => {
+                      tagTemplates.push({ id: entity.tag, description: result.description, type: entity.type });
+                    })
+                );
+              }
             } else {
               tagTemplates.push({ id: entity.tag, type: entity.type });
             }

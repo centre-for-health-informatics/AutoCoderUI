@@ -149,7 +149,8 @@ class CustomAnnotator extends Component {
       start,
       end,
       tag: this.props.addingTags.length > 0 ? this.props.addingTags[0].id : "",
-      type: this.props.annotationFocus
+      type: this.props.annotationFocus,
+      confirmed: true
     };
 
     // adding span to annotations
