@@ -76,7 +76,6 @@ const FileHistory = props => {
 
             // if version isn't the current one
             if (version.data.sessionId !== props.sessionId) {
-              console.log(version);
               dataVersions.push(version);
               // for the current version
             } else {
