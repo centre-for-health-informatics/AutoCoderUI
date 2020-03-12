@@ -272,7 +272,7 @@ class CustomAnnotator extends Component {
       this.props.setCurrentSentences(newAnnotations).then(() => {
         this.props.saveAnnotations();
       });
-    } else if (this.props.annotationFocus === tagTypes.ENTITIES) {
+    } else {
       this.props.setEntities(newAnnotations);
       this.props.setCurrentEntities(newAnnotations).then(() => {
         this.props.saveAnnotations();
