@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { connect } from "react-redux";
 import * as actions from "../../Store/Actions/index";
 import * as tagTypes from "./tagTypes";
+import * as APIUtility from "../../Util/API";
 import Autocomplete from "@material-ui/lab/AutoComplete";
 import { TextField, createMuiTheme } from "@material-ui/core";
 import { makeStyles } from "@material-ui/styles";
@@ -11,6 +12,7 @@ import FormControlLabel from "@material-ui/core/FormControlLabel";
 import FormControl from "@material-ui/core/FormControl";
 import FormLabel from "@material-ui/core/FormLabel";
 import { green, red } from "@material-ui/core/colors";
+import { addDotToCode } from "../../Util/icdUtility";
 
 const theme = createMuiTheme({
   pallete: {
@@ -54,6 +56,7 @@ const useStyles = makeStyles(() => ({
 
 const TagSelector = props => {
   const classes = useStyles();
+  const [autoCompleteList, setAutoCompleteList] = useState([]);
 
   const handleTypeChange = event => {
     let newSelection = event.target.value;
@@ -76,10 +79,48 @@ const TagSelector = props => {
     props.setAddingTags([]);
   };
 
+  const onInputChange = (event, value) => {
+    if (value !== "") {
+      APIUtility.API.makeAPICall(APIUtility.CODE_AUTO_SUGGESTIONS, value.replace(".", ""))
+        .then(response => response.json())
+        .then(results => {
+          populateAutoCompleteList(results);
+        })
+        .catch(error => {
+          console.log("ERROR:", error);
+        });
+    } else {
+      populateAutoCompleteList({ "code matches": [], "description matches": [], "keyword matches": [] });
+    }
+  };
+
+  const populateAutoCompleteList = suggestionsFromAPI => {
+    let tempAutoCompleteList = [];
+
+    for (let codeMatch of suggestionsFromAPI["code matches"]) {
+      codeMatch.type = tagTypes.ICD;
+      tempAutoCompleteList.push(codeMatch);
+    }
+
+    for (let descMatch of suggestionsFromAPI["description matches"]) {
+      descMatch.type = tagTypes.ICD;
+      tempAutoCompleteList.push(descMatch);
+    }
+
+    for (let keyMatch of suggestionsFromAPI["keyword matches"]) {
+      keyMatch.type = tagTypes.ICD;
+      tempAutoCompleteList.push(keyMatch);
+    }
+
+    setAutoCompleteList(tempAutoCompleteList);
+  };
+
   const getCurrentTagOptions = () => {
     let options;
 
-    if (props.annotationFocus !== "NA") {
+    if (props.annotationFocus === tagTypes.ICD) {
+      options = autoCompleteList;
+    } else if (props.annotationFocus !== "") {
       options = props.tagTemplates.filter(tag => {
         return tag.type.toLowerCase() === props.annotationFocus.toLowerCase();
       });
@@ -92,7 +133,9 @@ const TagSelector = props => {
   };
 
   const getOptionLabelFunc = () => {
-    return x => x.id + (x.description !== "" ? ": " + x.description : "");
+    return x =>
+      (x.id ? (props.annotationFocus === tagTypes.ICD ? addDotToCode(x.id) : x.id) : addDotToCode(x.code)) +
+      (x.description !== "" ? ": " + x.description : "");
   };
 
   const getTextLabel = () => {
@@ -118,12 +161,27 @@ const TagSelector = props => {
   };
 
   const searchboxSelectionChange = (event, selections) => {
-    if (Array.isArray(selections)) {
-      props.setAddingTags(selections);
-    } else if (selections === null) {
-      props.setAddingTags([]);
-    } else {
-      props.setAddingTags([selections]);
+    if (selections) {
+      if (selections.code) {
+        props.setSelectedCode(selections.code);
+        selections.id = selections.code;
+        delete selections.code;
+      }
+      if (props.annotationFocus === tagTypes.ICD) {
+        const tagTemplates = Array.from(props.tagTemplates);
+        let duplicateTag = tagTemplates.find(tag => tag.id === selections.id && tag.type === selections.type);
+        if (duplicateTag === undefined) {
+          tagTemplates.push(selections);
+        }
+        props.setTagTemplates(tagTemplates);
+      }
+      if (Array.isArray(selections)) {
+        props.setAddingTags(selections);
+      } else if (selections === null) {
+        props.setAddingTags([]);
+      } else {
+        props.setAddingTags([selections]);
+      }
     }
   };
 
@@ -139,7 +197,11 @@ const TagSelector = props => {
     const customTagTypes = new Set();
 
     props.tagTemplates.forEach(tagTemplate => {
-      if (tagTemplate.type !== tagTypes.TOKENS && tagTemplate.type !== tagTypes.SENTENCES) {
+      if (
+        tagTemplate.type !== tagTypes.TOKENS &&
+        tagTemplate.type !== tagTypes.SENTENCES &&
+        tagTemplate.type !== tagTypes.ICD
+      ) {
         if (tagTemplate.type && tagTemplate.type !== "") {
           customTagTypes.add(tagTemplate.type);
         } else {
@@ -164,6 +226,28 @@ const TagSelector = props => {
     return html;
   };
 
+  const filterSearchBoxOptions = (options, state) => {
+    if (props.annotationFocus === tagTypes.ICD) {
+      return options;
+    } else {
+      const validOptions = [];
+      const inputWords = state.inputValue.toLowerCase().split(" ");
+      for (let option of options) {
+        const optionName = option.id.toLowerCase() + (option.description ? " " + option.description.toLowerCase() : "");
+        let shouldAdd = true; // whether the option should be added to validOptions
+        for (let word of inputWords) {
+          if (!optionName.includes(word)) {
+            shouldAdd = false;
+          }
+        }
+        if (shouldAdd) {
+          validOptions.push(option);
+        }
+      }
+      return validOptions;
+    }
+  };
+
   return (
     <div className={classes.root}>
       <div className={classes.radioButtonForm}>
@@ -185,6 +269,7 @@ const TagSelector = props => {
               labelPlacement="end"
             /> */}
             {makeCustomTypesRadioButtons()}
+            <FormControlLabel value={tagTypes.ICD} control={<Radio />} label={tagTypes.ICD} labelPlacement="end" />
           </RadioGroup>
         </FormControl>
       </div>
@@ -194,10 +279,13 @@ const TagSelector = props => {
           id={"tagSearchInputField"}
           value={getSearchTextValue()}
           disabled={shouldDisableAutoComplete()}
-          filterSelectedOptions
+          filterOptions={filterSearchBoxOptions}
+          filterSelectedOptions={props.annotationFocus === tagTypes.ICD ? false : true}
           options={getCurrentTagOptions()}
           onChange={searchboxSelectionChange}
+          onInputChange={onInputChange}
           getOptionLabel={getOptionLabelFunc()}
+          noOptionsText={props.annotationFocus === tagTypes.ICD ? "Search for a code" : "No options"}
           renderInput={params => (
             <TextField
               {...params}
@@ -229,11 +317,14 @@ const mapStateToProps = state => {
 
 const mapDispatchToProps = dispatch => {
   return {
+    setTagTemplates: tags => dispatch(actions.setTagTemplatesWithCallback(tags)),
+    appendToCache: codeObjArray => dispatch(actions.appendToCache(codeObjArray)),
     setAddingTags: tags => dispatch(actions.setAddingTags(tags)),
     setAnnotationFocus: annotationFocus => dispatch(actions.setAnnotationFocus(annotationFocus)),
     setAnnotations: annotations => dispatch(actions.setAnnotations(annotations)),
     setSpansRendered: spansRendered => dispatch(actions.setSpansRendered(spansRendered)),
-    setLinkedListAdd: linkedListAdd => dispatch(actions.setLinkedListAdd(linkedListAdd))
+    setLinkedListAdd: linkedListAdd => dispatch(actions.setLinkedListAdd(linkedListAdd)),
+    setSelectedCode: selectedCode => dispatch(actions.setSelectedCode(selectedCode))
   };
 };
 

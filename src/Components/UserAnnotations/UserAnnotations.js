@@ -261,7 +261,6 @@ const mapStateToProps = state => {
 
 const mapDispatchToProps = dispatch => {
   return {
-    setTagTemplates: tags => dispatch(actions.setTagTemplatesWithCallback(tags)),
     setEntities: entities => dispatch(actions.setEntities(entities)),
     setAlertMessage: newValue => dispatch(actions.setAlertMessage(newValue))
   };

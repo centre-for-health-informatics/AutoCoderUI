@@ -71,8 +71,8 @@ export const drawLine = (annotation, i, tagTemplates) => {
   // only draw a line if the annotation has a next property (linked annotation)
   if (annotation.next) {
     // getting offsets for the other components on the page above the annotations
-    let xOffset = document.getElementById("docDisplay").getBoundingClientRect().left;
-    let yOffset = document.getElementById("docDisplay").getBoundingClientRect().top;
+    let xOffset = document.getElementById("intervalsDiv").getBoundingClientRect().left;
+    let yOffset = document.getElementById("intervalsDiv").getBoundingClientRect().top;
 
     // Setting coordinates of the line start and end to the empty spans before and after intervals.
     // First coordinate is the end of the first annotation and second is the start of the second annotation.

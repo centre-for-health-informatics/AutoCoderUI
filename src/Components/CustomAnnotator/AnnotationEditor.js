@@ -8,6 +8,7 @@ import Typography from "@material-ui/core/Typography";
 import * as actions from "../../Store/Actions/index";
 import * as tagTypes from "../TagManagement/tagTypes";
 import * as util from "./utility";
+import { addDotToCode } from "../../Util/icdUtility";
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -217,7 +218,7 @@ const AnnotationEditor = props => {
           key={"chipItem-" + item.labels[i].tag + Math.random()}
           variant="outlined"
           size="small"
-          label={item.labels[i].tag}
+          label={props.annotationFocus === tagTypes.ICD ? addDotToCode(item.labels[i].tag) : item.labels[i].tag}
           onDelete={() => handleRemoveLabel(item.ref[i])}
           style={{ backgroundColor: item.labels[i].color }}
         />

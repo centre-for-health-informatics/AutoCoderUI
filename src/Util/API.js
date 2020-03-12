@@ -16,6 +16,12 @@ export const GET_ANNOTATIONS_FILENAME_USER = "GET_ANNOTATIONS_FILENAME_USER";
 export const EXPORT_CURRENT_ANNOTATIONS = "EXPORT_CURRENT_ANNOTATIONS";
 export const DOWNLOAD_ANNOTATIONS_BY_ID = "DOWNLOAD_ANNOTATIONS_BY_ID";
 
+// ICD APIs
+export const ANCESTORS = "ANCESTORS";
+export const FAMILY = "FAMILY";
+export const CODE_AUTO_SUGGESTIONS = "CODE_AUTO_SUGGESTIONS";
+export const CODE_DESCRIPTION = "CODE_DESCRIPTION";
+
 /**
  * API class used to connect to the backend
  * Deals with token authorization and all other API calls
@@ -240,6 +246,16 @@ export class API {
         return this._addAuthorization(this.urlBeginning + "exportAnnotations/" + input + this.json);
       case DOWNLOAD_ANNOTATIONS_BY_ID:
         return this._addAuthorization(this.urlBeginning + "downloadAnnotations/" + input + this.json);
+
+      // ICD APIs
+      case ANCESTORS:
+        return this._addAuthorization(this.urlBeginning + "ancestors/" + input + this.json);
+      case FAMILY:
+        return this._addAuthorization(this.urlBeginning + "family/" + input + this.json);
+      case CODE_AUTO_SUGGESTIONS:
+        return this._addAuthorization(this.urlBeginning + "codeAutosuggestions/" + input + this.json);
+      case CODE_DESCRIPTION:
+        return this._addAuthorization(this.urlBeginning + "codeDescription/" + input + this.json);
       default:
         return null;
     }

@@ -1,7 +1,9 @@
 import React from "react";
 import { connect } from "react-redux";
 import * as actions from "../../Store/Actions/index";
+import * as tagTypes from "../TagManagement/tagTypes";
 import { List, Chip, ListItem } from "@material-ui/core";
+import { addDotToCode } from "../../Util/icdUtility";
 
 const Legend = props => {
   // makes the list for the final render
@@ -42,16 +44,20 @@ const Legend = props => {
     if (!idOnly) {
       let tagToLabel;
       for (let tag of props.tagTemplates) {
-        if (tag.type === props.annotationFocus) {
-          if (item === tag.id) {
-            tagToLabel = tag;
-            break;
-          }
+        if (tag.type === props.annotationFocus && item === tag.id) {
+          tagToLabel = tag;
+          break;
         }
       }
-      if (tagToLabel.description) {
+      if (tagToLabel && tagToLabel.description) {
+        if (props.annotationFocus === tagTypes.ICD) {
+          return addDotToCode(tagToLabel.id) + ": " + tagToLabel.description;
+        }
         return tagToLabel.id + ": " + tagToLabel.description;
       }
+    }
+    if (props.annotationFocus === tagTypes.ICD) {
+      return addDotToCode(item);
     }
     return item;
   };
@@ -66,6 +72,9 @@ const Legend = props => {
 
   // sets active tag to the chip when clicked
   const handleChipClick = item => {
+    if (props.annotationFocus === tagTypes.ICD) {
+      item = item.replace(".", "");
+    }
     let tagToSelect;
     for (let tag of props.tagTemplates) {
       if (item === tag.id && tag.type === props.annotationFocus) {
@@ -74,6 +83,9 @@ const Legend = props => {
       }
     }
     props.setAddingTags([tagToSelect]);
+    if (props.annotationFocus === tagTypes.ICD) {
+      props.setSelectedCode(tagToSelect.id);
+    }
   };
 
   // gets the colour of the chip by checking tags in store
@@ -103,7 +115,8 @@ const mapStateToProps = state => {
 
 const mapDispatchToProps = dispatch => {
   return {
-    setAddingTags: tags => dispatch(actions.setAddingTags(tags))
+    setAddingTags: tags => dispatch(actions.setAddingTags(tags)),
+    setSelectedCode: selectedCode => dispatch(actions.setSelectedCode(selectedCode))
   };
 };
 

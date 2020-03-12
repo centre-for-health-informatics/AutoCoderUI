@@ -149,7 +149,8 @@ class CustomAnnotator extends Component {
       start,
       end,
       tag: this.props.addingTags.length > 0 ? this.props.addingTags[0].id : "",
-      type: this.props.annotationFocus
+      type: this.props.annotationFocus,
+      confirmed: true
     };
 
     // adding span to annotations
@@ -329,8 +330,12 @@ class CustomAnnotator extends Component {
       Array.from(this.props.tagTemplates)
     );
     return (
-      <div id={"customerAnnotator" + this.props.id}>
-        <div style={(this.annoteStyle, { position: "absolute" })} ref={this.rootRef} id="intervalsDiv">
+      <React.Fragment>
+        <div
+          style={(this.annoteStyle, { position: "absolute", whiteSpace: "pre-wrap", overflowY: "visible" })}
+          ref={this.rootRef}
+          id="intervalsDiv"
+        >
           {intervals.map((interval, i) => (
             <util.Interval
               key={interval.start + "-" + interval.end + "-" + i}
@@ -364,7 +369,7 @@ class CustomAnnotator extends Component {
         <svg style={{ zIndex: -1 }} height={this.props.intervalDivHeight} width={this.props.intervalDivWidth}>
           {this.renderLines()}
         </svg>
-      </div>
+      </React.Fragment>
     );
   }
 }

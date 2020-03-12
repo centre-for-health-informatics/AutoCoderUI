@@ -16,22 +16,35 @@ import TagSelector from "../../Components/TagManagement/TagSelector";
 import Legend from "../../Components/CustomAnnotator/Legend";
 import ManageFiles from "../../Components/ManageFiles/ManageFiles";
 import { mapColors, setDefaultTags } from "../../Components/TagManagement/tagUtil";
-import { Switch, FormControlLabel, Tooltip } from "@material-ui/core";
+import { Switch, FormControlLabel, Tooltip, Tabs, Tab } from "@material-ui/core";
 import LoadingIndicator from "../../Components/LoadingIndicator/LoadingIndicator";
 import CustomAnnotator from "../../Components/CustomAnnotator/CustomAnnotator";
+import TreeViewer from "../../Components/TreeViewer/TreeViewer";
 
 const ResponsiveReactGridLayout = WidthProvider(Responsive);
 const originalLayouts = getFromLS("annotateLayouts", "layouts") || defaultLayouts;
+const treeViewDiv = React.createRef();
 
 const Annotate = props => {
   const [layouts, setLayouts] = useState(originalLayouts);
   const [isLayoutModifiable, setLayoutModifiable] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [swipeIndex, setSwipeIndex] = useState(0);
+  const [docTreeHeight, setDocTreeHeight] = useState(0);
   const alert = useAlert();
 
   const onLayoutChange = layouts => {
     setLayouts(layouts);
     saveToLS("annotateLayouts", "layouts", layouts);
+  };
+
+  const onBreakPointChange = newBreakpoint => {
+    const currentLayout = layouts[newBreakpoint];
+    for (let i of currentLayout) {
+      if (i.i === "document") {
+        setDocTreeHeight(20 * (i.h - 2.9));
+      }
+    }
   };
 
   const resetLayout = () => {
@@ -57,6 +70,13 @@ const Annotate = props => {
   // ComponentDidMount
   useEffect(() => {
     setLayouts(getFromLS("annotateLayouts", "layouts") || defaultLayouts);
+
+    // for (let i of layouts.lg) {
+    //   if (i.i === "document") {
+    //     setDocTreeHeight(20 * (i.h - 4.5));
+    //   }
+    // }
+
     APIUtility.API.verifyLSToken(() => setIsLoading(false));
     // Setting up default tags if they haven't been already added.
     // This prevents tags from being added if the user explicitly deleted all of them
@@ -152,6 +172,19 @@ const Annotate = props => {
     });
   };
 
+  const handleTreeChange = () => {
+    if (treeViewDiv.current !== null) {
+      treeViewDiv.current.handleResize();
+    }
+  };
+
+  const handleTabChange = (event, index) => {
+    if (index == 1) {
+      document.getElementById("outerDiv").scrollTop = 0;
+    }
+    setSwipeIndex(index);
+  };
+
   return (
     <div>
       <div>
@@ -174,9 +207,10 @@ const Annotate = props => {
         isDraggable={isLayoutModifiable}
         isResizable={isLayoutModifiable}
         onLayoutChange={(layout, layouts) => onLayoutChange(layouts)}
+        onBreakpointChange={(newBreakpoint, newCols) => onBreakPointChange(newBreakpoint)}
       >
         <div key="tagSelector" className={highlightEditDiv} style={{ display: "flex", flexDirection: "row" }}>
-          <div style={{ flex: 2.5 }}>
+          <div style={{ flex: 4 }}>
             <TagSelector />
           </div>
           <div style={{ flex: 1 }}>
@@ -223,12 +257,41 @@ const Annotate = props => {
         <div key="manageFiles" className={highlightEditDiv} style={{ overflowY: "auto" }}>
           <ManageFiles checkTagsInUse={checkTagsInUse} saveAnnotations={saveAnnotations} />
         </div>
-        <div key="document" className={highlightEditDiv} style={{ overflowY: "auto" }}>
-          <div id="docDisplay" style={{ whiteSpace: "pre-wrap" }}>
-            {renderCustomAnnotator()}
+
+        <div id="swipeDiv" key="document" className={highlightEditDiv}>
+          <Tabs value={swipeIndex} onChange={handleTabChange}>
+            <Tab label="Document" />
+            <Tab label="Code Browser" />
+          </Tabs>
+
+          <div
+            id="outerDiv"
+            style={{
+              overflowX: "hidden",
+              overflowY: swipeIndex === 0 && props.fileViewerText !== "" ? "auto" : "hidden"
+            }}
+          >
+            <div
+              id="divWithComponents"
+              style={{
+                height: docTreeHeight ? docTreeHeight : 20 * (layouts.lg[2].h - 2.9),
+                flexDirection: "row",
+                direction: "ltr",
+                display: "flex",
+                willChange: "transform",
+                transform: swipeIndex === 0 ? "translate(0%, 0)" : "translate(-100%, 0)",
+                transition: "transform 0.35s cubic-bezier(0.15, 0.3, 0.25, 1) 0s"
+              }}
+            >
+              <div style={{ width: "100%", flexShrink: 0, overflow: "visible" }}>{renderCustomAnnotator()}</div>
+              <div style={{ width: "100%", flexShrink: 0, overflow: "visible" }}>
+                <TreeViewer ref={treeViewDiv} onChange={handleTreeChange()} />
+              </div>
+            </div>
           </div>
         </div>
-        <div key="legend" className={highlightEditDiv}>
+
+        <div key="legend" className={highlightEditDiv} style={{ overflowY: "auto" }}>
           <Legend />
         </div>
       </ResponsiveReactGridLayout>
@@ -238,6 +301,7 @@ const Annotate = props => {
 
 const mapStateToProps = state => {
   return {
+    fileViewerText: state.fileViewer.fileViewerText,
     tagTemplates: state.fileViewer.tagTemplates,
     alertMessage: state.alert.alertMessage,
     isAuthorized: state.authentication.isAuthorized,
