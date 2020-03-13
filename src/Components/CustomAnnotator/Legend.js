@@ -28,11 +28,7 @@ const Legend = props => {
           variant="outlined"
           clickable={true}
           size="small"
-<<<<<<< HEAD
           label={getLabel(item, false)}
-=======
-          label={getLabel(item, true)}
->>>>>>> master
           style={{ backgroundColor: getColor(item), fontWeight: getFontWeight(item), width: "100%" }}
           onClick={() => handleChipClick(item)}
         />
