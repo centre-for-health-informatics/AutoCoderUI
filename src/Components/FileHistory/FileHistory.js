@@ -186,7 +186,7 @@ const FileHistory = props => {
       fileReader.onloadend = () => {
         let text = fileReader.result.replace(/\r\n/g, "\n"); // Replaces \r\n with \n for Windows OS
         fileData.content = text;
-        props.setFileText(text);
+        props.setFileText(text + " ");
 
         fileData.filename = file.name;
         let ext = file.name.split(".")[file.name.split(".").length - 1];
