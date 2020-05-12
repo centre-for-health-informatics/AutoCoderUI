@@ -8,11 +8,17 @@ export const updateAnnotationsAfterLoadingSpacy = (data, index) => {
       let sentences, entities;
       if (data[tagTypes.SENTENCES]) {
         sentences = data[tagTypes.SENTENCES];
+        for (const sentence of sentences) {
+          sentence.confirmed = false;
+        }
         dispatch(actions.setCurrentSentences(sentences));
         dispatch(actions.setSentences(sentences));
       }
       if (data[tagTypes.ENTITIES]) {
         entities = data[tagTypes.ENTITIES];
+        for (const entity of entities) {
+          entity.confirmed = false;
+        }
         dispatch(actions.setCurrentEntities(entities));
         dispatch(actions.setEntities(entities));
       }
@@ -21,28 +27,28 @@ export const updateAnnotationsAfterLoadingSpacy = (data, index) => {
   };
 };
 
-export const setTagTemplatesWithCallback = tagTemplates => {
+export const setTagTemplatesWithCallback = (tagTemplates) => {
   return (dispatch, getState) => {
     dispatch(actions.setTagTemplates(tagTemplates));
     return Promise.resolve(getState());
   };
 };
 
-export const setCurrentEntitiesWithCallback = entities => {
+export const setCurrentEntitiesWithCallback = (entities) => {
   return (dispatch, getState) => {
     dispatch(actions.setCurrentEntities(entities));
     return Promise.resolve(getState());
   };
 };
 
-export const setCurrentSentencesWithCallback = sentences => {
+export const setCurrentSentencesWithCallback = (sentences) => {
   return (dispatch, getState) => {
     dispatch(actions.setCurrentSentences(sentences));
     return Promise.resolve(getState());
   };
 };
 
-export const setFileIndexWithCallback = fileIndex => {
+export const setFileIndexWithCallback = (fileIndex) => {
   return (dispatch, getState) => {
     dispatch(actions.setFileIndex(fileIndex));
     return Promise.resolve(getState());

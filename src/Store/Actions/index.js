@@ -25,7 +25,8 @@ export {
   setCurrentSentences,
   setVersions,
   setVersionIndex,
-  setSentencesAvailable
+  setSentencesAvailable,
+  setModifyingAnnotation,
 } from "./fileViewer";
 export {
   setUploadedTags,
@@ -34,12 +35,12 @@ export {
   enableAllTags,
   disableAllTags,
   setAddingTags,
-  setInitialTagsAdded
+  setInitialTagsAdded,
 } from "./tagManagement";
 export {
   updateAnnotationsAfterLoadingSpacy,
   setTagTemplatesWithCallback,
   setCurrentEntitiesWithCallback,
   setCurrentSentencesWithCallback,
-  setFileIndexWithCallback
+  setFileIndexWithCallback,
 } from "./asyncActions";

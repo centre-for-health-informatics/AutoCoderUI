@@ -11,12 +11,13 @@ import FormControlLabel from "@material-ui/core/FormControlLabel";
 import FormControl from "@material-ui/core/FormControl";
 import FormLabel from "@material-ui/core/FormLabel";
 import { green, red } from "@material-ui/core/colors";
+import SearchBox from "./SearchBox";
 
 const theme = createMuiTheme({
   pallete: {
     primary: green,
-    secondary: red
-  }
+    secondary: red,
+  },
 });
 
 const useStyles = makeStyles(() => ({
@@ -26,36 +27,26 @@ const useStyles = makeStyles(() => ({
     borderRadius: "5px",
     overflow: "auto",
     backgroundColor: "inherit",
-    flexGrow: 1
+    flexGrow: 1,
   },
   radioButtonForm: {
     paddingTop: theme.spacing(1),
     paddingLeft: theme.spacing(1),
     paddingRight: theme.spacing(1),
-    paddingBottom: theme.spacing(0)
+    paddingBottom: theme.spacing(0),
   },
   searchBox: {
     paddingTop: theme.spacing(0),
     paddingLeft: theme.spacing(1),
     paddingRight: theme.spacing(1),
-    paddingBottom: theme.spacing(1)
+    paddingBottom: theme.spacing(1),
   },
-  searchBoxText: {
-    paddingTop: theme.spacing(0),
-    paddingLeft: theme.spacing(0),
-    paddingRight: theme.spacing(0),
-    paddingBottom: theme.spacing(0),
-    marginTop: theme.spacing(1),
-    marginLeft: theme.spacing(0),
-    marginRight: theme.spacing(0),
-    marginBottom: theme.spacing(0)
-  }
 }));
 
-const TagSelector = props => {
+const TagSelector = (props) => {
   const classes = useStyles();
 
-  const handleTypeChange = event => {
+  const handleTypeChange = (event) => {
     let newSelection = event.target.value;
 
     props.setSpansRendered(false); // flag used to prevent CustomAnotator from drawing lines pre-maturely due to race conditions
@@ -70,75 +61,16 @@ const TagSelector = props => {
       //   break;
 
       default:
-        props.setAnnotations(props.entities.filter(annotation => annotation.type === newSelection));
+        props.setAnnotations(props.entities.filter((annotation) => annotation.type === newSelection));
     }
 
     props.setAddingTags([]);
   };
 
-  const getCurrentTagOptions = () => {
-    let options;
-
-    if (props.annotationFocus !== "NA") {
-      options = props.tagTemplates.filter(tag => {
-        return tag.type.toLowerCase() === props.annotationFocus.toLowerCase();
-      });
-    } else {
-      options = props.tagTemplates.filter(tag => {
-        return tag.type === "" || tag.type === null || tag.type === undefined;
-      });
-    }
-    return options;
-  };
-
-  const getOptionLabelFunc = () => {
-    return x => x.id + (x.description !== "" ? ": " + x.description : "");
-  };
-
-  const getTextLabel = () => {
-    switch (props.annotationFocus) {
-      case tagTypes.SENTENCES:
-        return "";
-      // case tagTypes.TOKENS:
-      //   return "";
-      default:
-        return "Search " + props.annotationFocus;
-    }
-  };
-
-  const shouldDisableAutoComplete = () => {
-    switch (props.annotationFocus) {
-      case tagTypes.SENTENCES:
-        return true;
-      // case tagTypes.TOKENS:
-      //   return true;
-      default:
-        return false;
-    }
-  };
-
-  const searchboxSelectionChange = (event, selections) => {
-    if (Array.isArray(selections)) {
-      props.setAddingTags(selections);
-    } else if (selections === null) {
-      props.setAddingTags([]);
-    } else {
-      props.setAddingTags([selections]);
-    }
-  };
-
-  const getSearchTextValue = () => {
-    if (Array.isArray(props.addingTags) && props.addingTags.length > 0) {
-      return props.addingTags[0];
-    } else {
-      return null;
-    }
-  };
-
   const makeCustomTypesRadioButtons = () => {
     const customTagTypes = new Set();
 
-    props.tagTemplates.forEach(tagTemplate => {
+    props.tagTemplates.forEach((tagTemplate) => {
       if (tagTemplate.type !== tagTypes.TOKENS && tagTemplate.type !== tagTypes.SENTENCES) {
         if (tagTemplate.type && tagTemplate.type !== "") {
           customTagTypes.add(tagTemplate.type);
@@ -189,51 +121,31 @@ const TagSelector = props => {
         </FormControl>
       </div>
       <div className={classes.searchBox}>
-        <Autocomplete
-          // multiple
-          id={"tagSearchInputField"}
-          value={getSearchTextValue()}
-          disabled={shouldDisableAutoComplete()}
-          filterSelectedOptions
-          options={getCurrentTagOptions()}
-          onChange={searchboxSelectionChange}
-          getOptionLabel={getOptionLabelFunc()}
-          renderInput={params => (
-            <TextField
-              {...params}
-              variant="standard"
-              label={getTextLabel()}
-              margin="normal"
-              fullWidth
-              className={classes.searchBoxText}
-            />
-          )}
-        />
+        <SearchBox />
       </div>
     </div>
   );
 };
 
-const mapStateToProps = state => {
+const mapStateToProps = (state) => {
   return {
     tagTemplates: state.fileViewer.tagTemplates,
     annotationFocus: state.fileViewer.annotationFocus, // the currently active type
-    addingTags: state.tagManagement.addingTags, // the currently active tag
     sentences: state.fileViewer.sentences,
     tokens: state.fileViewer.tokens,
     entities: state.fileViewer.entities,
     entityTagsList: state.tagManagement.uploadedTags, // a selection of tags for labelling entities
-    areSentencesAvailable: state.fileViewer.sentencesAvailable
+    areSentencesAvailable: state.fileViewer.sentencesAvailable,
   };
 };
 
-const mapDispatchToProps = dispatch => {
+const mapDispatchToProps = (dispatch) => {
   return {
-    setAddingTags: tags => dispatch(actions.setAddingTags(tags)),
-    setAnnotationFocus: annotationFocus => dispatch(actions.setAnnotationFocus(annotationFocus)),
-    setAnnotations: annotations => dispatch(actions.setAnnotations(annotations)),
-    setSpansRendered: spansRendered => dispatch(actions.setSpansRendered(spansRendered)),
-    setLinkedListAdd: linkedListAdd => dispatch(actions.setLinkedListAdd(linkedListAdd))
+    setAddingTags: (tags) => dispatch(actions.setAddingTags(tags)),
+    setAnnotationFocus: (annotationFocus) => dispatch(actions.setAnnotationFocus(annotationFocus)),
+    setAnnotations: (annotations) => dispatch(actions.setAnnotations(annotations)),
+    setSpansRendered: (spansRendered) => dispatch(actions.setSpansRendered(spansRendered)),
+    setLinkedListAdd: (linkedListAdd) => dispatch(actions.setLinkedListAdd(linkedListAdd)),
   };
 };
 

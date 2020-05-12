@@ -3,7 +3,6 @@ import { connect } from "react-redux";
 import * as actions from "../../Store/Actions/index";
 import * as tagTypes from "../TagManagement/tagTypes";
 import * as util from "./utility";
-import * as APIUtility from "../../Util/API";
 import AnnotationEditor from "./AnnotationEditor";
 import Popover from "@material-ui/core/Popover";
 
@@ -13,7 +12,7 @@ class CustomAnnotator extends Component {
     this.rootRef = React.createRef();
     this.props.setAddingTags("");
     this.state = {
-      anchorEl: null // used to keep track of the element that is clicked to pop up AnnotationEditor
+      anchorEl: null, // used to keep track of the element that is clicked to pop up AnnotationEditor
     };
 
     this.editorPopUpId = this.shouldEditorOpen ? "label-editor-popup" : undefined;
@@ -21,7 +20,7 @@ class CustomAnnotator extends Component {
     this.annoteStyle = {
       // fontFamily: "IBM Plex Sans",
       // maxWidth: 800,
-      lineHeight: 1.5
+      lineHeight: 1.5,
     };
   }
 
@@ -30,7 +29,7 @@ class CustomAnnotator extends Component {
     // add mouse listener
     this.rootRef.current.addEventListener("mouseup", this.handleMouseUp);
     // listen for key presses
-    document.onkeypress = e => {
+    document.onkeypress = (e) => {
       this.handleKeyPress(e);
     };
     // reset annotations on window resize to deal with linked annotations not displaying properly
@@ -53,7 +52,7 @@ class CustomAnnotator extends Component {
   }
 
   // if the user presses "A" key, it will link the next selection to the previous one
-  handleKeyPress = e => {
+  handleKeyPress = (e) => {
     let key = e.key;
     if (key.toLowerCase() === "a" && this.prevSpan) {
       this.props.setLinkedListAdd(!this.props.linkedListAdd);
@@ -149,7 +148,8 @@ class CustomAnnotator extends Component {
       start,
       end,
       tag: this.props.addingTags.length > 0 ? this.props.addingTags[0].id : "",
-      type: this.props.annotationFocus
+      type: this.props.annotationFocus,
+      confirmed: true,
     };
 
     // adding span to annotations
@@ -215,8 +215,8 @@ class CustomAnnotator extends Component {
     }
     // setting annotations to all annotations that match the selected type
     this.props.setAnnotations([
-      ...this.props.annotations.filter(annotation => annotation.type === this.props.annotationFocus),
-      span
+      ...this.props.annotations.filter((annotation) => annotation.type === this.props.annotationFocus),
+      span,
     ]);
   };
 
@@ -225,7 +225,7 @@ class CustomAnnotator extends Component {
     if (this.props.versionIndex !== this.props.versions.length) {
       return;
     }
-    let annotationsInInterval = this.props.annotations.filter(s => s.start <= start && s.end >= end);
+    let annotationsInInterval = this.props.annotations.filter((s) => s.start <= start && s.end >= end);
     const annotationsToPass = [];
     let hasPrev = true;
     for (let annotation of annotationsInInterval) {
@@ -252,10 +252,17 @@ class CustomAnnotator extends Component {
     this.setState({ anchorEl: null });
   };
 
+  // Refreshes editor to remove confirm button after it is clicked
+  refreshEditor = () => {
+    const annotationsToEditCopy = Array.from(this.props.annotationsToEdit);
+    this.props.setAnnotationsToEdit([]);
+    this.props.setAnnotationsToEdit(annotationsToEditCopy);
+  };
+
   /**
    * Called upon to remove annotations
    */
-  removeAnnotation = annotationToRemove => {
+  removeAnnotation = (annotationToRemove) => {
     // setting annotations and annotationsToEdit
     let annotationsToRemove = this.getLinkedAnnotations(annotationToRemove);
     const annotations = Array.from(this.props.annotations);
@@ -300,7 +307,7 @@ class CustomAnnotator extends Component {
   };
 
   // retrieves all annotations linked to an annotation that is being removed
-  getLinkedAnnotations = annotation => {
+  getLinkedAnnotations = (annotation) => {
     const annotationsToRemove = [annotation];
     let nextAnnotation = annotation.next;
     // next annotations
@@ -335,7 +342,7 @@ class CustomAnnotator extends Component {
             <util.Interval
               key={interval.start + "-" + interval.end + "-" + i}
               {...interval}
-              onClick={event => this.handleIntervalClick(event, interval.start, interval.end)}
+              onClick={(event) => this.handleIntervalClick(event, interval.start, interval.end)}
               setSpansRendered={this.props.setSpansRendered}
               spansRendered={this.props.spansRendered}
               index={i}
@@ -348,18 +355,20 @@ class CustomAnnotator extends Component {
           open={Boolean(this.state.anchorEl) && this.props.annotationsToEdit.length > 0}
           anchorEl={this.state.anchorEl}
           onClose={this.handleEditorClose}
-          // anchorReference="anchorPosition"
-          // anchorPosition={{ top: 200, left: 400 }}
           anchorOrigin={{
             vertical: "top",
-            horizontal: "center"
+            horizontal: "center",
           }}
           transformOrigin={{
             vertical: "bottom",
-            horizontal: "left"
+            horizontal: "left",
           }}
         >
-          <AnnotationEditor itemsToEdit={this.props.annotationsToEdit} removeAnnotation={this.removeAnnotation} />
+          <AnnotationEditor
+            refresh={this.refreshEditor}
+            itemsToEdit={this.props.annotationsToEdit}
+            removeAnnotation={this.removeAnnotation}
+          />
         </Popover>
         <svg style={{ zIndex: -1 }} height={this.props.intervalDivHeight} width={this.props.intervalDivWidth}>
           {this.renderLines()}
@@ -369,7 +378,7 @@ class CustomAnnotator extends Component {
   }
 }
 
-const mapStateToProps = state => {
+const mapStateToProps = (state) => {
   return {
     annotationsToEdit: state.fileViewer.annotationsToEdit,
     annotations: state.fileViewer.annotations,
@@ -387,26 +396,26 @@ const mapStateToProps = state => {
     currentEntities: state.fileViewer.currentEntities,
     currentSentences: state.fileViewer.currentSentences,
     versions: state.fileViewer.versions,
-    versionIndex: state.fileViewer.versionIndex
+    versionIndex: state.fileViewer.versionIndex,
   };
 };
 
-const mapDispatchToProps = dispatch => {
+const mapDispatchToProps = (dispatch) => {
   return {
-    setLinkedListAdd: linkedListAdd => dispatch(actions.setLinkedListAdd(linkedListAdd)),
-    setIntervalDivHeight: intervalDivHeight => dispatch(actions.setIntervalDivHeight(intervalDivHeight)),
-    setIntervalDivWidth: intervalDivWidth => dispatch(actions.setIntervalDivWidth(intervalDivWidth)),
-    setSentences: sentences => dispatch(actions.setSentences(sentences)),
-    setTokens: tokens => dispatch(actions.setTokens(tokens)),
-    setEntities: entities => dispatch(actions.setEntities(entities)),
-    setAnnotations: annotations => dispatch(actions.setAnnotations(annotations)),
-    setAddingTags: tag => dispatch(actions.setAddingTags(tag)),
-    setAnnotationFocus: annotationFocus => dispatch(actions.setAnnotationFocus(annotationFocus)),
-    setAnnotationsToEdit: annotationsToEdit => dispatch(actions.setAnnotationsToEdit(annotationsToEdit)),
-    setSpansRendered: spansRendered => dispatch(actions.setSpansRendered(spansRendered)),
-    setAlertMessage: newValue => dispatch(actions.setAlertMessage(newValue)),
-    setCurrentEntities: currentEntities => dispatch(actions.setCurrentEntitiesWithCallback(currentEntities)),
-    setCurrentSentences: currentSentences => dispatch(actions.setCurrentSentencesWithCallback(currentSentences))
+    setLinkedListAdd: (linkedListAdd) => dispatch(actions.setLinkedListAdd(linkedListAdd)),
+    setIntervalDivHeight: (intervalDivHeight) => dispatch(actions.setIntervalDivHeight(intervalDivHeight)),
+    setIntervalDivWidth: (intervalDivWidth) => dispatch(actions.setIntervalDivWidth(intervalDivWidth)),
+    setSentences: (sentences) => dispatch(actions.setSentences(sentences)),
+    setTokens: (tokens) => dispatch(actions.setTokens(tokens)),
+    setEntities: (entities) => dispatch(actions.setEntities(entities)),
+    setAnnotations: (annotations) => dispatch(actions.setAnnotations(annotations)),
+    setAddingTags: (tag) => dispatch(actions.setAddingTags(tag)),
+    setAnnotationFocus: (annotationFocus) => dispatch(actions.setAnnotationFocus(annotationFocus)),
+    setAnnotationsToEdit: (annotationsToEdit) => dispatch(actions.setAnnotationsToEdit(annotationsToEdit)),
+    setSpansRendered: (spansRendered) => dispatch(actions.setSpansRendered(spansRendered)),
+    setAlertMessage: (newValue) => dispatch(actions.setAlertMessage(newValue)),
+    setCurrentEntities: (currentEntities) => dispatch(actions.setCurrentEntitiesWithCallback(currentEntities)),
+    setCurrentSentences: (currentSentences) => dispatch(actions.setCurrentSentencesWithCallback(currentSentences)),
   };
 };
 
