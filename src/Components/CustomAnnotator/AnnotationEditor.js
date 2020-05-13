@@ -1,20 +1,24 @@
 import React from "react";
 import { connect } from "react-redux";
 import { makeStyles } from "@material-ui/core/styles";
-import List from "@material-ui/core/List";
-import ListItem from "@material-ui/core/ListItem";
-import Chip from "@material-ui/core/Chip";
-import Typography from "@material-ui/core/Typography";
+import { List, ListItem, Typography, Modal, Backdrop, Fade, Button } from "@material-ui/core/";
 import * as actions from "../../Store/Actions/index";
 import * as tagTypes from "../TagManagement/tagTypes";
 import * as util from "./utility";
 import { addDotToCode } from "../../Util/icdUtility";
+import CustomMuiChip from "../CustomMuiChip/CustomMuiChip";
+import DoneIcon from "@material-ui/icons/Done";
+import EditIcon from "@material-ui/icons/Edit";
+import DeleteIcon from "@material-ui/icons/Delete";
+import SearchBox from "../TagManagement/SearchBox";
+import { getWindowSize } from "../../Util/windowSizeBracket";
+import useWindowResize from "../../Util/resizer";
 
-const useStyles = makeStyles(theme => ({
+const useStyles = makeStyles((theme) => ({
   root: {
     width: "100%",
     maxWidth: 360,
-    backgroundColor: theme.palette.background.paper
+    backgroundColor: theme.palette.background.paper,
   },
   listItem: {},
   textSpan: {},
@@ -23,15 +27,50 @@ const useStyles = makeStyles(theme => ({
     justifyContent: "center",
     flexWrap: "wrap",
     "& > *": {
-      margin: theme.spacing(0.5)
-    }
-  }
+      margin: theme.spacing(0.5),
+    },
+  },
+  modal: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  paper: {
+    backgroundColor: theme.palette.background.paper,
+    border: "2px solid #000",
+    boxShadow: theme.shadows[5],
+    padding: theme.spacing(2, 4, 3),
+  },
 }));
 
-const AnnotationEditor = props => {
+const AnnotationEditor = (props) => {
   const classes = useStyles();
 
-  const handleRemoveLabel = annotation => {
+  const [modalOpen, setModalOpen] = React.useState(false);
+  const windowWidth = useWindowResize()[0];
+
+  const modalWidth = { xs: "95%", sm: "60%", md: "70%", lg: "70%", xl: "70%" };
+
+  const getChartWidth = () => {
+    const size = getWindowSize(windowWidth);
+
+    switch (size) {
+      case "xs":
+        return modalWidth.xs;
+      case "sm":
+        return modalWidth.sm;
+      case "md":
+        return modalWidth.md;
+      case "lg":
+        return modalWidth.lg;
+      case "xl":
+        return modalWidth.xl;
+      default:
+        return "100%";
+    }
+  };
+
+  const handleRemoveLabel = (annotation) => {
     props.removeAnnotation(annotation);
   };
 
@@ -100,7 +139,7 @@ const AnnotationEditor = props => {
         } else {
           duplicateMultiTextInterval.labels.push({
             tag: newMultiPartTextInterval.labels[0].tag,
-            color: newMultiPartTextInterval.labels[0].color
+            color: newMultiPartTextInterval.labels[0].color,
           });
         }
       } else {
@@ -128,16 +167,16 @@ const AnnotationEditor = props => {
   /**
    * Creates an data item using annotation
    */
-  const makeListItemDataFromAnnotation = annot => {
+  const makeListItemDataFromAnnotation = (annot) => {
     return {
       spans: [{ start: annot.start, end: annot.end }],
       ref: [annot],
-      labels: [{ tag: annot.tag, color: getColor(annot) }]
+      labels: [{ tag: annot.tag, color: getColor(annot) }],
     };
   };
 
   // gets the color for an annotation
-  const getColor = annotation => {
+  const getColor = (annotation) => {
     if (props.annotationFocus === tagTypes.SENTENCES) {
       if (props.sentences.indexOf(annotation) % 2 === 0) {
         return util.alternatingColors[0];
@@ -156,7 +195,7 @@ const AnnotationEditor = props => {
   /**
    * Given an annotation item from part of a multi-part label, returns the annotation item data
    */
-  const getMultiPartLabelHeadItemData = annot => {
+  const getMultiPartLabelHeadItemData = (annot) => {
     // Creates a data item using the head annotation
     const textIntervalDataItem = makeListItemDataFromAnnotation(annot);
 
@@ -165,7 +204,7 @@ const AnnotationEditor = props => {
     while (cursor !== undefined) {
       textIntervalDataItem.spans.push({
         start: cursor.start,
-        end: cursor.end
+        end: cursor.end,
       });
       cursor = cursor.next;
     }
@@ -195,7 +234,7 @@ const AnnotationEditor = props => {
    * - ref: [{start, end, color, tag, text, next*, prev*}]
    * - labels: [{tag, color}]
    */
-  const makeTextSpan = item => {
+  const makeTextSpan = (item) => {
     let text = "";
     item.spans.forEach((span, index) => {
       text += props.fileViewerText.slice(span.start, span.end);
@@ -207,19 +246,52 @@ const AnnotationEditor = props => {
     return <Typography>{text}</Typography>;
   };
 
+  // changes annotation confirm status from false to true
+  const confirmAnnotation = (annotation) => {
+    let current = annotation;
+    while (current) {
+      current.confirmed = true;
+      current = current.next;
+    }
+    props.refresh();
+  };
+
+  // modifies annotation
+  const modifyAnnotation = (annotation) => {
+    setModalOpen(true);
+    props.setModifyingAnnotation(annotation);
+  };
+
   /**
    * Returns a list of HTML elements for displaying chips inline within a list item
    */
-  const makeListItemHTML = item => {
+  const makeListItemHTML = (item) => {
     const chipList = [];
     for (let i = 0; i < item.labels.length; i++) {
       chipList.push(
-        <Chip
+        <CustomMuiChip
           key={"chipItem-" + item.labels[i].tag + Math.random()}
           variant="outlined"
           size="small"
+<<<<<<< HEAD
           label={props.annotationFocus === tagTypes.ICD ? addDotToCode(item.labels[i].tag) : item.labels[i].tag}
+=======
+          label={item.labels[i].tag}
+          deleteIcon={<DeleteIcon />}
+>>>>>>> 1045deb308e231706c05f05334c95107ac326367
           onDelete={() => handleRemoveLabel(item.ref[i])}
+          confirmIcon={item.ref[i].confirmed ? null : <DoneIcon />}
+          onConfirm={() => {
+            confirmAnnotation(item.ref[i]);
+          }}
+          modifyIcon={
+            props.annotationFocus !== tagTypes.TOKENS && props.annotationFocus !== tagTypes.SENTENCES ? (
+              <EditIcon />
+            ) : null
+          }
+          onModify={() => {
+            modifyAnnotation(item.ref[i]);
+          }}
           style={{ backgroundColor: item.labels[i].color }}
         />
       );
@@ -227,14 +299,57 @@ const AnnotationEditor = props => {
     return chipList;
   };
 
+  const changeAnnotation = () => {
+    if (props.modifyingAnnotation && props.addingTags) {
+      props.modifyingAnnotation.tag = props.addingTags[0].id;
+      setModalOpen(false);
+
+      // necessary to update legend
+      const focus = props.annotationFocus;
+      props.setAnnotationFocus("");
+      props.setAnnotationFocus(focus);
+    }
+    confirmAnnotation(props.modifyingAnnotation);
+  };
+
   return (
-    <List className={classes.root} dense disablePadding>
-      {makeListHTML()}
-    </List>
+    <React.Fragment>
+      <List className={classes.root} dense disablePadding>
+        {makeListHTML()}
+      </List>
+      <Modal
+        className={classes.modal}
+        open={modalOpen}
+        onClose={() => {
+          setModalOpen(false);
+        }}
+        closeAfterTransition
+        BackdropComponent={Backdrop}
+        BackdropProps={{
+          timeout: 500,
+        }}
+      >
+        <Fade in={modalOpen}>
+          <div className={classes.paper} style={{ width: getChartWidth(), display: "flex", flexDirection: "row" }}>
+            <SearchBox />
+            <Button
+              onClick={changeAnnotation}
+              variant="contained"
+              color="default"
+              className={classes.button}
+              size="small"
+              style={{ fontSize: "70%" }}
+            >
+              Change
+            </Button>
+          </div>
+        </Fade>
+      </Modal>
+    </React.Fragment>
   );
 };
 
-const mapStateToProps = state => {
+const mapStateToProps = (state) => {
   return {
     fileViewerText: state.fileViewer.fileViewerText,
     annotations: state.fileViewer.annotations,
@@ -243,14 +358,17 @@ const mapStateToProps = state => {
     addingTags: state.tagManagement.addingTags, // the currently active tag
     sentences: state.fileViewer.sentences,
     tokens: state.fileViewer.tokens,
-    entities: state.fileViewer.entities
+    entities: state.fileViewer.entities,
+    modifyingAnnotation: state.fileViewer.modifyingAnnotation,
   };
 };
 
-const mapDispatchToProps = dispatch => {
+const mapDispatchToProps = (dispatch) => {
   return {
-    setAddingTags: tags => dispatch(actions.setAddingTags(tags)),
-    setAnnotations: annotations => dispatch(actions.setAnnotations(annotations))
+    setAnnotationFocus: (focus) => dispatch(actions.setAnnotationFocus(focus)),
+    setAddingTags: (tags) => dispatch(actions.setAddingTags(tags)),
+    setModifyingAnnotation: (modifyingAnnotation) => dispatch(actions.setModifyingAnnotation(modifyingAnnotation)),
+    setAnnotations: (annotations) => dispatch(actions.setAnnotations(annotations)),
   };
 };
 

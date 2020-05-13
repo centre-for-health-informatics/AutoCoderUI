@@ -1,176 +1,183 @@
 import * as actionTypes from "./actionTypes";
 
-export const setFileText = fileText => {
+export const setFileText = (fileText) => {
   return {
     type: actionTypes.SET_FILE_VIEWER_TEXT,
-    fileText
+    fileText,
   };
 };
 
-export const setSentences = sentences => {
+export const setSentences = (sentences) => {
   return {
     type: actionTypes.SET_SENTENCES,
-    sentences
+    sentences,
   };
 };
 
-export const setTokens = tokens => {
+export const setTokens = (tokens) => {
   return {
     type: actionTypes.SET_TOKENS,
-    tokens
+    tokens,
   };
 };
 
-export const setEntities = entities => {
+export const setEntities = (entities) => {
   return {
     type: actionTypes.SET_ENTITIES,
-    entities
+    entities,
   };
 };
 
-export const setSpacyLoading = isSpacyLoading => {
+export const setSpacyLoading = (isSpacyLoading) => {
   return {
     type: actionTypes.SET_SPACY_LOADING,
-    isSpacyLoading
+    isSpacyLoading,
   };
 };
 
-export const setAnnotationFocus = annotationFocus => {
+export const setAnnotationFocus = (annotationFocus) => {
   return {
     type: actionTypes.SET_ANNOTATION_FOCUS,
-    annotationFocus
+    annotationFocus,
   };
 };
 
-export const setAnnotations = annotations => {
+export const setAnnotations = (annotations) => {
   return {
     type: actionTypes.SET_ANNOTATIONS,
-    annotations
+    annotations,
   };
 };
 
-export const setTagTemplates = tagTemplates => {
+export const setTagTemplates = (tagTemplates) => {
   return {
     type: actionTypes.SET_TAG_TEMPLATES,
-    tagTemplates
+    tagTemplates,
   };
 };
 
-export const setLinkedListAdd = linkedListAdd => {
+export const setLinkedListAdd = (linkedListAdd) => {
   return {
     type: actionTypes.SET_LINKED_LIST_ADD,
-    linkedListAdd
+    linkedListAdd,
   };
 };
 
-export const setIntervalDivHeight = intervalDivHeight => {
+export const setIntervalDivHeight = (intervalDivHeight) => {
   return {
     type: actionTypes.SET_INTERVAL_DIV_HEIGHT,
-    intervalDivHeight
+    intervalDivHeight,
   };
 };
 
-export const setIntervalDivWidth = intervalDivWidth => {
+export const setIntervalDivWidth = (intervalDivWidth) => {
   return {
     type: actionTypes.SET_INTERVAL_DIV_WIDTH,
-    intervalDivWidth
+    intervalDivWidth,
   };
 };
 
-export const setAnnotationsToEdit = annotationsToEdit => {
+export const setAnnotationsToEdit = (annotationsToEdit) => {
   return {
     type: actionTypes.SET_ANNOTATIONS_TO_EDIT,
-    annotationsToEdit
+    annotationsToEdit,
   };
 };
 
-export const setSnapToWord = snapToWord => {
+export const setSnapToWord = (snapToWord) => {
   return {
     type: actionTypes.SET_SNAP_TO_WORD,
-    snapToWord
+    snapToWord,
   };
 };
 
-export const setAddingCustomTag = addingCustomTag => {
+export const setAddingCustomTag = (addingCustomTag) => {
   return {
     type: actionTypes.SET_ADDING_CUSTOM_TAG,
-    addingCustomTag
+    addingCustomTag,
   };
 };
 
-export const setSpansRendered = spansRendered => {
+export const setSpansRendered = (spansRendered) => {
   return {
     type: actionTypes.SET_SPANS_RENDERED,
-    spansRendered
+    spansRendered,
   };
 };
 
-export const setTxtList = txtList => {
+export const setTxtList = (txtList) => {
   return {
     type: actionTypes.SET_TXT_LIST,
-    txtList
+    txtList,
   };
 };
 
-export const setJsonList = jsonList => {
+export const setJsonList = (jsonList) => {
   return {
     type: actionTypes.SET_JSON_LIST,
-    jsonList
+    jsonList,
   };
 };
 
-export const setAnnotationsList = annotationsList => {
+export const setAnnotationsList = (annotationsList) => {
   return {
     type: actionTypes.SET_ANNOTATIONS_LIST,
-    annotationsList
+    annotationsList,
   };
 };
 
-export const setFileIndex = fileIndex => {
+export const setFileIndex = (fileIndex) => {
   return {
     type: actionTypes.SET_FILE_INDEX,
-    fileIndex
+    fileIndex,
   };
 };
 
-export const setSessionId = sessionId => {
+export const setSessionId = (sessionId) => {
   return {
     type: actionTypes.SET_SESSION_ID,
-    sessionId
+    sessionId,
   };
 };
 
-export const setCurrentEntities = currentEntities => {
+export const setCurrentEntities = (currentEntities) => {
   return {
     type: actionTypes.SET_CURRENT_ENTITIES,
-    currentEntities
+    currentEntities,
   };
 };
 
-export const setCurrentSentences = currentSentences => {
+export const setCurrentSentences = (currentSentences) => {
   return {
     type: actionTypes.SET_CURRENT_SENTENCES,
-    currentSentences
+    currentSentences,
   };
 };
 
-export const setVersions = versions => {
+export const setVersions = (versions) => {
   return {
     type: actionTypes.SET_VERSIONS,
-    versions
+    versions,
   };
 };
 
-export const setVersionIndex = versionIndex => {
+export const setVersionIndex = (versionIndex) => {
   return {
     type: actionTypes.SET_VERSION_INDEX,
-    versionIndex
+    versionIndex,
   };
 };
 
-export const setSentencesAvailable = sentencesAvailable => {
+export const setSentencesAvailable = (sentencesAvailable) => {
   return {
     type: actionTypes.SET_SENTENCES_AVAILABLE,
-    sentencesAvailable
+    sentencesAvailable,
+  };
+};
+
+export const setModifyingAnnotation = (modifyingAnnotation) => {
+  return {
+    type: actionTypes.SET_MODIFYING_ANNOTATION,
+    modifyingAnnotation,
   };
 };

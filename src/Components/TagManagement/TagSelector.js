@@ -13,12 +13,13 @@ import FormControl from "@material-ui/core/FormControl";
 import FormLabel from "@material-ui/core/FormLabel";
 import { green, red } from "@material-ui/core/colors";
 import { addDotToCode } from "../../Util/icdUtility";
+import SearchBox from "./SearchBox";
 
 const theme = createMuiTheme({
   pallete: {
     primary: green,
-    secondary: red
-  }
+    secondary: red,
+  },
 });
 
 const useStyles = makeStyles(() => ({
@@ -28,37 +29,27 @@ const useStyles = makeStyles(() => ({
     borderRadius: "5px",
     overflow: "auto",
     backgroundColor: "inherit",
-    flexGrow: 1
+    flexGrow: 1,
   },
   radioButtonForm: {
     paddingTop: theme.spacing(1),
     paddingLeft: theme.spacing(1),
     paddingRight: theme.spacing(1),
-    paddingBottom: theme.spacing(0)
+    paddingBottom: theme.spacing(0),
   },
   searchBox: {
     paddingTop: theme.spacing(0),
     paddingLeft: theme.spacing(1),
     paddingRight: theme.spacing(1),
-    paddingBottom: theme.spacing(1)
+    paddingBottom: theme.spacing(1),
   },
-  searchBoxText: {
-    paddingTop: theme.spacing(0),
-    paddingLeft: theme.spacing(0),
-    paddingRight: theme.spacing(0),
-    paddingBottom: theme.spacing(0),
-    marginTop: theme.spacing(1),
-    marginLeft: theme.spacing(0),
-    marginRight: theme.spacing(0),
-    marginBottom: theme.spacing(0)
-  }
 }));
 
-const TagSelector = props => {
+const TagSelector = (props) => {
   const classes = useStyles();
   const [autoCompleteList, setAutoCompleteList] = useState([]);
 
-  const handleTypeChange = event => {
+  const handleTypeChange = (event) => {
     let newSelection = event.target.value;
 
     props.setSpansRendered(false); // flag used to prevent CustomAnotator from drawing lines pre-maturely due to race conditions
@@ -73,7 +64,7 @@ const TagSelector = props => {
       //   break;
 
       default:
-        props.setAnnotations(props.entities.filter(annotation => annotation.type === newSelection));
+        props.setAnnotations(props.entities.filter((annotation) => annotation.type === newSelection));
     }
 
     props.setAddingTags([]);
@@ -202,6 +193,11 @@ const TagSelector = props => {
         tagTemplate.type !== tagTypes.SENTENCES &&
         tagTemplate.type !== tagTypes.ICD
       ) {
+  const makeCustomTypesRadioButtons = () => {
+    const customTagTypes = new Set();
+
+    props.tagTemplates.forEach((tagTemplate) => {
+      if (tagTemplate.type !== tagTypes.TOKENS && tagTemplate.type !== tagTypes.SENTENCES) {
         if (tagTemplate.type && tagTemplate.type !== "") {
           customTagTypes.add(tagTemplate.type);
         } else {
@@ -297,25 +293,25 @@ const TagSelector = props => {
             />
           )}
         />
+        <SearchBox />
       </div>
     </div>
   );
 };
 
-const mapStateToProps = state => {
+const mapStateToProps = (state) => {
   return {
     tagTemplates: state.fileViewer.tagTemplates,
     annotationFocus: state.fileViewer.annotationFocus, // the currently active type
-    addingTags: state.tagManagement.addingTags, // the currently active tag
     sentences: state.fileViewer.sentences,
     tokens: state.fileViewer.tokens,
     entities: state.fileViewer.entities,
     entityTagsList: state.tagManagement.uploadedTags, // a selection of tags for labelling entities
-    areSentencesAvailable: state.fileViewer.sentencesAvailable
+    areSentencesAvailable: state.fileViewer.sentencesAvailable,
   };
 };
 
-const mapDispatchToProps = dispatch => {
+const mapDispatchToProps = (dispatch) => {
   return {
     setTagTemplates: tags => dispatch(actions.setTagTemplatesWithCallback(tags)),
     appendToCache: codeObjArray => dispatch(actions.appendToCache(codeObjArray)),

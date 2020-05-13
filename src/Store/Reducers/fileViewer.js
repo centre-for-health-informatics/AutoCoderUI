@@ -25,7 +25,8 @@ const initialState = {
   currentSentences: [],
   versionIndex: -1,
   versions: [],
-  sentencesAvailable: true
+  sentencesAvailable: true,
+  modifyingAnnotation: null,
 };
 
 const reducer = (state = initialState, action) => {
@@ -82,6 +83,8 @@ const reducer = (state = initialState, action) => {
       return { ...state, versionIndex: action.versionIndex };
     case actionTypes.SET_SENTENCES_AVAILABLE:
       return { ...state, sentencesAvailable: action.sentencesAvailable };
+    case actionTypes.SET_MODIFYING_ANNOTATION:
+      return { ...state, modifyingAnnotation: action.modifyingAnnotation };
     default:
       return state;
   }
