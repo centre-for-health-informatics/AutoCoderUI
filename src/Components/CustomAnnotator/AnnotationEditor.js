@@ -13,6 +13,7 @@ import DeleteIcon from "@material-ui/icons/Delete";
 import SearchBox from "../TagManagement/SearchBox";
 import { getWindowSize } from "../../Util/windowSizeBracket";
 import useWindowResize from "../../Util/resizer";
+import Treeviewer from "../../Components/TreeViewer/TreeViewer";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -43,6 +44,8 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
+const treeViewDiv = React.createRef();
+
 const AnnotationEditor = (props) => {
   const classes = useStyles();
 
@@ -51,7 +54,7 @@ const AnnotationEditor = (props) => {
 
   const modalWidth = { xs: "95%", sm: "60%", md: "70%", lg: "70%", xl: "70%" };
 
-  const getChartWidth = () => {
+  const getModalWidth = () => {
     const size = getWindowSize(windowWidth);
 
     switch (size) {
@@ -270,15 +273,11 @@ const AnnotationEditor = (props) => {
     for (let i = 0; i < item.labels.length; i++) {
       chipList.push(
         <CustomMuiChip
-          key={"chipItem-" + item.labels[i].tag + Math.random()}
+          key={"chipItem-" + i}
           variant="outlined"
           size="small"
-<<<<<<< HEAD
           label={props.annotationFocus === tagTypes.ICD ? addDotToCode(item.labels[i].tag) : item.labels[i].tag}
-=======
-          label={item.labels[i].tag}
           deleteIcon={<DeleteIcon />}
->>>>>>> 1045deb308e231706c05f05334c95107ac326367
           onDelete={() => handleRemoveLabel(item.ref[i])}
           confirmIcon={item.ref[i].confirmed ? null : <DoneIcon />}
           onConfirm={() => {
@@ -299,10 +298,26 @@ const AnnotationEditor = (props) => {
     return chipList;
   };
 
+  const checkTagTemplates = (tag, type, description) => {
+    const tagTemplates = Array.from(props.tagTemplates);
+    let duplicateTag = tagTemplates.find((tagTemplate) => tagTemplate.id === tag && tagTemplate.type === type);
+    if (duplicateTag === undefined) {
+      tagTemplates.push({
+        id: tag,
+        type: type,
+        description: description,
+      });
+      // pushing the modified tagTemplates to the state
+      props.setTagTemplates(tagTemplates);
+    }
+  };
+
   const changeAnnotation = () => {
     if (props.modifyingAnnotation && props.addingTags) {
-      props.modifyingAnnotation.tag = props.addingTags[0].id;
+      props.modifyingAnnotation.tag = props.addingTags[0].id ? props.addingTags[0].id : props.addingTags[0].code;
       setModalOpen(false);
+
+      checkTagTemplates(props.modifyingAnnotation.tag, props.annotationFocus, props.addingTags[0].description);
 
       // necessary to update legend
       const focus = props.annotationFocus;
@@ -330,18 +345,25 @@ const AnnotationEditor = (props) => {
         }}
       >
         <Fade in={modalOpen}>
-          <div className={classes.paper} style={{ width: getChartWidth(), display: "flex", flexDirection: "row" }}>
-            <SearchBox />
-            <Button
-              onClick={changeAnnotation}
-              variant="contained"
-              color="default"
-              className={classes.button}
-              size="small"
-              style={{ fontSize: "70%" }}
-            >
-              Change
-            </Button>
+          <div id="divdivdiv" style={{ width: getModalWidth() }} className={classes.paper}>
+            <div style={{ display: "flex", flexDirection: "row" }}>
+              <SearchBox />
+              <Button
+                onClick={changeAnnotation}
+                variant="contained"
+                color="default"
+                className={classes.button}
+                size="small"
+                style={{ fontSize: "70%" }}
+              >
+                Change
+              </Button>
+            </div>
+            {props.annotationFocus === tagTypes.ICD ? (
+              <div style={{ width: "100%", height: props.docTreeHeight }}>
+                <Treeviewer ref={treeViewDiv} className="mainTree" />
+              </div>
+            ) : null}
           </div>
         </Fade>
       </Modal>
@@ -352,13 +374,10 @@ const AnnotationEditor = (props) => {
 const mapStateToProps = (state) => {
   return {
     fileViewerText: state.fileViewer.fileViewerText,
-    annotations: state.fileViewer.annotations,
     tagTemplates: state.fileViewer.tagTemplates,
     annotationFocus: state.fileViewer.annotationFocus, // the currently active type
     addingTags: state.tagManagement.addingTags, // the currently active tag
     sentences: state.fileViewer.sentences,
-    tokens: state.fileViewer.tokens,
-    entities: state.fileViewer.entities,
     modifyingAnnotation: state.fileViewer.modifyingAnnotation,
   };
 };
@@ -366,9 +385,8 @@ const mapStateToProps = (state) => {
 const mapDispatchToProps = (dispatch) => {
   return {
     setAnnotationFocus: (focus) => dispatch(actions.setAnnotationFocus(focus)),
-    setAddingTags: (tags) => dispatch(actions.setAddingTags(tags)),
+    setTagTemplates: (tags) => dispatch(actions.setTagTemplatesWithCallback(tags)),
     setModifyingAnnotation: (modifyingAnnotation) => dispatch(actions.setModifyingAnnotation(modifyingAnnotation)),
-    setAnnotations: (annotations) => dispatch(actions.setAnnotations(annotations)),
   };
 };
 

@@ -6,6 +6,8 @@ import Autocomplete from "@material-ui/lab/AutoComplete";
 import { TextField, createMuiTheme } from "@material-ui/core";
 import { makeStyles } from "@material-ui/styles";
 import { green, red } from "@material-ui/core/colors";
+import * as APIUtility from "../../Util/API";
+import { addDotToCode } from "../../Util/icdUtility";
 
 const theme = createMuiTheme({
   pallete: {
@@ -28,6 +30,8 @@ const useStyles = makeStyles(() => ({
 }));
 
 const SearchBox = (props) => {
+  const [autoCompleteList, setAutoCompleteList] = useState([]);
+
   const classes = useStyles();
 
   const getSearchTextValue = () => {
@@ -51,8 +55,9 @@ const SearchBox = (props) => {
 
   const getCurrentTagOptions = () => {
     let options;
-
-    if (props.annotationFocus !== "NA") {
+    if (props.annotationFocus === tagTypes.ICD) {
+      options = autoCompleteList;
+    } else if (props.annotationFocus !== "") {
       options = props.tagTemplates.filter((tag) => {
         return tag.type.toLowerCase() === props.annotationFocus.toLowerCase();
       });
@@ -65,6 +70,7 @@ const SearchBox = (props) => {
   };
 
   const searchboxSelectionChange = (event, selections) => {
+    console.log(selections);
     if (Array.isArray(selections)) {
       props.setAddingTags(selections);
     } else if (selections === null) {
@@ -75,7 +81,9 @@ const SearchBox = (props) => {
   };
 
   const getOptionLabelFunc = () => {
-    return (x) => x.id + (x.description !== "" ? ": " + x.description : "");
+    return (x) =>
+      (x.id ? (props.annotationFocus === tagTypes.ICD ? addDotToCode(x.id) : x.id) : addDotToCode(x.code)) +
+      (x.description !== "" ? ": " + x.description : "");
   };
 
   const getTextLabel = () => {
@@ -89,15 +97,75 @@ const SearchBox = (props) => {
     }
   };
 
+  const onInputChange = (event, value) => {
+    if (value !== "") {
+      APIUtility.API.makeAPICall(APIUtility.CODE_AUTO_SUGGESTIONS, value.replace(".", ""))
+        .then((response) => response.json())
+        .then((results) => {
+          populateAutoCompleteList(results);
+        })
+        .catch((error) => {
+          console.log("ERROR:", error);
+        });
+    } else {
+      populateAutoCompleteList({ "code matches": [], "description matches": [], "keyword matches": [] });
+    }
+  };
+
+  const filterSearchBoxOptions = (options, state) => {
+    if (props.annotationFocus === tagTypes.ICD) {
+      return options;
+    } else {
+      const validOptions = [];
+      const inputWords = state.inputValue.toLowerCase().split(" ");
+      for (let option of options) {
+        const optionName = option.id.toLowerCase() + (option.description ? " " + option.description.toLowerCase() : "");
+        let shouldAdd = true; // whether the option should be added to validOptions
+        for (let word of inputWords) {
+          if (!optionName.includes(word)) {
+            shouldAdd = false;
+          }
+        }
+        if (shouldAdd) {
+          validOptions.push(option);
+        }
+      }
+      return validOptions;
+    }
+  };
+
+  const populateAutoCompleteList = (suggestionsFromAPI) => {
+    let tempAutoCompleteList = [];
+
+    for (let codeMatch of suggestionsFromAPI["code matches"]) {
+      codeMatch.type = tagTypes.ICD;
+      tempAutoCompleteList.push(codeMatch);
+    }
+
+    for (let descMatch of suggestionsFromAPI["description matches"]) {
+      descMatch.type = tagTypes.ICD;
+      tempAutoCompleteList.push(descMatch);
+    }
+
+    for (let keyMatch of suggestionsFromAPI["keyword matches"]) {
+      keyMatch.type = tagTypes.ICD;
+      tempAutoCompleteList.push(keyMatch);
+    }
+
+    setAutoCompleteList(tempAutoCompleteList);
+  };
+
   return (
     <Autocomplete
       // multiple
       id={"tagSearchInputField"}
       value={getSearchTextValue()}
       disabled={shouldDisableAutoComplete()}
-      filterSelectedOptions
+      filterOptions={filterSearchBoxOptions}
+      filterSelectedOptions={props.annotationFocus === tagTypes.ICD ? false : true}
       options={getCurrentTagOptions()}
       onChange={searchboxSelectionChange}
+      onInputChange={onInputChange}
       getOptionLabel={getOptionLabelFunc()}
       renderInput={(params) => (
         <TextField

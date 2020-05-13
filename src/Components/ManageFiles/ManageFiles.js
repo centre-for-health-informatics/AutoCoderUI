@@ -6,23 +6,22 @@ import * as tagTypes from "../TagManagement/tagTypes";
 import { List, Button, makeStyles, ListSubheader } from "@material-ui/core";
 import { saveAs } from "file-saver";
 import FileHistory from "../FileHistory/FileHistory";
-import { mapColors, setDefaultTags } from "../../Components/TagManagement/tagUtil";
 
 var JSZip = require("jszip");
 
-const useStyles = makeStyles(theme => ({
+const useStyles = makeStyles((theme) => ({
   button: {
-    margin: theme.spacing(0.3)
+    margin: theme.spacing(0.3),
   },
   root: {
-    padding: theme.spacing(0.5)
+    padding: theme.spacing(0.5),
   },
   nested: {
-    paddingLeft: theme.spacing(5)
-  }
+    paddingLeft: theme.spacing(5),
+  },
 }));
 
-const ManageFiles = props => {
+const ManageFiles = (props) => {
   const classes = useStyles();
   const fileInputRefBrowse = React.createRef();
 
@@ -44,13 +43,13 @@ const ManageFiles = props => {
     props.setSpacyLoading(true);
     const options = {
       method: "POST",
-      body: fileData
+      body: fileData,
     };
 
     let tagTemplates;
     APIUtility.API.makeAPICall(APIUtility.UPLOAD_DOCUMENT, null, options)
-      .then(response => response.json())
-      .then(data => {
+      .then((response) => response.json())
+      .then((data) => {
         // setting pointers for next
         setLinkedPointers(data[tagTypes.ENTITIES]);
 
@@ -60,7 +59,7 @@ const ManageFiles = props => {
         const icdSet = new Set();
 
         for (let entity of data[tagTypes.ENTITIES]) {
-          let duplicateTag = tagTemplates.find(tag => tag.id === entity.tag && tag.type === entity.type);
+          let duplicateTag = tagTemplates.find((tag) => tag.id === entity.tag && tag.type === entity.type);
           if (duplicateTag === undefined) {
             if (entity.type === tagTypes.ICD) {
               if (!icdSet.has(entity.tag)) {
@@ -68,8 +67,8 @@ const ManageFiles = props => {
                 promiseList.push(
                   // call API to get description for code
                   APIUtility.API.makeAPICall(APIUtility.CODE_DESCRIPTION, entity.tag)
-                    .then(response => response.json())
-                    .then(result => {
+                    .then((response) => response.json())
+                    .then((result) => {
                       tagTemplates.push({ id: entity.tag, description: result.description, type: entity.type });
                     })
                 );
@@ -84,16 +83,16 @@ const ManageFiles = props => {
           props.setTagTemplates(tagTemplates);
         });
 
-        props.updateAnnotationsAfterLoadingSpacy(data, index).then(state => {
+        props.updateAnnotationsAfterLoadingSpacy(data, index).then((state) => {
           if (props.annotationFocus === tagTypes.SENTENCES) {
             props.setAnnotations(state.fileViewer.sentences);
           } else {
-            props.setAnnotations(state.fileViewer.entities.filter(entity => entity.type === props.annotationFocus));
+            props.setAnnotations(state.fileViewer.entities.filter((entity) => entity.type === props.annotationFocus));
           }
           props.setSpacyLoading(false);
         });
       })
-      .catch(error => {
+      .catch((error) => {
         console.log("ERROR:", error);
       });
   };
@@ -101,7 +100,7 @@ const ManageFiles = props => {
   // opens files for the user to annotate.
   // .txt files are shown in a list of files available for annotation
   // .json files are mapped to .txt files with the same name to display previously exported annotations
-  const openFiles = fileList => {
+  const openFiles = (fileList) => {
     // creating empty lists
     const txtList = [];
     const jsonList = [];
@@ -135,7 +134,7 @@ const ManageFiles = props => {
 
     // making promise list to add all tags from imported json files to tagTemplates
     const promiseList = makePromiseList(jsonList); // make promise list
-    Promise.all(promiseList).then(promises => {
+    Promise.all(promiseList).then((promises) => {
       // once all of the promises are resolved
       let newTags = []; // make an empty list of tags to append all tags to
       for (let promise of promises) {
@@ -149,9 +148,9 @@ const ManageFiles = props => {
   };
 
   // function to add annotations from a json file to the currently open txt file
-  const addAnnotationsFromJson = file => {
+  const addAnnotationsFromJson = (file) => {
     let fileReader = new FileReader();
-    fileReader.onload = e => {
+    fileReader.onload = (e) => {
       // reading json
       const json = JSON.parse(e.target.result);
 
@@ -174,7 +173,7 @@ const ManageFiles = props => {
         if (props.annotationFocus === tagTypes.SENTENCES) {
           props.setAnnotations(json[tagTypes.SENTENCES]);
         } else {
-          props.setAnnotations(entities.filter(annotation => annotation.type === props.annotationFocus));
+          props.setAnnotations(entities.filter((annotation) => annotation.type === props.annotationFocus));
         }
       }
     };
@@ -190,11 +189,11 @@ const ManageFiles = props => {
   };
 
   // checking duplicate tags and adding new tags to tagTemplates
-  const addNewTags = newTags => {
+  const addNewTags = (newTags) => {
     const tagTemplates = Array.from(props.tagTemplates); // copy state
     // for every tag added, check if it exists in tagTemplates. If not, append it
     for (let newTag of newTags) {
-      let duplicateTag = tagTemplates.find(tag => tag.id === newTag.id && tag.type === newTag.type);
+      let duplicateTag = tagTemplates.find((tag) => tag.id === newTag.id && tag.type === newTag.type);
       if (duplicateTag === undefined) {
         tagTemplates.push(newTag);
       }
@@ -204,7 +203,7 @@ const ManageFiles = props => {
   };
 
   // making a promise list
-  const makePromiseList = jsonList => {
+  const makePromiseList = (jsonList) => {
     let promiseList = [];
     // for every json file, create a promise
     for (let jsonFile of jsonList) {
@@ -239,12 +238,12 @@ const ManageFiles = props => {
     // calls API to export the annotations for the current session
     // creates a zip file with json files for each txt file
     APIUtility.API.makeAPICall(APIUtility.EXPORT_CURRENT_ANNOTATIONS, props.sessionId)
-      .then(response => response.json())
-      .then(data => {
+      .then((response) => response.json())
+      .then((data) => {
         for (let annotation of data) {
           zip.file(annotation.name + "_Annotations.json", JSON.stringify(annotation));
         }
-        zip.generateAsync({ type: "blob" }).then(content => {
+        zip.generateAsync({ type: "blob" }).then((content) => {
           saveAs(content, "annotations.zip");
         });
       });
@@ -252,7 +251,7 @@ const ManageFiles = props => {
 
   // when receiving annotations from the backend, or uploaded json, "next" attribute is only a copy, not a pointer
   // this method changes it to a pointer
-  const setLinkedPointers = entities => {
+  const setLinkedPointers = (entities) => {
     for (let outer of entities) {
       if (outer.next) {
         for (let inner of entities) {
@@ -274,7 +273,7 @@ const ManageFiles = props => {
         style={{ display: "none" }}
         type="file"
         multiple
-        onChange={e => openFiles(e.target.files)}
+        onChange={(e) => openFiles(e.target.files)}
       />
       <Button onClick={exportAnnotations} variant="contained" color="primary" className={classes.button}>
         Export Annotations
@@ -307,7 +306,7 @@ const ManageFiles = props => {
   );
 };
 
-const mapStateToProps = state => {
+const mapStateToProps = (state) => {
   return {
     sentences: state.fileViewer.sentences,
     entities: state.fileViewer.entities,
@@ -323,25 +322,25 @@ const mapStateToProps = state => {
     currentEntities: state.fileViewer.currentEntities,
     currentSentences: state.fileViewer.currentSentences,
     versions: state.fileViewer.versions,
-    versionIndex: state.fileViewer.versionIndex
+    versionIndex: state.fileViewer.versionIndex,
   };
 };
 
-const mapDispatchToProps = dispatch => {
+const mapDispatchToProps = (dispatch) => {
   return {
-    setAnnotations: annotations => dispatch(actions.setAnnotations(annotations)),
-    setSentences: sentences => dispatch(actions.setSentences(sentences)),
-    setEntities: entities => dispatch(actions.setEntities(entities)),
-    setAnnotationFocus: annotationFocus => dispatch(actions.setAnnotationFocus(annotationFocus)),
-    setSpacyLoading: isSpacyLoading => dispatch(actions.setSpacyLoading(isSpacyLoading)),
+    setAnnotations: (annotations) => dispatch(actions.setAnnotations(annotations)),
+    setSentences: (sentences) => dispatch(actions.setSentences(sentences)),
+    setEntities: (entities) => dispatch(actions.setEntities(entities)),
+    setAnnotationFocus: (annotationFocus) => dispatch(actions.setAnnotationFocus(annotationFocus)),
+    setSpacyLoading: (isSpacyLoading) => dispatch(actions.setSpacyLoading(isSpacyLoading)),
     updateAnnotationsAfterLoadingSpacy: (data, index) =>
       dispatch(actions.updateAnnotationsAfterLoadingSpacy(data, index)),
-    setJsonList: jsonList => dispatch(actions.setJsonList(jsonList)),
-    setTxtList: txtList => dispatch(actions.setTxtList(txtList)),
-    setAnnotationsList: annotationsList => dispatch(actions.setAnnotationsList(annotationsList)),
-    setTagTemplates: tagTemplates => dispatch(actions.setTagTemplatesWithCallback(tagTemplates)),
-    setCurrentEntities: currentEntities => dispatch(actions.setCurrentEntities(currentEntities)),
-    setCurrentSentences: currentSentences => dispatch(actions.setCurrentSentences(currentSentences))
+    setJsonList: (jsonList) => dispatch(actions.setJsonList(jsonList)),
+    setTxtList: (txtList) => dispatch(actions.setTxtList(txtList)),
+    setAnnotationsList: (annotationsList) => dispatch(actions.setAnnotationsList(annotationsList)),
+    setTagTemplates: (tagTemplates) => dispatch(actions.setTagTemplatesWithCallback(tagTemplates)),
+    setCurrentEntities: (currentEntities) => dispatch(actions.setCurrentEntities(currentEntities)),
+    setCurrentSentences: (currentSentences) => dispatch(actions.setCurrentSentences(currentSentences)),
   };
 };
 

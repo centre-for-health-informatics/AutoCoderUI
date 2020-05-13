@@ -5,6 +5,7 @@ import { connect } from "react-redux";
 import * as actions from "../../Store/Actions/index";
 import * as APIUtility from "../../Util/API";
 import { addDotToCode } from "../../Util/icdUtility";
+import * as tagTypes from "../TagManagement/tagTypes";
 
 class TreeViewer extends Component {
   constructor(props) {
@@ -13,7 +14,7 @@ class TreeViewer extends Component {
     this.oldWidth = 0;
     this.oldHeight = 0;
     this.fontType = "sans-serif"; // Font type
-    this.treeClass = "treeVis"; // Class name
+    this.treeClass = this.props.className; // Class name
     this.selectedColor = "#3748ac"; // Colour of selected node
     this.indicatorColor = "green"; // Colour of the indicator for whether the node has children
     this.otherColor = "pink"; // Colour of other nodes
@@ -22,16 +23,15 @@ class TreeViewer extends Component {
     this.linkWidth = 7; // Width of links
     this.handlingClick = false; // Initializing handlingClick to false, used to prevent two clicks from happening at the same time
     this.isMountedFlag = false;
-    this.dblclick_timer = false;
   }
 
   // Function to create links
   link = d3
     .linkHorizontal()
-    .x(function(d) {
+    .x(function (d) {
       return d.x;
     })
-    .y(function(d) {
+    .y(function (d) {
       return d.y;
     });
 
@@ -55,8 +55,6 @@ class TreeViewer extends Component {
     this.cRadius = minSize / 60; // Circle radius
     this.textSize = minSize / 50; // Font size
     this.middle = (this.width - this.leftPadding - this.rightPadding) / 2 + this.leftPadding; // Middle of the non-padded space
-    this.buttonWidth = this.rightPadding / 2; // Width of "add code" button
-    this.buttonHeight = this.vPadding / 2; // Height of "add code" button
 
     //check if dimensions changed
     if (this.width !== this.oldWidth || this.height !== this.oldHeight) {
@@ -135,7 +133,7 @@ class TreeViewer extends Component {
       .then(() => {
         this.redrawTree();
       })
-      .catch(error => {
+      .catch((error) => {
         console.log("ERROR:", error);
       });
   }
@@ -179,7 +177,7 @@ class TreeViewer extends Component {
           .duration(0.5 * this.duration)
           .style("opacity", 1);
       })
-      .catch(error => {
+      .catch((error) => {
         console.log("ERROR:", error);
       });
   }
@@ -226,7 +224,7 @@ class TreeViewer extends Component {
           this.clearInfoText();
         })
         .on("click", (d, i) => {
-          this.singleDoubleClick(d, i, "parent");
+          this.handleClick(d, i, "parent");
         });
 
       parentg
@@ -241,11 +239,7 @@ class TreeViewer extends Component {
         .style("text-anchor", "right");
 
       // Add parent circle to the parent g
-      parentg
-        .append("circle")
-        .attr("r", this.cRadius)
-        .attr("fill", this.otherColor)
-        .attr("class", "parentCircle");
+      parentg.append("circle").attr("r", this.cRadius).attr("fill", this.otherColor).attr("class", "parentCircle");
     }
     ////////////////////////////////////////
     ////////////////////////////////////////
@@ -269,11 +263,11 @@ class TreeViewer extends Component {
       .on("mouseout", () => {
         this.clearInfoText();
       })
-      .attr("transform", d => {
+      .attr("transform", (d) => {
         return "translate(" + this.middle + "," + d + ")";
       })
       .on("click", (d, i) => {
-        this.singleDoubleClick(d, i, "sibling");
+        this.handleClick(d, i, "sibling");
       })
       .attr("class", "siblingG");
 
@@ -281,7 +275,7 @@ class TreeViewer extends Component {
     siblingGs
       .data(this.data.siblings)
       .append("text")
-      .text(d => this.codeFormat(d, 1))
+      .text((d) => this.codeFormat(d, 1))
       .attr("font-family", this.fontType)
       .attr("font-size", this.textSize)
       .attr("fill", this.textColor)
@@ -295,7 +289,7 @@ class TreeViewer extends Component {
       .data(this.siblingColours)
       .append("circle")
       .attr("r", this.cRadius)
-      .attr("fill", d => {
+      .attr("fill", (d) => {
         return d;
       })
       .attr("class", "siblingCircle");
@@ -336,11 +330,11 @@ class TreeViewer extends Component {
       .on("mouseout", () => {
         this.clearInfoText();
       })
-      .attr("transform", d => {
+      .attr("transform", (d) => {
         return "translate(" + (this.width - this.rightPadding) + "," + d + ")";
       })
       .on("click", (d, i) => {
-        this.singleDoubleClick(d, i, "child");
+        this.handleClick(d, i, "child");
       })
       .attr("class", "childrenG");
 
@@ -348,7 +342,7 @@ class TreeViewer extends Component {
     childrenGs
       .data(this.data.children)
       .append("text")
-      .text(d => this.codeFormat(d, 1))
+      .text((d) => this.codeFormat(d, 1))
       .attr("font-family", this.fontType)
       .attr("font-size", this.textSize)
       .attr("fill", this.textColor)
@@ -358,11 +352,7 @@ class TreeViewer extends Component {
       .style("text-anchor", "right");
 
     // Attach the circles for each child
-    childrenGs
-      .append("circle")
-      .attr("r", this.cRadius)
-      .attr("fill", this.otherColor)
-      .attr("class", "childrenCircle");
+    childrenGs.append("circle").attr("r", this.cRadius).attr("fill", this.otherColor).attr("class", "childrenCircle");
 
     // Adds the indicator circles
     childrenGs
@@ -392,7 +382,7 @@ class TreeViewer extends Component {
         .data(this.parentLinks)
         .enter()
         .append("path")
-        .attr("d", d => this.link(d))
+        .attr("d", (d) => this.link(d))
         .attr("class", "parentLink")
         .style("fill", "none")
         .style("stroke", this.linkColor)
@@ -406,15 +396,13 @@ class TreeViewer extends Component {
       .data(this.childrenLinks)
       .enter()
       .append("path")
-      .attr("d", d => this.link(d))
+      .attr("d", (d) => this.link(d))
       .attr("class", "childrenLink")
       .style("fill", "none")
       .style("stroke", this.linkColor)
       .style("stroke-width", this.linkWidth);
     ////////////////////////////////////////
     ////////////////////////////////////////
-
-    this.createButton(); // Creates the "Add Code" button
   }
   // END OF DRAW INITIAL TREE /////////////////
   /////////////////////////////////////////////
@@ -452,7 +440,7 @@ class TreeViewer extends Component {
         .then(() => {
           this.handlingClick = false; // Sets handling click to false to enable clicking on a node again
         })
-        .catch(error => {
+        .catch((error) => {
           console.log("ERROR:", error);
         });
     }
@@ -478,7 +466,7 @@ class TreeViewer extends Component {
               .data(this.siblingColours)
               .transition()
               .duration(this.duration)
-              .attr("fill", d => {
+              .attr("fill", (d) => {
                 return d;
               });
             this.svg
@@ -486,7 +474,7 @@ class TreeViewer extends Component {
               .data(this.data.siblings)
               .transition()
               .duration(this.duration)
-              .text(d => this.codeFormat(d, 1))
+              .text((d) => this.codeFormat(d, 1))
               .attr("y", 0.3 * this.textSize)
               .attr("x", 1.5 * this.cRadius)
               .attr("class", "siblingText")
@@ -500,7 +488,7 @@ class TreeViewer extends Component {
         .then(() => {
           this.handlingClick = false; // Sets handling click to false to enable clicking on a node again
         })
-        .catch(error => {
+        .catch((error) => {
           console.log("ERROR:", error);
         });
     }
@@ -536,7 +524,7 @@ class TreeViewer extends Component {
         .then(() => {
           this.handlingClick = false; // Sets handling click to false to enable clicking on a node again
         })
-        .catch(error => {
+        .catch((error) => {
           console.log("ERROR:", error);
         });
     }
@@ -552,65 +540,6 @@ class TreeViewer extends Component {
 
   // END OF HANDLE CLICKS //////////////////////
   //////////////////////////////////////////////
-
-  // Creates the "Add Code" button
-  createButton() {
-    // Creating g for the button rectangles and text
-    let buttonG = this.svg
-      .append("g")
-      .attr("transform", d => {
-        return "translate(" + (this.width - 0.75 * this.rightPadding) + "," + (this.height - 0.7 * this.vPadding) + ")";
-      })
-      .attr("class", "buttonG")
-      .on("click", () => {
-        console.log(document.getElementById("swipeDiv").offsetHeight);
-      });
-
-    // Create rectangle for colour
-    buttonG
-      .append("rect")
-      .attr("width", this.buttonWidth)
-      .attr("height", this.buttonHeight)
-      .attr("fill", "lightgrey")
-      .attr("class", "buttonRect")
-      .attr("rx", this.cRadius)
-      .attr("ry", this.cRadius);
-
-    // Create text on the button
-    buttonG
-      .append("text")
-      .text("Add Code")
-      .attr("font-family", this.fontType)
-      .attr("font-weight", "bold")
-      .attr("font-size", this.textSize)
-      .attr("fill", this.textColor)
-      .attr("y", this.buttonHeight / 1.5)
-      .attr("x", this.buttonWidth / 2)
-      .attr("class", "buttonText")
-      .style("text-anchor", "middle");
-
-    // Create a new rectangle for flashing effect when clicked
-    let overButton = buttonG
-      .append("rect")
-      .attr("width", this.buttonWidth)
-      .attr("height", this.buttonHeight)
-      .attr("fill", "green")
-      .attr("class", "buttonRect")
-      .style("fill-opacity", 1e-6)
-      .on("click", async () => {
-        overButton
-          .transition()
-          .duration(200)
-          .style("fill-opacity", 0.5);
-        await this.sleep(200);
-        overButton
-          .transition()
-          .duration(200)
-          .style("fill-opacity", 1e-6);
-      })
-      .attr("rx", this.cRadius)
-      .attr("ry", this.cRadius);
-  }
 
   changeSiblingIndicators() {
     this.svg
@@ -661,7 +590,7 @@ class TreeViewer extends Component {
       .data(this.chainPositions)
       .enter()
       .append("g")
-      .attr("transform", d => {
+      .attr("transform", (d) => {
         return "translate(" + d + "," + (this.height - this.vPadding / 2) + ")";
       })
       .attr("class", "chainG")
@@ -679,7 +608,7 @@ class TreeViewer extends Component {
     chainGs
       .data(this.ancestors)
       .append("text")
-      .text(d => addDotToCode(d.code))
+      .text((d) => addDotToCode(d.code))
       .attr("font-family", this.fontType)
       .attr("font-size", this.textSize)
       .attr("fill", this.textColor)
@@ -695,14 +624,14 @@ class TreeViewer extends Component {
     chainGs
       .data(this.ancestorColours)
       .append("circle")
-      .attr("r", i => {
+      .attr("r", (i) => {
         if (i === 0) {
           return 1e-6;
         } else {
           return this.cRadius;
         }
       })
-      .attr("fill", d => d)
+      .attr("fill", (d) => d)
       .attr("class", "chainCircle");
 
     this.calcChainSpacing(); // Calculating spacing
@@ -713,22 +642,14 @@ class TreeViewer extends Component {
       .data(this.chainPositions)
       .transition()
       .duration(this.duration)
-      .attr("transform", d => {
+      .attr("transform", (d) => {
         return "translate(" + d + "," + (this.height - this.vPadding / 2) + ")";
       });
     // Fade the old text out
-    this.svg
-      .selectAll("text.oldChainText")
-      .transition()
-      .duration(this.duration)
-      .style("fill-opacity", 1e-6);
+    this.svg.selectAll("text.oldChainText").transition().duration(this.duration).style("fill-opacity", 1e-6);
 
     // Fade the old circles out
-    this.svg
-      .selectAll("circle.oldChainCircle")
-      .transition()
-      .duration(this.duration)
-      .attr("r", 1e-6);
+    this.svg.selectAll("circle.oldChainCircle").transition().duration(this.duration).attr("r", 1e-6);
 
     if (this.ancestors.length > 1) {
       // Creating temp g to add new self node
@@ -740,11 +661,7 @@ class TreeViewer extends Component {
         .attr("class", "tempG");
 
       // Adding circle
-      tempG
-        .append("circle")
-        .attr("r", this.cRadius)
-        .attr("fill", this.selectedColor)
-        .attr("class", "TempCircle");
+      tempG.append("circle").attr("r", this.cRadius).attr("fill", this.selectedColor).attr("class", "TempCircle");
 
       // Adding text
       tempG
@@ -759,18 +676,10 @@ class TreeViewer extends Component {
         .style("text-anchor", "middle");
 
       // Fading out the tempText
-      this.svg
-        .selectAll("text.TempText")
-        .transition()
-        .duration(this.duration)
-        .style("fill-opacity", 1e-6);
+      this.svg.selectAll("text.TempText").transition().duration(this.duration).style("fill-opacity", 1e-6);
 
       // Fading out the tempCircle
-      this.svg
-        .selectAll("circle.TempCircle")
-        .transition()
-        .duration(this.duration)
-        .attr("r", 1e-6);
+      this.svg.selectAll("circle.TempCircle").transition().duration(this.duration).attr("r", 1e-6);
       this.svg.selectAll("g.oldChainG").remove(); // Removing old g
     } else {
       // If lenght of ancestors == 1
@@ -779,12 +688,12 @@ class TreeViewer extends Component {
       this.ancestorLinks[0] = {
         source: {
           x: this.leftPadding + this.cRadius,
-          y: this.height - this.vPadding / 2
+          y: this.height - this.vPadding / 2,
         },
         target: {
           x: this.width - this.rightPadding - this.cRadius,
-          y: this.height - this.vPadding / 2
-        }
+          y: this.height - this.vPadding / 2,
+        },
       };
 
       // Appending the links to the chain on the same spots as they were
@@ -793,7 +702,7 @@ class TreeViewer extends Component {
         .data(this.ancestorLinks)
         .enter()
         .append("path")
-        .attr("d", d => this.link(d))
+        .attr("d", (d) => this.link(d))
         .attr("class", "chainLink")
         .style("fill", "none")
         .style("stroke", this.linkColor)
@@ -803,12 +712,12 @@ class TreeViewer extends Component {
       this.ancestorLinks[0] = {
         source: {
           x: this.leftPadding + this.cRadius,
-          y: this.height - this.vPadding / 2
+          y: this.height - this.vPadding / 2,
         },
         target: {
           x: this.leftPadding + this.cRadius,
-          y: this.height - this.vPadding / 2
-        }
+          y: this.height - this.vPadding / 2,
+        },
       };
 
       // Transition the newly created links to the correct positions
@@ -817,7 +726,7 @@ class TreeViewer extends Component {
         .data(this.ancestorLinks)
         .transition()
         .duration(this.duration)
-        .attr("d", d => this.link(d));
+        .attr("d", (d) => this.link(d));
 
       // Adding svg for selected code
       let tempG = this.svg
@@ -827,11 +736,7 @@ class TreeViewer extends Component {
         })
         .attr("class", "tempG");
 
-      tempG
-        .append("circle")
-        .attr("r", this.cRadius)
-        .attr("fill", this.selectedColor)
-        .attr("class", "TempCircle");
+      tempG.append("circle").attr("r", this.cRadius).attr("fill", this.selectedColor).attr("class", "TempCircle");
 
       tempG
         .append("text")
@@ -853,18 +758,10 @@ class TreeViewer extends Component {
         });
 
       // Fading out the text
-      this.svg
-        .selectAll("text.TempText")
-        .transition()
-        .duration(this.duration)
-        .style("fill-opacity", 1e-6);
+      this.svg.selectAll("text.TempText").transition().duration(this.duration).style("fill-opacity", 1e-6);
 
       // Fading out the circle
-      this.svg
-        .selectAll("circle.TempCircle")
-        .transition()
-        .duration(this.duration)
-        .attr("r", 1e-6);
+      this.svg.selectAll("circle.TempCircle").transition().duration(this.duration).attr("r", 1e-6);
       this.svg.selectAll("g.oldChainG").remove(); // Removing old g
     }
   }
@@ -885,7 +782,7 @@ class TreeViewer extends Component {
       .data(this.chainPositions)
       .enter()
       .append("g")
-      .attr("transform", d => {
+      .attr("transform", (d) => {
         return "translate(" + d + "," + (this.height - this.vPadding / 2) + ")";
       })
       .on("click", (d, i) => {
@@ -902,7 +799,7 @@ class TreeViewer extends Component {
     chainGs
       .data(this.ancestors)
       .append("text")
-      .text(d => addDotToCode(d.code))
+      .text((d) => addDotToCode(d.code))
       .attr("font-family", this.fontType)
       .attr("font-size", this.textSize)
       .attr("fill", this.textColor)
@@ -922,14 +819,14 @@ class TreeViewer extends Component {
     chainGs
       .data(this.ancestorColours)
       .append("circle")
-      .attr("r", i => {
+      .attr("r", (i) => {
         if (i === 0) {
           return 1e-6; // Last one is invisible again
         } else {
           return this.cRadius;
         }
       })
-      .attr("fill", d => d)
+      .attr("fill", (d) => d)
       .attr("class", "chainCircle");
 
     // Remove old (no transition necessary)
@@ -940,22 +837,14 @@ class TreeViewer extends Component {
       .selectAll("g.chainG")
       .data(this.chainPositions)
       .transition()
-      .attr("transform", d => {
+      .attr("transform", (d) => {
         return "translate(" + d + "," + (this.height - this.vPadding / 2) + ")";
       })
       .duration(this.duration);
 
     // Transition invisible one in
-    this.svg
-      .selectAll("circle.chainCircle")
-      .transition()
-      .duration(this.duration)
-      .attr("r", this.cRadius);
-    this.svg
-      .selectAll("text.chainText")
-      .transition()
-      .duration(this.duration)
-      .style("fill-opacity", 1);
+    this.svg.selectAll("circle.chainCircle").transition().duration(this.duration).attr("r", this.cRadius);
+    this.svg.selectAll("text.chainText").transition().duration(this.duration).style("fill-opacity", 1);
 
     // Creating new links
     if (this.prevAncestors.length !== 1) {
@@ -965,12 +854,12 @@ class TreeViewer extends Component {
       this.ancestorLinks[0] = {
         source: {
           x: this.leftPadding + this.cRadius,
-          y: this.height - this.vPadding / 2
+          y: this.height - this.vPadding / 2,
         },
         target: {
           x: this.leftPadding + this.cRadius,
-          y: this.height - this.vPadding / 2
-        }
+          y: this.height - this.vPadding / 2,
+        },
       };
 
       // Transitioning new links
@@ -979,7 +868,7 @@ class TreeViewer extends Component {
         .data(this.ancestorLinks)
         .enter()
         .append("path")
-        .attr("d", d => this.link(d))
+        .attr("d", (d) => this.link(d))
         .attr("class", "chainLink")
         .style("fill", "none")
         .style("stroke", this.linkColor)
@@ -990,12 +879,12 @@ class TreeViewer extends Component {
       this.ancestorLinks[0] = {
         source: {
           x: this.leftPadding + this.cRadius,
-          y: this.height - this.vPadding / 2
+          y: this.height - this.vPadding / 2,
         },
         target: {
           x: this.width - this.rightPadding - this.cRadius,
-          y: this.height - this.vPadding / 2
-        }
+          y: this.height - this.vPadding / 2,
+        },
       };
 
       // Transition
@@ -1004,7 +893,7 @@ class TreeViewer extends Component {
         .data(this.ancestorLinks)
         .transition()
         .duration(this.duration)
-        .attr("d", d => this.link(d));
+        .attr("d", (d) => this.link(d));
     }
   }
 
@@ -1020,7 +909,7 @@ class TreeViewer extends Component {
       .data(this.chainPositions)
       .enter()
       .append("g")
-      .attr("transform", d => {
+      .attr("transform", (d) => {
         return "translate(" + d + "," + (this.height - this.vPadding / 2) + ")";
       })
       .on("click", (d, i) => {
@@ -1064,17 +953,13 @@ class TreeViewer extends Component {
       .data(this.ancestorColours)
       .append("circle")
       .attr("r", this.cRadius)
-      .attr("fill", d => {
+      .attr("fill", (d) => {
         return d;
       })
       .attr("class", "chainCircle");
 
     // Fading out old text
-    this.svg
-      .selectAll("text.oldChainText")
-      .transition()
-      .duration(this.duration)
-      .style("fill-opacity", 1e-6);
+    this.svg.selectAll("text.oldChainText").transition().duration(this.duration).style("fill-opacity", 1e-6);
 
     // Fading in next text
     this.svg
@@ -1097,7 +982,7 @@ class TreeViewer extends Component {
         this.addChainGs(); // Adds "g" elements and circles for the chain
         this.addChainLinks(); // Adds the chain links
       })
-      .catch(error => {
+      .catch((error) => {
         console.log("ERROR:", error);
       });
   }
@@ -1110,12 +995,12 @@ class TreeViewer extends Component {
       this.ancestorLinks[i] = {
         source: {
           x: this.chainPositions[i] + this.cRadius,
-          y: this.height - this.vPadding / 2
+          y: this.height - this.vPadding / 2,
         },
         target: {
           x: this.chainPositions[i + 1] - this.cRadius,
-          y: this.height - this.vPadding / 2
-        }
+          y: this.height - this.vPadding / 2,
+        },
       };
     }
 
@@ -1125,7 +1010,7 @@ class TreeViewer extends Component {
       .data(this.ancestorLinks)
       .enter()
       .append("path")
-      .attr("d", d => this.link(d))
+      .attr("d", (d) => this.link(d))
       .attr("class", "chainLink")
       .style("fill", "none")
       .style("stroke", this.linkColor)
@@ -1158,7 +1043,7 @@ class TreeViewer extends Component {
       .data(this.chainPositions)
       .enter()
       .append("g")
-      .attr("transform", d => {
+      .attr("transform", (d) => {
         return "translate(" + d + "," + (this.height - this.vPadding / 2) + ")";
       })
       .on("click", (d, i) => {
@@ -1176,7 +1061,7 @@ class TreeViewer extends Component {
     chainGs
       .data(this.ancestors)
       .append("text")
-      .text(d => addDotToCode(d.code))
+      .text((d) => addDotToCode(d.code))
       .attr("font-family", this.fontType)
       .attr("font-size", this.textSize)
       .attr("fill", this.textColor)
@@ -1190,7 +1075,7 @@ class TreeViewer extends Component {
       .data(this.ancestorColours)
       .append("circle")
       .attr("r", this.cRadius)
-      .attr("fill", d => {
+      .attr("fill", (d) => {
         return d;
       })
       .attr("class", "chainCircle");
@@ -1209,10 +1094,10 @@ class TreeViewer extends Component {
   // Gets the ancestors from API
   // Parameter: code to get ancestors for
   // Puts the array of ancestors into a member variable
-  getAncestorsFromAPI = code => {
+  getAncestorsFromAPI = (code) => {
     return APIUtility.API.makeAPICall(APIUtility.ANCESTORS, code)
-      .then(response => response.json())
-      .then(parsedJson => {
+      .then((response) => response.json())
+      .then((parsedJson) => {
         this.ancestors = parsedJson;
       });
   };
@@ -1236,7 +1121,7 @@ class TreeViewer extends Component {
         this.clearInfoText();
       })
       .on("click", (d, i) => {
-        this.singleDoubleClick(d, i, "parent");
+        this.handleClick(d, i, "parent");
       })
       .attr("class", "parentG");
     // Adding text
@@ -1251,11 +1136,7 @@ class TreeViewer extends Component {
       .attr("class", "parentText")
       .style("text-anchor", "right");
     // Adding circle
-    parentg
-      .append("circle")
-      .attr("r", this.cRadius)
-      .attr("fill", this.selectedColor)
-      .attr("class", "parentCircle");
+    parentg.append("circle").attr("r", this.cRadius).attr("fill", this.selectedColor).attr("class", "parentCircle");
   }
 
   // Transitions the parent and siblings to self node and removes them
@@ -1268,16 +1149,8 @@ class TreeViewer extends Component {
         return "translate(" + this.middle + "," + this.siblingHeights[this.selfIndex] + ")";
       })
       .duration(this.duration);
-    this.svg
-      .selectAll("circle.oldParentCircle")
-      .transition()
-      .duration(this.duration)
-      .attr("r", 1e-6);
-    this.svg
-      .selectAll("text.oldParentText")
-      .transition()
-      .duration(this.duration)
-      .style("fill-opacity", 1e-6);
+    this.svg.selectAll("circle.oldParentCircle").transition().duration(this.duration).attr("r", 1e-6);
+    this.svg.selectAll("text.oldParentText").transition().duration(this.duration).style("fill-opacity", 1e-6);
 
     // Moving siblings to self and fading out
     this.svg
@@ -1287,16 +1160,8 @@ class TreeViewer extends Component {
         return "translate(" + this.middle + "," + this.siblingHeights[this.selfIndex] + ")";
       })
       .duration(this.duration);
-    this.svg
-      .selectAll("circle.siblingCircle")
-      .transition()
-      .duration(this.duration)
-      .attr("r", 1e-6);
-    this.svg
-      .selectAll("text.siblingText")
-      .transition()
-      .duration(this.duration)
-      .style("fill-opacity", 1e-6);
+    this.svg.selectAll("circle.siblingCircle").transition().duration(this.duration).attr("r", 1e-6);
+    this.svg.selectAll("text.siblingText").transition().duration(this.duration).style("fill-opacity", 1e-6);
 
     // Creating new parent links
     this.parentLinks = [];
@@ -1304,12 +1169,12 @@ class TreeViewer extends Component {
       this.parentLinks[i] = {
         source: {
           x: this.middle - this.cRadius,
-          y: this.siblingHeights[this.selfIndex]
+          y: this.siblingHeights[this.selfIndex],
         },
         target: {
           x: this.middle - this.cRadius,
-          y: this.siblingHeights[this.selfIndex]
-        }
+          y: this.siblingHeights[this.selfIndex],
+        },
       };
     }
     // Transitioning links
@@ -1318,7 +1183,7 @@ class TreeViewer extends Component {
       .data(this.parentLinks)
       .transition()
       .duration(this.duration)
-      .attr("d", d => this.link(d));
+      .attr("d", (d) => this.link(d));
   }
 
   // Moving newly created parent from self position to parent position
@@ -1327,16 +1192,12 @@ class TreeViewer extends Component {
     this.svg
       .selectAll("g.parentG")
       .transition()
-      .attr("transform", d => {
+      .attr("transform", (d) => {
         return "translate(" + this.leftPadding + "," + this.height / 2 + ")";
       })
       .duration(this.duration);
 
-    this.svg
-      .selectAll("circle.parentCircle")
-      .transition()
-      .duration(this.duration)
-      .attr("fill", this.otherColor);
+    this.svg.selectAll("circle.parentCircle").transition().duration(this.duration).attr("fill", this.otherColor);
   }
 
   // Moving the children to sibling spots
@@ -1350,12 +1211,12 @@ class TreeViewer extends Component {
         this.clearInfoText();
       })
       .on("click", (d, i) => {
-        this.singleDoubleClick(d, i, "sibling");
+        this.handleClick(d, i, "sibling");
       })
       .data(this.childrenHeights)
       .transition()
       .duration(this.duration)
-      .attr("transform", d => {
+      .attr("transform", (d) => {
         return "translate(" + this.middle + "," + d + ")";
       })
       .attr("class", "siblingG");
@@ -1369,7 +1230,7 @@ class TreeViewer extends Component {
       .attr("class", "siblingCircle")
       .transition()
       .duration(this.duration)
-      .attr("fill", d => {
+      .attr("fill", (d) => {
         return d;
       });
 
@@ -1379,7 +1240,7 @@ class TreeViewer extends Component {
       .data(this.data.siblings)
       .transition()
       .duration(this.duration)
-      .text(d => this.codeFormat(d, 1))
+      .text((d) => this.codeFormat(d, 1))
       .attr("y", 0.3 * this.textSize)
       .attr("x", 1.5 * this.cRadius)
       .attr("class", "siblingText")
@@ -1395,12 +1256,12 @@ class TreeViewer extends Component {
       this.childrenLinks[i] = {
         source: {
           x: this.leftPadding + this.cRadius,
-          y: this.height / 2
+          y: this.height / 2,
         },
         target: {
           x: this.middle - this.cRadius,
-          y: this.siblingHeights[i]
-        }
+          y: this.siblingHeights[i],
+        },
       };
     }
     // Transitioning links to new positions
@@ -1409,7 +1270,7 @@ class TreeViewer extends Component {
       .data(this.childrenLinks)
       .transition()
       .duration(this.duration)
-      .attr("d", d => this.link(d))
+      .attr("d", (d) => this.link(d))
       .attr("class", "parentLink");
   }
 
@@ -1429,18 +1290,18 @@ class TreeViewer extends Component {
         this.clearInfoText();
       })
       .attr("class", "childrenG")
-      .attr("transform", d => {
+      .attr("transform", (d) => {
         return "translate(" + this.middle + "," + this.siblingHeights[this.selfIndex] + ")";
       })
       .on("click", (d, i) => {
-        this.singleDoubleClick(d, i, "child");
+        this.handleClick(d, i, "child");
       });
 
     // Adding invisible text, to transition in later
     childrenGs
       .data(this.data.children)
       .append("text")
-      .text(d => this.codeFormat(d, 1))
+      .text((d) => this.codeFormat(d, 1))
       .attr("font-family", this.fontType)
       .attr("font-size", this.textSize)
       .attr("fill", this.textColor)
@@ -1464,21 +1325,13 @@ class TreeViewer extends Component {
       .data(this.childrenHeights)
       .transition()
       .duration(this.duration)
-      .attr("transform", d => {
+      .attr("transform", (d) => {
         return "translate(" + (this.width - this.rightPadding) + "," + d + ")";
       });
     // Fade text in
-    childrenGs
-      .selectAll("text.childrenText")
-      .transition()
-      .duration(this.duration)
-      .style("fill-opacity", 1);
+    childrenGs.selectAll("text.childrenText").transition().duration(this.duration).style("fill-opacity", 1);
     // Fade circles in
-    this.svg
-      .selectAll("circle.childrenCircle")
-      .transition()
-      .duration(this.duration)
-      .attr("r", this.cRadius);
+    this.svg.selectAll("circle.childrenCircle").transition().duration(this.duration).attr("r", this.cRadius);
 
     childrenGs
       .data(this.data.children)
@@ -1499,12 +1352,12 @@ class TreeViewer extends Component {
       this.childrenLinks[i] = {
         source: {
           x: this.middle + this.cRadius,
-          y: this.siblingHeights[this.selfIndex]
+          y: this.siblingHeights[this.selfIndex],
         },
         target: {
           x: this.middle + this.cRadius,
-          y: this.siblingHeights[this.selfIndex]
-        }
+          y: this.siblingHeights[this.selfIndex],
+        },
       };
     }
 
@@ -1514,7 +1367,7 @@ class TreeViewer extends Component {
       .data(this.childrenLinks)
       .enter()
       .append("path")
-      .attr("d", d => this.link(d))
+      .attr("d", (d) => this.link(d))
       .attr("class", "childrenLink")
       .style("fill", "none")
       .style("stroke", this.linkColor)
@@ -1527,7 +1380,7 @@ class TreeViewer extends Component {
       .data(this.childrenLinks)
       .transition()
       .duration(this.duration)
-      .attr("d", d => this.link(d));
+      .attr("d", (d) => this.link(d));
   }
 
   // Moves the siblings to children positions (on handle parent click)
@@ -1542,13 +1395,13 @@ class TreeViewer extends Component {
         this.clearInfoText();
       })
       .on("click", (d, i) => {
-        this.singleDoubleClick(d, i, "child");
+        this.handleClick(d, i, "child");
       })
       .data(this.siblingHeights)
       .transition()
       .delay(this.duration)
       .duration(this.duration)
-      .attr("transform", d => {
+      .attr("transform", (d) => {
         return "translate(" + (this.width - this.rightPadding) + "," + d + ")";
       })
       .attr("class", "childrenG");
@@ -1568,7 +1421,7 @@ class TreeViewer extends Component {
       .transition()
       .duration(this.duration)
       .delay(this.duration)
-      .text(d => this.codeFormat(d, 1))
+      .text((d) => this.codeFormat(d, 1))
       .attr("y", 0.3 * this.textSize)
       .attr("x", 1.5 * this.cRadius)
       .attr("class", "childrenText")
@@ -1587,7 +1440,7 @@ class TreeViewer extends Component {
       .transition()
       .duration(this.duration)
       .delay(this.duration)
-      .attr("transform", d => {
+      .attr("transform", (d) => {
         return "translate(" + this.middle + "," + this.siblingHeights[this.selfIndex] + ")";
       })
       .attr("class", "oldParentG");
@@ -1601,7 +1454,7 @@ class TreeViewer extends Component {
       .attr("fill", this.selectedColor);
 
     this.svg.selectAll("circle.siblingCircle").on("click", (d, i) => {
-      this.singleDoubleClick(d, i, "sibling");
+      this.handleClick(d, i, "sibling");
     });
     this.svg.selectAll("g.oldParentG").remove(); // Removes old parent g because sibling g is created
   }
@@ -1620,10 +1473,10 @@ class TreeViewer extends Component {
           this.clearInfoText();
         })
         .on("click", (d, i) => {
-          this.singleDoubleClick(d, i, "parent");
+          this.handleClick(d, i, "parent");
         })
         .attr("class", "parentG")
-        .attr("transform", d => {
+        .attr("transform", (d) => {
           return "translate(" + this.middle + "," + this.siblingHeights[this.selfIndex] + ")";
         });
 
@@ -1640,11 +1493,7 @@ class TreeViewer extends Component {
         .style("text-anchor", "right")
         .style("fill-opacity", 1e-6);
       // Adding invisible circle
-      parentG
-        .append("circle")
-        .attr("r", 1e-6)
-        .attr("fill", this.otherColor)
-        .attr("class", "parentCircle");
+      parentG.append("circle").attr("r", 1e-6).attr("fill", this.otherColor).attr("class", "parentCircle");
 
       // Transition new parent
       parentG
@@ -1653,16 +1502,8 @@ class TreeViewer extends Component {
         .attr("transform", () => {
           return "translate(" + this.leftPadding + "," + this.height / 2 + ")";
         });
-      parentG
-        .selectAll("text.parentText")
-        .transition()
-        .duration(this.duration)
-        .style("fill-opacity", 1);
-      parentG
-        .selectAll("circle.parentCircle")
-        .transition()
-        .duration(this.duration)
-        .attr("r", this.cRadius);
+      parentG.selectAll("text.parentText").transition().duration(this.duration).style("fill-opacity", 1);
+      parentG.selectAll("circle.parentCircle").transition().duration(this.duration).attr("r", this.cRadius);
 
       // Create links
       this.parentLinks = [];
@@ -1670,12 +1511,12 @@ class TreeViewer extends Component {
         this.parentLinks[i] = {
           source: {
             x: this.middle - this.cRadius,
-            y: this.siblingHeights[this.selfIndex]
+            y: this.siblingHeights[this.selfIndex],
           },
           target: {
             x: this.middle - this.cRadius,
-            y: this.siblingHeights[this.selfIndex]
-          }
+            y: this.siblingHeights[this.selfIndex],
+          },
         };
       }
 
@@ -1685,7 +1526,7 @@ class TreeViewer extends Component {
         .data(this.parentLinks)
         .enter()
         .append("path")
-        .attr("d", d => this.link(d))
+        .attr("d", (d) => this.link(d))
         .attr("class", "parentLink")
         .style("fill", "none")
         .style("stroke", this.linkColor)
@@ -1699,7 +1540,7 @@ class TreeViewer extends Component {
         .data(this.parentLinks)
         .transition()
         .duration(this.duration)
-        .attr("d", d => this.link(d));
+        .attr("d", (d) => this.link(d));
     }
 
     // Create invisible siblings at self
@@ -1715,17 +1556,17 @@ class TreeViewer extends Component {
         this.clearInfoText();
       })
       .on("click", (d, i) => {
-        this.singleDoubleClick(d, i, "sibling");
+        this.handleClick(d, i, "sibling");
       })
       .attr("class", "siblingG")
-      .attr("transform", d => {
+      .attr("transform", (d) => {
         return "translate(" + this.middle + "," + this.siblingHeights[this.selfIndex] + ")";
       });
     // Add invisible text
     siblingG
       .data(this.data.siblings)
       .append("text")
-      .text(d => this.codeFormat(d, 1))
+      .text((d) => this.codeFormat(d, 1))
       .attr("font-family", this.fontType)
       .attr("font-size", this.textSize)
       .attr("fill", this.textColor)
@@ -1741,7 +1582,7 @@ class TreeViewer extends Component {
       .data(this.siblingColours)
       .append("circle")
       .attr("r", 1e-6)
-      .attr("fill", d => {
+      .attr("fill", (d) => {
         return d;
       })
       .attr("class", "siblingCircle");
@@ -1752,19 +1593,11 @@ class TreeViewer extends Component {
       .data(this.siblingHeights)
       .transition()
       .duration(this.duration)
-      .attr("transform", d => {
+      .attr("transform", (d) => {
         return "translate(" + this.middle + "," + d + ")";
       });
-    siblingG
-      .selectAll("text.siblingText")
-      .transition()
-      .duration(this.duration)
-      .style("fill-opacity", 1);
-    siblingG
-      .selectAll("circle.siblingCircle")
-      .transition()
-      .duration(this.duration)
-      .attr("r", this.cRadius);
+    siblingG.selectAll("text.siblingText").transition().duration(this.duration).style("fill-opacity", 1);
+    siblingG.selectAll("circle.siblingCircle").transition().duration(this.duration).attr("r", this.cRadius);
 
     this.findIndex();
     this.svg
@@ -1795,16 +1628,8 @@ class TreeViewer extends Component {
       })
       .attr("class", "oldChildrenG")
       .duration(this.duration);
-    this.svg
-      .selectAll("circle.childrenCircle")
-      .transition()
-      .duration(this.duration)
-      .attr("r", 1e-6);
-    this.svg
-      .selectAll("text.childrenText")
-      .transition()
-      .duration(this.duration)
-      .style("fill-opacity", 1e-6);
+    this.svg.selectAll("circle.childrenCircle").transition().duration(this.duration).attr("r", 1e-6);
+    this.svg.selectAll("text.childrenText").transition().duration(this.duration).style("fill-opacity", 1e-6);
     // Remove children links
     this.undoChildrenLinks();
     this.svg
@@ -1813,7 +1638,7 @@ class TreeViewer extends Component {
       .data(this.childrenLinks)
       .transition()
       .duration(this.duration)
-      .attr("d", d => this.link(d));
+      .attr("d", (d) => this.link(d));
     await this.sleep(this.duration);
     this.svg.selectAll("g.oldChildrenG").remove();
     this.linkG.selectAll("path.oldChildrenLink").remove();
@@ -1821,7 +1646,7 @@ class TreeViewer extends Component {
 
   // Sleep, used to wait between transitions
   sleep(ms) {
-    return new Promise(resolve => setTimeout(resolve, ms));
+    return new Promise((resolve) => setTimeout(resolve, ms));
   }
 
   // Creates parent links
@@ -1831,12 +1656,12 @@ class TreeViewer extends Component {
       this.parentLinks[i] = {
         source: {
           x: this.leftPadding + this.cRadius,
-          y: this.height / 2
+          y: this.height / 2,
         },
         target: {
           x: this.middle - this.cRadius,
-          y: this.siblingHeights[i]
-        }
+          y: this.siblingHeights[i],
+        },
       };
     }
   }
@@ -1882,10 +1707,7 @@ class TreeViewer extends Component {
         .attr("class", "truncText");
 
       // Getting values of the text off screen
-      let values = this.svg
-        .selectAll("text.truncText")
-        .node()
-        .getBBox();
+      let values = this.svg.selectAll("text.truncText").node().getBBox();
       this.svg.selectAll("text.truncText").remove(); // Removing off screen text
 
       // While the text is larger than the room
@@ -1901,10 +1723,7 @@ class TreeViewer extends Component {
           .attr("class", "truncText");
 
         // Get values
-        values = this.svg
-          .selectAll("text.truncText")
-          .node()
-          .getBBox();
+        values = this.svg.selectAll("text.truncText").node().getBBox();
         this.svg.selectAll("text.truncText").remove();
         codeDesc = codeDesc.slice(0, codeDesc.length - 1); // Slice code description to remove 1 character from the end
       }
@@ -1924,12 +1743,12 @@ class TreeViewer extends Component {
       this.childrenLinks[i] = {
         source: {
           x: this.middle + this.cRadius,
-          y: this.siblingHeights[this.selfIndex]
+          y: this.siblingHeights[this.selfIndex],
         },
         target: {
           x: this.width - this.rightPadding - this.cRadius,
-          y: this.childrenHeights[i]
-        }
+          y: this.childrenHeights[i],
+        },
       };
     }
   }
@@ -1942,12 +1761,12 @@ class TreeViewer extends Component {
       this.childrenLinks[i] = {
         source: {
           x: this.middle + this.cRadius,
-          y: this.siblingHeights[this.selfIndex]
+          y: this.siblingHeights[this.selfIndex],
         },
         target: {
           x: this.middle + this.cRadius,
-          y: this.siblingHeights[this.selfIndex]
-        }
+          y: this.siblingHeights[this.selfIndex],
+        },
       };
     }
   }
@@ -1961,12 +1780,12 @@ class TreeViewer extends Component {
       this.parentLinks[i] = {
         source: {
           x: this.middle + this.cRadius,
-          y: this.siblingHeights[this.selfIndex]
+          y: this.siblingHeights[this.selfIndex],
         },
         target: {
           x: this.width - this.rightPadding - this.cRadius,
-          y: this.childrenHeights[i]
-        }
+          y: this.childrenHeights[i],
+        },
       };
     }
     // Transitions the links
@@ -1976,7 +1795,7 @@ class TreeViewer extends Component {
       .transition()
       .duration(this.duration)
       .delay(this.duration)
-      .attr("d", d => this.link(d))
+      .attr("d", (d) => this.link(d))
       .attr("class", "childrenLink");
   }
 
@@ -1991,35 +1810,14 @@ class TreeViewer extends Component {
     }
   }
 
-  // Determines whether to handle single or double click
-  singleDoubleClick(d, i, level) {
-    // if double click timer is active, this click is the double click
-    if (this.dblclick_timer) {
-      clearTimeout(this.dblclick_timer);
-      this.dblclick_timer = false;
-      if (level === "parent") {
-        this.checkRecommendationsAccepted(this.createAncestorList(this.data.parent.code));
-        this.props.addSelectedCode(this.data.parent);
-      } else if (level === "sibling") {
-        this.checkRecommendationsAccepted(this.createAncestorList(this.data.siblings[i].code));
-        this.props.addSelectedCode(this.data.siblings[i]);
-      } else if (level === "child") {
-        this.checkRecommendationsAccepted(this.createAncestorList(this.data.children[i].code));
-        this.props.addSelectedCode(this.data.children[i]);
-      }
-    }
-    // otherwise, what to do after single click (double click has timed out)
-    else {
-      this.dblclick_timer = setTimeout(() => {
-        this.dblclick_timer = false;
-        if (level === "parent") {
-          this.handleParentClick(d, i);
-        } else if (level === "sibling") {
-          this.handleSiblingClick(d, i);
-        } else if (level === "child") {
-          this.handleChildrenClick(d, i);
-        }
-      }, 300);
+  // Directs to appropriate click handling
+  handleClick(d, i, level) {
+    if (level === "parent") {
+      this.handleParentClick(d, i);
+    } else if (level === "sibling") {
+      this.handleSiblingClick(d, i);
+    } else if (level === "child") {
+      this.handleChildrenClick(d, i);
     }
   }
 
@@ -2065,7 +1863,7 @@ class TreeViewer extends Component {
 
   // Creates the list of ancestors for a code.
   // Used for checkRecommendationsAccepted
-  createAncestorList = code => {
+  createAncestorList = (code) => {
     let codeList = [];
     codeList.push(code);
     while (code.length > 3) {
@@ -2076,14 +1874,14 @@ class TreeViewer extends Component {
   };
 
   // Used to mark rules as recommended if an ancestor of the added code is in the recommended list
-  checkRecommendationsAccepted = codeList => {
+  checkRecommendationsAccepted = (codeList) => {
     if (this.props.recommendedCodes) {
       for (let i = 0; i < codeList.length; i++) {
         for (let j = 0; j < this.props.recommendedCodes.length; j++) {
           if (codeList[i] === this.props.recommendedCodes[j].rhs) {
             const acceptedRuleObj = this.props.recommendedCodes[j];
             const rulesToSendBack = this.props.rulesToSendBack;
-            const matchedRule = rulesToSendBack.find(obj => obj.id === acceptedRuleObj.id);
+            const matchedRule = rulesToSendBack.find((obj) => obj.id === acceptedRuleObj.id);
             if (matchedRule !== undefined) {
               matchedRule.action = "A";
               this.props.setRulesInSession(rulesToSendBack);
@@ -2095,11 +1893,19 @@ class TreeViewer extends Component {
   };
 
   // Gets the data from API for the specified code and stores it in a member variable
-  getDataFromAPI = code => {
+  getDataFromAPI = (code) => {
     return APIUtility.API.makeAPICall(APIUtility.FAMILY, code)
-      .then(response => response.json())
-      .then(parsedJson => {
-        this.data = parsedJson;
+      .then((response) => response.json())
+      .then((parsedJson) => {
+        if (parsedJson.self) {
+          if (this.props.annotationFocus === tagTypes.ICD) {
+            this.props.setAddingTags([
+              { code: parsedJson.self.code, description: parsedJson.self.description, type: tagTypes.ICD },
+            ]);
+          }
+
+          this.data = parsedJson;
+        }
       });
   };
 
@@ -2109,15 +1915,17 @@ class TreeViewer extends Component {
   }
 }
 
-const mapStateToProps = state => {
+const mapStateToProps = (state) => {
   return {
-    selectedCode: state.tree.selectedCode
+    selectedCode: state.tree.selectedCode,
+    annotationFocus: state.fileViewer.annotationFocus,
   };
 };
 
-const mapDispatchToProps = dispatch => {
+const mapDispatchToProps = (dispatch) => {
   return {
-    setSelectedCode: selectedCode => dispatch(actions.setSelectedCode(selectedCode))
+    setSelectedCode: (selectedCode) => dispatch(actions.setSelectedCode(selectedCode)),
+    setAddingTags: (tag) => dispatch(actions.setAddingTags(tag)),
   };
 };
 

@@ -59,6 +59,20 @@ class CustomAnnotator extends Component {
     }
   };
 
+  checkTagTemplates = (tag, type, description) => {
+    const tagTemplates = Array.from(this.props.tagTemplates);
+    let duplicateTag = tagTemplates.find((tagTemplate) => tagTemplate.id === tag && tagTemplate.type === type);
+    if (duplicateTag === undefined) {
+      tagTemplates.push({
+        id: tag,
+        type: type,
+        description: description,
+      });
+      // pushing the modified tagTemplates to the state
+      this.props.setTagTemplates(tagTemplates);
+    }
+  };
+
   handleMouseUp = () => {
     // can't annotate without focus
     if (this.props.annotationFocus === "") {
@@ -147,10 +161,17 @@ class CustomAnnotator extends Component {
     const span = {
       start,
       end,
-      tag: this.props.addingTags.length > 0 ? this.props.addingTags[0].id : "",
+      tag:
+        this.props.addingTags.length > 0
+          ? this.props.annotationFocus === tagTypes.ICD
+            ? this.props.addingTags[0].code
+            : this.props.addingTags[0].id
+          : "",
       type: this.props.annotationFocus,
       confirmed: true,
     };
+
+    this.checkTagTemplates(span.tag, span.type, this.props.addingTags[0].description);
 
     // adding span to annotations
     this.handleAnnotate(this.props.annotations, span);
@@ -372,6 +393,7 @@ class CustomAnnotator extends Component {
             refresh={this.refreshEditor}
             itemsToEdit={this.props.annotationsToEdit}
             removeAnnotation={this.removeAnnotation}
+            docTreeHeight={this.props.docTreeHeight}
           />
         </Popover>
         <svg style={{ zIndex: -1 }} height={this.props.intervalDivHeight} width={this.props.intervalDivWidth}>
@@ -411,6 +433,7 @@ const mapDispatchToProps = (dispatch) => {
     setIntervalDivWidth: (intervalDivWidth) => dispatch(actions.setIntervalDivWidth(intervalDivWidth)),
     setSentences: (sentences) => dispatch(actions.setSentences(sentences)),
     setTokens: (tokens) => dispatch(actions.setTokens(tokens)),
+    setTagTemplates: (tags) => dispatch(actions.setTagTemplatesWithCallback(tags)),
     setEntities: (entities) => dispatch(actions.setEntities(entities)),
     setAnnotations: (annotations) => dispatch(actions.setAnnotations(annotations)),
     setAddingTags: (tag) => dispatch(actions.setAddingTags(tag)),

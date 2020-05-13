@@ -5,7 +5,7 @@ import * as tagTypes from "../TagManagement/tagTypes";
 import { List, Chip, ListItem } from "@material-ui/core";
 import { addDotToCode } from "../../Util/icdUtility";
 
-const Legend = props => {
+const Legend = (props) => {
   // makes the list for the final render
   const makeList = () => {
     const tagsInUse = new Set();
@@ -19,7 +19,7 @@ const Legend = props => {
   };
 
   // creates the list of chips to be displayed in the legend
-  const makeChipList = tagsInUse => {
+  const makeChipList = (tagsInUse) => {
     const chipList = [];
     for (let item of tagsInUse) {
       chipList.push(
@@ -63,7 +63,7 @@ const Legend = props => {
   };
 
   // returns bold for currently selected tag, normal otherwise
-  const getFontWeight = item => {
+  const getFontWeight = (item) => {
     if (props.addingTags[0] && props.addingTags[0].id === item) {
       return "bold";
     }
@@ -71,7 +71,7 @@ const Legend = props => {
   };
 
   // sets active tag to the chip when clicked
-  const handleChipClick = item => {
+  const handleChipClick = (item) => {
     if (props.annotationFocus === tagTypes.ICD) {
       item = item.replace(".", "");
     }
@@ -89,7 +89,7 @@ const Legend = props => {
   };
 
   // gets the colour of the chip by checking tags in store
-  const getColor = item => {
+  const getColor = (item) => {
     for (let tag of props.tagTemplates) {
       if (item === tag.id && tag.type === props.annotationFocus) {
         return tag.color;
@@ -104,19 +104,19 @@ const Legend = props => {
   );
 };
 
-const mapStateToProps = state => {
+const mapStateToProps = (state) => {
   return {
     annotations: state.fileViewer.annotations,
     annotationFocus: state.fileViewer.annotationFocus,
     addingTags: state.tagManagement.addingTags,
-    tagTemplates: state.fileViewer.tagTemplates
+    tagTemplates: state.fileViewer.tagTemplates,
   };
 };
 
-const mapDispatchToProps = dispatch => {
+const mapDispatchToProps = (dispatch) => {
   return {
-    setAddingTags: tags => dispatch(actions.setAddingTags(tags)),
-    setSelectedCode: selectedCode => dispatch(actions.setSelectedCode(selectedCode))
+    setAddingTags: (tags) => dispatch(actions.setAddingTags(tags)),
+    setSelectedCode: (selectedCode) => dispatch(actions.setSelectedCode(selectedCode)),
   };
 };
 

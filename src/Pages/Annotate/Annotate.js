@@ -25,7 +25,7 @@ const ResponsiveReactGridLayout = WidthProvider(Responsive);
 const originalLayouts = getFromLS("annotateLayouts", "layouts") || defaultLayouts;
 const treeViewDiv = React.createRef();
 
-const Annotate = props => {
+const Annotate = (props) => {
   const [layouts, setLayouts] = useState(originalLayouts);
   const [isLayoutModifiable, setLayoutModifiable] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
@@ -33,12 +33,12 @@ const Annotate = props => {
   const [docTreeHeight, setDocTreeHeight] = useState(0);
   const alert = useAlert();
 
-  const onLayoutChange = layouts => {
+  const onLayoutChange = (layouts) => {
     setLayouts(layouts);
     saveToLS("annotateLayouts", "layouts", layouts);
   };
 
-  const onBreakPointChange = newBreakpoint => {
+  const onBreakPointChange = (newBreakpoint) => {
     const currentLayout = layouts[newBreakpoint];
     for (let i of currentLayout) {
       if (i.i === "document") {
@@ -71,12 +71,6 @@ const Annotate = props => {
   useEffect(() => {
     setLayouts(getFromLS("annotateLayouts", "layouts") || defaultLayouts);
 
-    // for (let i of layouts.lg) {
-    //   if (i.i === "document") {
-    //     setDocTreeHeight(20 * (i.h - 4.5));
-    //   }
-    // }
-
     APIUtility.API.verifyLSToken(() => setIsLoading(false));
     // Setting up default tags if they haven't been already added.
     // This prevents tags from being added if the user explicitly deleted all of them
@@ -102,13 +96,13 @@ const Annotate = props => {
         type: props.alertMessage.messageType,
         onClose: () => {
           props.setAlertMessage(null);
-        }
+        },
       });
     }
   }, [props.alertMessage]);
 
   // checks the tags in use to generate a list for export, saving, etc.
-  const checkTagsInUse = annotation => {
+  const checkTagsInUse = (annotation) => {
     let tagTemplates = Array.from(props.tagTemplates);
     const tagsInUse = new Set();
     for (let tag of tagTemplates) {
@@ -138,7 +132,13 @@ const Annotate = props => {
     if (props.isSpacyLoading) {
       return <LoadingIndicator />;
     }
-    return <CustomAnnotator saveAnnotations={saveAnnotations} checkTagsInUse={checkTagsInUse} />;
+    return (
+      <CustomAnnotator
+        saveAnnotations={saveAnnotations}
+        checkTagsInUse={checkTagsInUse}
+        docTreeHeight={docTreeHeight}
+      />
+    );
   };
 
   // Saves annotations to database
@@ -163,19 +163,13 @@ const Annotate = props => {
 
     const options = {
       method: "POST",
-      body: annotations
+      body: annotations,
     };
 
     // making the API call to save annotations
-    APIUtility.API.makeAPICall(APIUtility.UPLOAD_ANNOTATIONS, null, options).catch(error => {
+    APIUtility.API.makeAPICall(APIUtility.UPLOAD_ANNOTATIONS, null, options).catch((error) => {
       console.log("ERROR:", error);
     });
-  };
-
-  const handleTreeChange = () => {
-    if (treeViewDiv.current !== null) {
-      treeViewDiv.current.handleResize();
-    }
   };
 
   const handleTabChange = (event, index) => {
@@ -268,7 +262,7 @@ const Annotate = props => {
             id="outerDiv"
             style={{
               overflowX: "hidden",
-              overflowY: swipeIndex === 0 && props.fileViewerText !== "" ? "auto" : "hidden"
+              overflowY: swipeIndex === 0 && props.fileViewerText !== "" ? "auto" : "hidden",
             }}
           >
             <div
@@ -280,12 +274,12 @@ const Annotate = props => {
                 display: "flex",
                 willChange: "transform",
                 transform: swipeIndex === 0 ? "translate(0%, 0)" : "translate(-100%, 0)",
-                transition: "transform 0.35s cubic-bezier(0.15, 0.3, 0.25, 1) 0s"
+                transition: "transform 0.35s cubic-bezier(0.15, 0.3, 0.25, 1) 0s",
               }}
             >
               <div style={{ width: "100%", flexShrink: 0, overflow: "visible" }}>{renderCustomAnnotator()}</div>
               <div style={{ width: "100%", flexShrink: 0, overflow: "visible" }}>
-                <TreeViewer ref={treeViewDiv} onChange={handleTreeChange()} />
+                <TreeViewer ref={treeViewDiv} className="modalTree" />
               </div>
             </div>
           </div>
@@ -299,7 +293,7 @@ const Annotate = props => {
   );
 };
 
-const mapStateToProps = state => {
+const mapStateToProps = (state) => {
   return {
     fileViewerText: state.fileViewer.fileViewerText,
     tagTemplates: state.fileViewer.tagTemplates,
@@ -315,20 +309,20 @@ const mapStateToProps = state => {
     currentSentences: state.fileViewer.currentSentences,
     fileIndex: state.fileViewer.fileIndex,
     annotationsList: state.fileViewer.annotationsList,
-    userRole: state.authentication.userRole
+    userRole: state.authentication.userRole,
   };
 };
 
-const mapDispatchToProps = dispatch => {
+const mapDispatchToProps = (dispatch) => {
   return {
-    setTagTemplates: tagTemplates => dispatch(actions.setTagTemplates(tagTemplates)),
-    setAlertMessage: newValue => dispatch(actions.setAlertMessage(newValue)),
-    setAnnotationFocus: annotationFocus => dispatch(actions.setAnnotationFocus(annotationFocus)),
-    setAnnotations: annotations => dispatch(actions.setAnnotations(annotations)),
-    setLinkedListAdd: linkedListAdd => dispatch(actions.setLinkedListAdd(linkedListAdd)),
-    setInitialTagsAdded: initialTagsAdded => dispatch(actions.setInitialTagsAdded(initialTagsAdded)),
-    setSessionId: sessionId => dispatch(actions.setSessionId(sessionId)),
-    setSnapToWord: snapToWord => dispatch(actions.setSnapToWord(snapToWord))
+    setTagTemplates: (tagTemplates) => dispatch(actions.setTagTemplates(tagTemplates)),
+    setAlertMessage: (newValue) => dispatch(actions.setAlertMessage(newValue)),
+    setAnnotationFocus: (annotationFocus) => dispatch(actions.setAnnotationFocus(annotationFocus)),
+    setAnnotations: (annotations) => dispatch(actions.setAnnotations(annotations)),
+    setLinkedListAdd: (linkedListAdd) => dispatch(actions.setLinkedListAdd(linkedListAdd)),
+    setInitialTagsAdded: (initialTagsAdded) => dispatch(actions.setInitialTagsAdded(initialTagsAdded)),
+    setSessionId: (sessionId) => dispatch(actions.setSessionId(sessionId)),
+    setSnapToWord: (snapToWord) => dispatch(actions.setSnapToWord(snapToWord)),
   };
 };
 
