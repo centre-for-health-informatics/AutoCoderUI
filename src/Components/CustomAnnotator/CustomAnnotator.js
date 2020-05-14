@@ -54,8 +54,11 @@ class CustomAnnotator extends Component {
   // if the user presses "A" key, it will link the next selection to the previous one
   handleKeyPress = (e) => {
     let key = e.key;
-    if (key.toLowerCase() === "a" && this.prevSpan) {
+    if (key.toLowerCase() === "a" && this.props.prevSpan) {
       this.props.setLinkedListAdd(!this.props.linkedListAdd);
+    }
+    if (key.toLowerCase() === "f" && this.props.annotationFocus === tagTypes.ICD) {
+      this.props.setFilterICD(!this.props.filterICD);
     }
   };
 
@@ -161,12 +164,7 @@ class CustomAnnotator extends Component {
     const span = {
       start,
       end,
-      tag:
-        this.props.addingTags.length > 0
-          ? this.props.annotationFocus === tagTypes.ICD
-            ? this.props.addingTags[0].code
-            : this.props.addingTags[0].id
-          : "",
+      tag: this.props.addingTags.length > 0 ? this.props.addingTags[0].id : "",
       type: this.props.annotationFocus,
       confirmed: true,
     };
@@ -178,13 +176,14 @@ class CustomAnnotator extends Component {
 
     // linking annotations if applicable
     if (this.props.linkedListAdd) {
-      this.prevSpan.next = span;
+      const prevSpan = this.props.prevSpan;
+      prevSpan.next = span;
       this.props.setLinkedListAdd(false);
     }
 
     this.props.saveAnnotations();
 
-    this.prevSpan = span;
+    this.props.setPrevSpan(span);
 
     // clears selection
     window.getSelection().empty();
@@ -423,12 +422,14 @@ const mapStateToProps = (state) => {
     currentSentences: state.fileViewer.currentSentences,
     versions: state.fileViewer.versions,
     versionIndex: state.fileViewer.versionIndex,
+    filterICD: state.fileViewer.filterICD,
   };
 };
 
 const mapDispatchToProps = (dispatch) => {
   return {
     setLinkedListAdd: (linkedListAdd) => dispatch(actions.setLinkedListAdd(linkedListAdd)),
+    setFilterICD: (filterICD) => dispatch(actions.setFilterICD(filterICD)),
     setIntervalDivHeight: (intervalDivHeight) => dispatch(actions.setIntervalDivHeight(intervalDivHeight)),
     setIntervalDivWidth: (intervalDivWidth) => dispatch(actions.setIntervalDivWidth(intervalDivWidth)),
     setSentences: (sentences) => dispatch(actions.setSentences(sentences)),

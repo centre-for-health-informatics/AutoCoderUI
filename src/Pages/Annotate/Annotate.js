@@ -32,6 +32,7 @@ const Annotate = (props) => {
   const [isLoading, setIsLoading] = useState(true);
   const [swipeIndex, setSwipeIndex] = useState(0);
   const [docTreeHeight, setDocTreeHeight] = useState(0);
+  const [prevSpan, setPrevSpan] = useState(null);
   const alert = useAlert();
 
   const onLayoutChange = (layouts) => {
@@ -138,6 +139,8 @@ const Annotate = (props) => {
         saveAnnotations={saveAnnotations}
         checkTagsInUse={checkTagsInUse}
         docTreeHeight={docTreeHeight}
+        prevSpan={prevSpan}
+        setPrevSpan={setPrevSpan}
       />
     );
   };
@@ -240,13 +243,51 @@ const Annotate = (props) => {
                     color="primary"
                     checked={props.linkedListAdd}
                     onChange={() => {
-                      props.setLinkedListAdd(!props.linkedListAdd);
+                      if (prevSpan) {
+                        props.setLinkedListAdd(!props.linkedListAdd);
+                      }
                     }}
                   />
                 }
                 label="Link"
               />
             </Tooltip>
+            {props.annotationFocus === tagTypes.ICD && (
+              <Tooltip
+                title={
+                  "Enabling this will filter annotations to only show the currently selected code. Shortcut key: 'F'"
+                }
+              >
+                <FormControlLabel
+                  control={
+                    <Switch
+                      size="small"
+                      color="primary"
+                      checked={props.filterICD}
+                      onChange={() => {
+                        // if turning it on, filter annotations
+                        if (!props.filterICD) {
+                          if (props.addingTags[0]) {
+                            const newAnnotations = Array.from(props.annotations).filter(
+                              (annotation) => annotation.tag === props.addingTags[0].id
+                            );
+                            props.setAnnotations(newAnnotations);
+                          }
+                        } else {
+                          // turning it off
+                          const newAnnotations = props.entities.filter(
+                            (annotation) => annotation.type === tagTypes.ICD
+                          );
+                          props.setAnnotations(newAnnotations);
+                        }
+                        props.setFilterICD(!props.filterICD);
+                      }}
+                    />
+                  }
+                  label="Filter"
+                />
+              </Tooltip>
+            )}
           </div>
         </div>
         <div key="manageFiles" className={highlightEditDiv} style={{ overflowY: "auto" }}>
@@ -297,6 +338,8 @@ const Annotate = (props) => {
 const mapStateToProps = (state) => {
   return {
     fileViewerText: state.fileViewer.fileViewerText,
+    annotations: state.fileViewer.annotations,
+    entities: state.fileViewer.entities,
     annotationFocus: state.fileViewer.annotationFocus,
     tagTemplates: state.fileViewer.tagTemplates,
     alertMessage: state.alert.alertMessage,
@@ -312,12 +355,15 @@ const mapStateToProps = (state) => {
     fileIndex: state.fileViewer.fileIndex,
     annotationsList: state.fileViewer.annotationsList,
     userRole: state.authentication.userRole,
+    filterICD: state.fileViewer.filterICD,
+    addingTags: state.tagManagement.addingTags,
   };
 };
 
 const mapDispatchToProps = (dispatch) => {
   return {
     setTagTemplates: (tagTemplates) => dispatch(actions.setTagTemplates(tagTemplates)),
+    setFilterICD: (filterICD) => dispatch(actions.setFilterICD(filterICD)),
     setAlertMessage: (newValue) => dispatch(actions.setAlertMessage(newValue)),
     setAnnotationFocus: (annotationFocus) => dispatch(actions.setAnnotationFocus(annotationFocus)),
     setAnnotations: (annotations) => dispatch(actions.setAnnotations(annotations)),

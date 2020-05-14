@@ -1,21 +1,30 @@
 import React from "react";
 import { connect } from "react-redux";
 import * as actions from "../../Store/Actions/index";
-import * as tagTypes from "../TagManagement/tagTypes";
 import { List, Chip, ListItem } from "@material-ui/core";
+import * as tagTypes from "../TagManagement/tagTypes";
 import { addDotToCode } from "../../Util/icdUtility";
 
 const LegendICD = (props) => {
   // makes the list for the final render
-  const makeList = () => {
-    const tagsInUse = new Set();
+  const makeLists = () => {
+    const tagsConfirmed = new Set();
+    const tagsUnconfirmed = new Set();
     for (let annotation of props.annotations) {
       if (annotation.tag !== "") {
-        tagsInUse.add(annotation.tag);
+        if (annotation.confirmed) {
+          tagsConfirmed.add(annotation.tag);
+        } else {
+          tagsUnconfirmed.add(annotation.tag);
+        }
       }
     }
-    const chipList = makeChipList(tagsInUse);
-    return chipList.map((chip, index) => <ListItem key={"listItem-" + index}>{chip}</ListItem>);
+    const unconfirmedList = makeChipList(tagsUnconfirmed);
+    const confirmedList = makeChipList(tagsConfirmed);
+    return [
+      unconfirmedList.map((chip, index) => <ListItem key={"listItem-" + index}>{chip}</ListItem>),
+      confirmedList.map((chip, index) => <ListItem key={"listItem-" + index}>{chip}</ListItem>),
+    ];
   };
 
   // creates the list of chips to be displayed in the legend
@@ -50,16 +59,10 @@ const LegendICD = (props) => {
         }
       }
       if (tagToLabel && tagToLabel.description) {
-        if (props.annotationFocus === tagTypes.ICD) {
-          return addDotToCode(tagToLabel.id) + ": " + tagToLabel.description;
-        }
-        return tagToLabel.id + ": " + tagToLabel.description;
+        return addDotToCode(tagToLabel.id) + ": " + tagToLabel.description;
       }
     }
-    if (props.annotationFocus === tagTypes.ICD) {
-      return addDotToCode(item);
-    }
-    return item;
+    return addDotToCode(item);
   };
 
   // returns bold for currently selected tag, normal otherwise
@@ -72,9 +75,7 @@ const LegendICD = (props) => {
 
   // sets active tag to the chip when clicked
   const handleChipClick = (item) => {
-    if (props.annotationFocus === tagTypes.ICD) {
-      item = item.replace(".", "");
-    }
+    item = item.replace(".", "");
     let tagToSelect;
     for (let tag of props.tagTemplates) {
       if (item === tag.id && tag.type === props.annotationFocus) {
@@ -83,9 +84,13 @@ const LegendICD = (props) => {
       }
     }
     props.setAddingTags([tagToSelect]);
-    if (props.annotationFocus === tagTypes.ICD) {
-      props.setSelectedCode(tagToSelect.id);
+    if (props.filterICD && tagToSelect) {
+      const newAnnotations = Array.from(props.entities).filter(
+        (annotation) => annotation.tag === tagToSelect.id && annotation.type === tagTypes.ICD
+      );
+      props.setAnnotations(newAnnotations);
     }
+    props.setSelectedCode(tagToSelect.id);
   };
 
   // gets the colour of the chip by checking tags in store
@@ -97,10 +102,19 @@ const LegendICD = (props) => {
     }
   };
 
+  const [unconfirmed, confirmed] = makeLists();
+
   return (
-    <List dense disablePadding>
-      {makeList()}
-    </List>
+    <React.Fragment>
+      <h4 style={{ paddingLeft: 10 }}>Unconfirmed</h4>
+      <List dense disablePadding>
+        {unconfirmed}
+      </List>
+      <h4 style={{ paddingLeft: 10 }}>Confirmed</h4>
+      <List dense disablePadding>
+        {confirmed}
+      </List>
+    </React.Fragment>
   );
 };
 
@@ -110,12 +124,16 @@ const mapStateToProps = (state) => {
     annotationFocus: state.fileViewer.annotationFocus,
     addingTags: state.tagManagement.addingTags,
     tagTemplates: state.fileViewer.tagTemplates,
+    annotationsToEdit: state.fileViewer.annotationsToEdit,
+    filterICD: state.fileViewer.filterICD,
+    entities: state.fileViewer.entities,
   };
 };
 
 const mapDispatchToProps = (dispatch) => {
   return {
     setAddingTags: (tags) => dispatch(actions.setAddingTags(tags)),
+    setAnnotations: (annotations) => dispatch(actions.setAnnotations(annotations)),
     setSelectedCode: (selectedCode) => dispatch(actions.setSelectedCode(selectedCode)),
   };
 };

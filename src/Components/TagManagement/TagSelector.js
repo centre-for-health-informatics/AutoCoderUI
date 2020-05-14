@@ -59,6 +59,7 @@ const TagSelector = (props) => {
     }
 
     props.setAddingTags([]);
+    props.setFilterICD(false);
   };
 
   const makeCustomTypesRadioButtons = () => {
@@ -141,12 +142,12 @@ const mapStateToProps = (state) => {
 const mapDispatchToProps = (dispatch) => {
   return {
     setTagTemplates: (tags) => dispatch(actions.setTagTemplatesWithCallback(tags)),
+    setFilterICD: (filterICD) => dispatch(actions.setFilterICD(filterICD)),
     appendToCache: (codeObjArray) => dispatch(actions.appendToCache(codeObjArray)),
     setAddingTags: (tags) => dispatch(actions.setAddingTags(tags)),
     setAnnotationFocus: (annotationFocus) => dispatch(actions.setAnnotationFocus(annotationFocus)),
     setAnnotations: (annotations) => dispatch(actions.setAnnotations(annotations)),
     setSpansRendered: (spansRendered) => dispatch(actions.setSpansRendered(spansRendered)),
-    setLinkedListAdd: (linkedListAdd) => dispatch(actions.setLinkedListAdd(linkedListAdd)),
     setSelectedCode: (selectedCode) => dispatch(actions.setSelectedCode(selectedCode)),
   };
 };

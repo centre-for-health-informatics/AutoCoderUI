@@ -27,6 +27,7 @@ export {
   setVersionIndex,
   setSentencesAvailable,
   setModifyingAnnotation,
+  setFilterICD,
 } from "./fileViewer";
 export {
   setUploadedTags,

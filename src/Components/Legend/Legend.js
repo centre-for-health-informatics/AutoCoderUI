@@ -83,9 +83,6 @@ const Legend = (props) => {
       }
     }
     props.setAddingTags([tagToSelect]);
-    if (props.annotationFocus === tagTypes.ICD) {
-      props.setSelectedCode(tagToSelect.id);
-    }
   };
 
   // gets the colour of the chip by checking tags in store

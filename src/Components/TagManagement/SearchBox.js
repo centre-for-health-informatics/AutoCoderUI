@@ -70,7 +70,10 @@ const SearchBox = (props) => {
   };
 
   const searchboxSelectionChange = (event, selections) => {
-    console.log(selections);
+    if (selections && selections.code) {
+      selections.id = selections.code;
+      delete selections.code;
+    }
     if (Array.isArray(selections)) {
       props.setAddingTags(selections);
     } else if (selections === null) {
@@ -78,12 +81,23 @@ const SearchBox = (props) => {
     } else {
       props.setAddingTags([selections]);
     }
+    if (props.filterICD) {
+      if (selections) {
+        const newAnnotations = Array.from(props.entities).filter(
+          (annotation) => annotation.tag === selections.id && annotation.type === tagTypes.ICD
+        );
+        props.setAnnotations(newAnnotations);
+      } else {
+        const newAnnotations = props.entities.filter((annotation) => annotation.type === tagTypes.ICD);
+        props.setAnnotations(newAnnotations);
+      }
+    }
   };
 
   const getOptionLabelFunc = () => {
     return (x) =>
       (x.id ? (props.annotationFocus === tagTypes.ICD ? addDotToCode(x.id) : x.id) : addDotToCode(x.code)) +
-      (x.description !== "" ? ": " + x.description : "");
+      (x.description ? ": " + x.description : "");
   };
 
   const getTextLabel = () => {
@@ -187,12 +201,15 @@ const mapStateToProps = (state) => {
     tagTemplates: state.fileViewer.tagTemplates,
     annotationFocus: state.fileViewer.annotationFocus, // the currently active type
     addingTags: state.tagManagement.addingTags, // the currently active tag
+    filterICD: state.fileViewer.filterICD,
+    entities: state.fileViewer.entities,
   };
 };
 
 const mapDispatchToProps = (dispatch) => {
   return {
     setAddingTags: (tags) => dispatch(actions.setAddingTags(tags)),
+    setAnnotations: (annotations) => dispatch(actions.setAnnotations(annotations)),
   };
 };
 

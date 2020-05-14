@@ -1900,7 +1900,7 @@ class TreeViewer extends Component {
         if (parsedJson.self) {
           if (this.props.annotationFocus === tagTypes.ICD) {
             this.props.setAddingTags([
-              { code: parsedJson.self.code, description: parsedJson.self.description, type: tagTypes.ICD },
+              { id: parsedJson.self.code, description: parsedJson.self.description, type: tagTypes.ICD },
             ]);
           }
 

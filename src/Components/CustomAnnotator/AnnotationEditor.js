@@ -298,24 +298,9 @@ const AnnotationEditor = (props) => {
     return chipList;
   };
 
-  const checkTagTemplates = (tag, type, description) => {
-    console.log(tag, type, description);
-    const tagTemplates = Array.from(props.tagTemplates);
-    let duplicateTag = tagTemplates.find((tagTemplate) => tagTemplate.id === tag && tagTemplate.type === type);
-    if (duplicateTag === undefined) {
-      tagTemplates.push({
-        id: tag,
-        type: type,
-        description: description,
-      });
-      // pushing the modified tagTemplates to the state
-      props.setTagTemplates(tagTemplates);
-    }
-  };
-
   const changeAnnotation = () => {
     if (props.modifyingAnnotation && props.addingTags) {
-      const tag = props.addingTags[0].id ? props.addingTags[0].id : props.addingTags[0].code;
+      const tag = props.addingTags[0].id;
 
       const tagTemplates = Array.from(props.tagTemplates);
       let duplicateTag = tagTemplates.find(
@@ -331,7 +316,7 @@ const AnnotationEditor = (props) => {
 
       // pushing the modified tagTemplates to the state and confirming annotation
       props.setTagTemplates(tagTemplates).then(() => {
-        props.modifyingAnnotation.tag = props.addingTags[0].id ? props.addingTags[0].id : props.addingTags[0].code;
+        props.modifyingAnnotation.tag = props.addingTags[0].id;
         setModalOpen(false);
 
         // necessary to update legend

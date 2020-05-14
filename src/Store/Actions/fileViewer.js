@@ -181,3 +181,10 @@ export const setModifyingAnnotation = (modifyingAnnotation) => {
     modifyingAnnotation,
   };
 };
+
+export const setFilterICD = (filterICD) => {
+  return {
+    type: actionTypes.SET_FILTER_ICD,
+    filterICD,
+  };
+};

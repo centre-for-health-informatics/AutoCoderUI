@@ -27,6 +27,7 @@ const initialState = {
   versions: [],
   sentencesAvailable: true,
   modifyingAnnotation: null,
+  filterICD: false,
 };
 
 const reducer = (state = initialState, action) => {
@@ -85,6 +86,8 @@ const reducer = (state = initialState, action) => {
       return { ...state, sentencesAvailable: action.sentencesAvailable };
     case actionTypes.SET_MODIFYING_ANNOTATION:
       return { ...state, modifyingAnnotation: action.modifyingAnnotation };
+    case actionTypes.SET_FILTER_ICD:
+      return { ...state, filterICD: action.filterICD };
     default:
       return state;
   }
