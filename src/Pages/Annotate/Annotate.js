@@ -13,7 +13,8 @@ import * as tagTypes from "../../Components/TagManagement/tagTypes";
 import "react-grid-layout/css/styles.css";
 import "react-resizable/css/styles.css";
 import TagSelector from "../../Components/TagManagement/TagSelector";
-import Legend from "../../Components/CustomAnnotator/Legend";
+import Legend from "../../Components/Legend/Legend";
+import LegendICD from "../../Components/Legend/LegendICD";
 import ManageFiles from "../../Components/ManageFiles/ManageFiles";
 import { mapColors, setDefaultTags } from "../../Components/TagManagement/tagUtil";
 import { Switch, FormControlLabel, Tooltip, Tabs, Tab } from "@material-ui/core";
@@ -286,7 +287,7 @@ const Annotate = (props) => {
         </div>
 
         <div key="legend" className={highlightEditDiv} style={{ overflowY: "auto" }}>
-          <Legend />
+          {props.annotationFocus === tagTypes.ICD ? <LegendICD /> : <Legend />}
         </div>
       </ResponsiveReactGridLayout>
     </div>
@@ -296,6 +297,7 @@ const Annotate = (props) => {
 const mapStateToProps = (state) => {
   return {
     fileViewerText: state.fileViewer.fileViewerText,
+    annotationFocus: state.fileViewer.annotationFocus,
     tagTemplates: state.fileViewer.tagTemplates,
     alertMessage: state.alert.alertMessage,
     isAuthorized: state.authentication.isAuthorized,

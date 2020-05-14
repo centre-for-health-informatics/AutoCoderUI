@@ -299,6 +299,7 @@ const AnnotationEditor = (props) => {
   };
 
   const checkTagTemplates = (tag, type, description) => {
+    console.log(tag, type, description);
     const tagTemplates = Array.from(props.tagTemplates);
     let duplicateTag = tagTemplates.find((tagTemplate) => tagTemplate.id === tag && tagTemplate.type === type);
     if (duplicateTag === undefined) {
@@ -314,17 +315,33 @@ const AnnotationEditor = (props) => {
 
   const changeAnnotation = () => {
     if (props.modifyingAnnotation && props.addingTags) {
-      props.modifyingAnnotation.tag = props.addingTags[0].id ? props.addingTags[0].id : props.addingTags[0].code;
-      setModalOpen(false);
+      const tag = props.addingTags[0].id ? props.addingTags[0].id : props.addingTags[0].code;
 
-      checkTagTemplates(props.modifyingAnnotation.tag, props.annotationFocus, props.addingTags[0].description);
+      const tagTemplates = Array.from(props.tagTemplates);
+      let duplicateTag = tagTemplates.find(
+        (tagTemplate) => tagTemplate.id === tag && tagTemplate.type === props.annotationFocus
+      );
+      if (duplicateTag === undefined) {
+        tagTemplates.push({
+          id: tag,
+          type: props.annotationFocus,
+          description: props.addingTags[0].description,
+        });
+      }
 
-      // necessary to update legend
-      const focus = props.annotationFocus;
-      props.setAnnotationFocus("");
-      props.setAnnotationFocus(focus);
+      // pushing the modified tagTemplates to the state and confirming annotation
+      props.setTagTemplates(tagTemplates).then(() => {
+        props.modifyingAnnotation.tag = props.addingTags[0].id ? props.addingTags[0].id : props.addingTags[0].code;
+        setModalOpen(false);
+
+        // necessary to update legend
+        const focus = props.annotationFocus;
+        props.setAnnotationFocus("");
+        props.setAnnotationFocus(focus);
+
+        confirmAnnotation(props.modifyingAnnotation);
+      });
     }
-    confirmAnnotation(props.modifyingAnnotation);
   };
 
   return (
