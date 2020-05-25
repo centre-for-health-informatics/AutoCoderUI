@@ -1,7 +1,7 @@
 import React from "react";
 import { connect } from "react-redux";
 import { makeStyles } from "@material-ui/core/styles";
-import { List, ListItem, Typography, Modal, Backdrop, Fade, Button } from "@material-ui/core/";
+import { List, ListItem, Typography } from "@material-ui/core/";
 import * as actions from "../../Store/Actions/index";
 import * as tagTypes from "../TagManagement/tagTypes";
 import * as util from "./utility";
@@ -10,10 +10,6 @@ import CustomMuiChip from "../CustomMuiChip/CustomMuiChip";
 import DoneIcon from "@material-ui/icons/Done";
 import EditIcon from "@material-ui/icons/Edit";
 import DeleteIcon from "@material-ui/icons/Delete";
-import SearchBox from "../TagManagement/SearchBox";
-import { getWindowSize } from "../../Util/windowSizeBracket";
-import useWindowResize from "../../Util/resizer";
-import Treeviewer from "../../Components/TreeViewer/TreeViewer";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -31,47 +27,10 @@ const useStyles = makeStyles((theme) => ({
       margin: theme.spacing(0.5),
     },
   },
-  modal: {
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  paper: {
-    backgroundColor: theme.palette.background.paper,
-    border: "2px solid #000",
-    boxShadow: theme.shadows[5],
-    padding: theme.spacing(2, 4, 3),
-  },
 }));
-
-const treeViewDiv = React.createRef();
 
 const AnnotationEditor = (props) => {
   const classes = useStyles();
-
-  const [modalOpen, setModalOpen] = React.useState(false);
-  const windowWidth = useWindowResize()[0];
-
-  const modalWidth = { xs: "95%", sm: "60%", md: "70%", lg: "70%", xl: "70%" };
-
-  const getModalWidth = () => {
-    const size = getWindowSize(windowWidth);
-
-    switch (size) {
-      case "xs":
-        return modalWidth.xs;
-      case "sm":
-        return modalWidth.sm;
-      case "md":
-        return modalWidth.md;
-      case "lg":
-        return modalWidth.lg;
-      case "xl":
-        return modalWidth.xl;
-      default:
-        return "100%";
-    }
-  };
 
   const handleRemoveLabel = (annotation) => {
     props.removeAnnotation(annotation);
@@ -249,19 +208,9 @@ const AnnotationEditor = (props) => {
     return <Typography>{text}</Typography>;
   };
 
-  // changes annotation confirm status from false to true
-  const confirmAnnotation = (annotation) => {
-    let current = annotation;
-    while (current) {
-      current.confirmed = true;
-      current = current.next;
-    }
-    props.refresh();
-  };
-
   // modifies annotation
   const modifyAnnotation = (annotation) => {
-    setModalOpen(true);
+    props.setModalOpen(true);
     props.setModifyingAnnotation(annotation);
   };
 
@@ -281,7 +230,7 @@ const AnnotationEditor = (props) => {
           onDelete={() => handleRemoveLabel(item.ref[i])}
           confirmIcon={item.ref[i].confirmed ? null : <DoneIcon />}
           onConfirm={() => {
-            confirmAnnotation(item.ref[i]);
+            props.confirmAnnotation(item.ref[i]);
           }}
           modifyIcon={
             props.annotationFocus !== tagTypes.TOKENS && props.annotationFocus !== tagTypes.SENTENCES ? (
@@ -298,77 +247,11 @@ const AnnotationEditor = (props) => {
     return chipList;
   };
 
-  const changeAnnotation = () => {
-    if (props.modifyingAnnotation && props.addingTags) {
-      const tag = props.addingTags[0].id;
-
-      const tagTemplates = Array.from(props.tagTemplates);
-      let duplicateTag = tagTemplates.find(
-        (tagTemplate) => tagTemplate.id === tag && tagTemplate.type === props.annotationFocus
-      );
-      if (duplicateTag === undefined) {
-        tagTemplates.push({
-          id: tag,
-          type: props.annotationFocus,
-          description: props.addingTags[0].description,
-        });
-      }
-
-      // pushing the modified tagTemplates to the state and confirming annotation
-      props.setTagTemplates(tagTemplates).then(() => {
-        props.modifyingAnnotation.tag = props.addingTags[0].id;
-        setModalOpen(false);
-
-        // necessary to update legend
-        const focus = props.annotationFocus;
-        props.setAnnotationFocus("");
-        props.setAnnotationFocus(focus);
-
-        confirmAnnotation(props.modifyingAnnotation);
-      });
-    }
-  };
-
   return (
     <React.Fragment>
       <List className={classes.root} dense disablePadding>
         {makeListHTML()}
       </List>
-      <Modal
-        className={classes.modal}
-        open={modalOpen}
-        onClose={() => {
-          setModalOpen(false);
-        }}
-        closeAfterTransition
-        BackdropComponent={Backdrop}
-        BackdropProps={{
-          timeout: 500,
-        }}
-      >
-        <Fade in={modalOpen}>
-          <div id="divdivdiv" style={{ width: getModalWidth() }} className={classes.paper}>
-            <div style={{ display: "flex", flexDirection: "row" }}>
-              <SearchBox />
-              <Button
-                onClick={changeAnnotation}
-                variant="contained"
-                color="default"
-                className={classes.button}
-                size="small"
-                style={{ fontSize: "70%" }}
-              >
-                Change
-              </Button>
-            </div>
-            {props.annotationFocus === tagTypes.ICD ? (
-              <div style={{ width: "100%", height: props.docTreeHeight }}>
-                <Treeviewer ref={treeViewDiv} className="mainTree" />
-              </div>
-            ) : null}
-          </div>
-        </Fade>
-      </Modal>
     </React.Fragment>
   );
 };

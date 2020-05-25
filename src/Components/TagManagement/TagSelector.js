@@ -95,33 +95,54 @@ const TagSelector = (props) => {
     return html;
   };
 
+  const checkNotOnlyICD = () => {
+    for (const tag of props.tagTemplates) {
+      if (tag.type !== tagTypes.ICD) {
+        return true;
+      }
+    }
+    return false;
+  };
+
   return (
     <div className={classes.root}>
-      <div className={classes.radioButtonForm}>
-        <FormControl component="fieldset">
-          <FormLabel component="legend">Annotation Type</FormLabel>
-          <RadioGroup aria-label="type" name="type" value={props.annotationFocus} onChange={handleTypeChange} row>
-            {props.areSentencesAvailable && (
-              <FormControlLabel
-                value={tagTypes.SENTENCES}
-                control={<Radio />}
-                label={tagTypes.SENTENCES}
-                labelPlacement="end"
-              />
-            )}
-            {/* <FormControlLabel
+      {checkNotOnlyICD() && (
+        <div className={classes.radioButtonForm}>
+          <FormControl component="fieldset">
+            <FormLabel component="legend">Annotation Type</FormLabel>
+            <RadioGroup aria-label="type" name="type" value={props.annotationFocus} onChange={handleTypeChange} row>
+              {props.areSentencesAvailable && (
+                <FormControlLabel
+                  value={tagTypes.SENTENCES}
+                  control={<Radio />}
+                  label={tagTypes.SENTENCES}
+                  labelPlacement="end"
+                />
+              )}
+              {/* <FormControlLabel
               value={tagTypes.TOKENS}
               control={<Radio />}
               label={tagTypes.TOKENS}
               labelPlacement="end"
             /> */}
-            {makeCustomTypesRadioButtons()}
-            <FormControlLabel value={tagTypes.ICD} control={<Radio />} label={tagTypes.ICD} labelPlacement="end" />
-          </RadioGroup>
-        </FormControl>
-      </div>
+              {makeCustomTypesRadioButtons()}
+              <FormControlLabel value={tagTypes.ICD} control={<Radio />} label={tagTypes.ICD} labelPlacement="end" />
+            </RadioGroup>
+          </FormControl>
+        </div>
+      )}
       <div className={classes.searchBox}>
         <SearchBox />
+      </div>
+      <div>
+        <b>Info:</b>
+        <br />
+        <b>Inclusion Terms:</b>
+        <br />
+        <b>Exclusion 1:</b>
+        <br />
+        <b>Exclusion 2:</b>
+        <br />
       </div>
     </div>
   );

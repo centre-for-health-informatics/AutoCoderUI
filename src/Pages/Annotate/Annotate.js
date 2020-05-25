@@ -17,14 +17,33 @@ import Legend from "../../Components/Legend/Legend";
 import LegendICD from "../../Components/Legend/LegendICD";
 import ManageFiles from "../../Components/ManageFiles/ManageFiles";
 import { mapColors, setDefaultTags } from "../../Components/TagManagement/tagUtil";
-import { Switch, FormControlLabel, Tooltip, Tabs, Tab } from "@material-ui/core";
+import { Switch, FormControlLabel, Tooltip, Tabs, Tab, Modal, Backdrop, Fade, Button } from "@material-ui/core";
 import LoadingIndicator from "../../Components/LoadingIndicator/LoadingIndicator";
 import CustomAnnotator from "../../Components/CustomAnnotator/CustomAnnotator";
 import TreeViewer from "../../Components/TreeViewer/TreeViewer";
+import SearchBox from "../../Components/TagManagement/SearchBox";
+import { makeStyles } from "@material-ui/core/styles";
+import { getWindowSize } from "../../Util/windowSizeBracket";
+import useWindowResize from "../../Util/resizer";
 
 const ResponsiveReactGridLayout = WidthProvider(Responsive);
 const originalLayouts = getFromLS("annotateLayouts", "layouts") || defaultLayouts;
 const treeViewDiv = React.createRef();
+const treeViewDivModal = React.createRef();
+
+const useStyles = makeStyles((theme) => ({
+  modal: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  paper: {
+    backgroundColor: theme.palette.background.paper,
+    border: "2px solid #000",
+    boxShadow: theme.shadows[5],
+    padding: theme.spacing(2, 4, 3),
+  },
+}));
 
 const Annotate = (props) => {
   const [layouts, setLayouts] = useState(originalLayouts);
@@ -33,7 +52,32 @@ const Annotate = (props) => {
   const [swipeIndex, setSwipeIndex] = useState(0);
   const [docTreeHeight, setDocTreeHeight] = useState(0);
   const [prevSpan, setPrevSpan] = useState(null);
+  const [modalOpen, setModalOpen] = React.useState(false);
   const alert = useAlert();
+  const classes = useStyles();
+
+  const windowWidth = useWindowResize()[0];
+
+  const modalWidth = { xs: "95%", sm: "60%", md: "70%", lg: "70%", xl: "70%" };
+
+  const getModalWidth = () => {
+    const size = getWindowSize(windowWidth);
+
+    switch (size) {
+      case "xs":
+        return modalWidth.xs;
+      case "sm":
+        return modalWidth.sm;
+      case "md":
+        return modalWidth.md;
+      case "lg":
+        return modalWidth.lg;
+      case "xl":
+        return modalWidth.xl;
+      default:
+        return "100%";
+    }
+  };
 
   const onLayoutChange = (layouts) => {
     setLayouts(layouts);
@@ -141,6 +185,8 @@ const Annotate = (props) => {
         docTreeHeight={docTreeHeight}
         prevSpan={prevSpan}
         setPrevSpan={setPrevSpan}
+        setModalOpen={setModalOpen}
+        confirmAnnotation={confirmAnnotation}
       />
     );
   };
@@ -183,6 +229,58 @@ const Annotate = (props) => {
     setSwipeIndex(index);
   };
 
+  const changeAnnotation = () => {
+    if (props.modifyingAnnotation && props.addingTags) {
+      const tag = props.addingTags[0].id;
+
+      const tagTemplates = Array.from(props.tagTemplates);
+      let duplicateTag = tagTemplates.find(
+        (tagTemplate) => tagTemplate.id === tag && tagTemplate.type === props.annotationFocus
+      );
+      if (duplicateTag === undefined) {
+        tagTemplates.push({
+          id: tag,
+          type: props.annotationFocus,
+          description: props.addingTags[0].description,
+        });
+      }
+
+      // pushing the modified tagTemplates to the state and confirming annotation
+      props.setTagTemplates(tagTemplates).then(() => {
+        props.modifyingAnnotation.tag = props.addingTags[0].id;
+        let current = props.modifyingAnnotation;
+        while (current) {
+          current.tag = props.addingTags[0].id;
+          current = current.next;
+        }
+        setModalOpen(false);
+
+        // necessary to update legend
+        const focus = props.annotationFocus;
+        props.setAnnotationFocus("");
+        props.setAnnotationFocus(focus);
+
+        confirmAnnotation(props.modifyingAnnotation);
+      });
+    }
+  };
+
+  // Refreshes editor to remove confirm button after it is clicked
+  const refreshEditor = () => {
+    const annotationsToEditCopy = Array.from(props.annotationsToEdit);
+    props.setAnnotationsToEdit([]);
+    props.setAnnotationsToEdit(annotationsToEditCopy);
+  };
+
+  const confirmAnnotation = (annotation) => {
+    let current = annotation;
+    while (current) {
+      current.confirmed = true;
+      current = current.next;
+    }
+    refreshEditor();
+  };
+
   return (
     <div>
       <div>
@@ -196,6 +294,44 @@ const Annotate = (props) => {
           inModifyMode={isLayoutModifiable}
         />
       </div>
+      <Modal
+        className={classes.modal}
+        open={modalOpen}
+        onClose={() => {
+          setModalOpen(false);
+          props.setModifyingAnnotation(null);
+        }}
+        closeAfterTransition
+        BackdropComponent={Backdrop}
+        BackdropProps={{
+          timeout: 500,
+        }}
+      >
+        <Fade in={modalOpen}>
+          <div style={{ width: getModalWidth() }} className={classes.paper}>
+            <div style={{ display: "flex", flexDirection: "row" }}>
+              <SearchBox />
+              {props.modifyingAnnotation && (
+                <Button
+                  onClick={changeAnnotation}
+                  variant="contained"
+                  color="default"
+                  className={classes.button}
+                  size="small"
+                  style={{ fontSize: "70%" }}
+                >
+                  Change
+                </Button>
+              )}
+            </div>
+            {props.annotationFocus === tagTypes.ICD ? (
+              <div style={{ width: "100%", height: docTreeHeight }}>
+                <TreeViewer ref={treeViewDivModal} className="modalTree" />
+              </div>
+            ) : null}
+          </div>
+        </Fade>
+      </Modal>
       <ResponsiveReactGridLayout
         className="layout"
         rowHeight={10}
@@ -288,6 +424,9 @@ const Annotate = (props) => {
                 />
               </Tooltip>
             )}
+            <Button onClick={() => setModalOpen(true)} variant="contained" color="primary" className={classes.button}>
+              Browse
+            </Button>
           </div>
         </div>
         <div key="manageFiles" className={highlightEditDiv} style={{ overflowY: "auto" }}>
@@ -321,7 +460,7 @@ const Annotate = (props) => {
             >
               <div style={{ width: "100%", flexShrink: 0, overflow: "visible" }}>{renderCustomAnnotator()}</div>
               <div style={{ width: "100%", flexShrink: 0, overflow: "visible" }}>
-                <TreeViewer ref={treeViewDiv} className="modalTree" />
+                <TreeViewer ref={treeViewDiv} className="mainTree" />
               </div>
             </div>
           </div>
@@ -357,12 +496,14 @@ const mapStateToProps = (state) => {
     userRole: state.authentication.userRole,
     filterICD: state.fileViewer.filterICD,
     addingTags: state.tagManagement.addingTags,
+    modifyingAnnotation: state.fileViewer.modifyingAnnotation,
+    annotationsToEdit: state.fileViewer.annotationsToEdit,
   };
 };
 
 const mapDispatchToProps = (dispatch) => {
   return {
-    setTagTemplates: (tagTemplates) => dispatch(actions.setTagTemplates(tagTemplates)),
+    setTagTemplates: (tagTemplates) => dispatch(actions.setTagTemplatesWithCallback(tagTemplates)),
     setFilterICD: (filterICD) => dispatch(actions.setFilterICD(filterICD)),
     setAlertMessage: (newValue) => dispatch(actions.setAlertMessage(newValue)),
     setAnnotationFocus: (annotationFocus) => dispatch(actions.setAnnotationFocus(annotationFocus)),
@@ -371,6 +512,8 @@ const mapDispatchToProps = (dispatch) => {
     setInitialTagsAdded: (initialTagsAdded) => dispatch(actions.setInitialTagsAdded(initialTagsAdded)),
     setSessionId: (sessionId) => dispatch(actions.setSessionId(sessionId)),
     setSnapToWord: (snapToWord) => dispatch(actions.setSnapToWord(snapToWord)),
+    setAnnotationsToEdit: (annotationsToEdit) => dispatch(actions.setAnnotationsToEdit(annotationsToEdit)),
+    setModifyingAnnotation: (modifyingAnnotation) => dispatch(actions.setModifyingAnnotation(modifyingAnnotation)),
   };
 };
 

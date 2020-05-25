@@ -1,4 +1,5 @@
 import * as actionTypes from "../Actions/actionTypes";
+import * as tagTypes from "../../Components/TagManagement/tagTypes";
 
 const initialState = {
   fileViewerText: "",
@@ -6,7 +7,7 @@ const initialState = {
   tokens: [],
   entities: [],
   isSpacyLoading: false,
-  annotationFocus: "Sentences",
+  annotationFocus: tagTypes.ICD,
   annotations: [],
   tagTemplates: [],
   linkedListAdd: false,
@@ -25,7 +26,7 @@ const initialState = {
   currentSentences: [],
   versionIndex: -1,
   versions: [],
-  sentencesAvailable: true,
+  sentencesAvailable: false,
   modifyingAnnotation: null,
   filterICD: false,
 };

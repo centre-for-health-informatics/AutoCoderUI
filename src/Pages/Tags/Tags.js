@@ -10,19 +10,19 @@ import { Redirect } from "react-router";
 import Loading from "../Loading/Loading";
 import * as APIUtility from "../../Util/API";
 import TagManager from "../../Components/TagManagement/TagManager";
-import GeneralSettings from "../../Components/GeneralSettings/GeneralSettings";
+// import GeneralSettings from "../../Components/GeneralSettings/GeneralSettings";
 import { mapColors, setDefaultTags } from "../../Components/TagManagement/tagUtil";
 
 const ResponsiveReactGridLayout = WidthProvider(Responsive);
 const originalLayouts = getFromLS("tagsLayouts", "layouts") || defaultLayouts;
 
-const Tags = props => {
+const Tags = (props) => {
   const [layouts, setLayouts] = useState(originalLayouts);
   const [isLayoutModifiable, setLayoutModifiable] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const alert = useAlert();
 
-  const onLayoutChange = layouts => {
+  const onLayoutChange = (layouts) => {
     setLayouts(layouts);
     saveToLS("tagsLayouts", "layouts", layouts);
   };
@@ -61,7 +61,7 @@ const Tags = props => {
         type: props.alertMessage.messageType,
         onClose: () => {
           props.setAlertMessage(null);
-        }
+        },
       });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -104,30 +104,30 @@ const Tags = props => {
         <div key="tagList" className={highlightEditDiv} style={{ overflowY: "auto" }}>
           <TagManager />
         </div>
-        <div key="generalSettings" className={highlightEditDiv} style={{ overflowY: "auto" }}>
+        {/* <div key="generalSettings" className={highlightEditDiv} style={{ overflowY: "auto" }}>
           <GeneralSettings />
-        </div>
+        </div> */}
       </ResponsiveReactGridLayout>
     </div>
   );
 };
 
-const mapStateToProps = state => {
+const mapStateToProps = (state) => {
   return {
     tagTemplates: state.fileViewer.tagTemplates,
     alertMessage: state.alert.alertMessage,
     isAuthorized: state.authentication.isAuthorized,
     isServerDown: state.authentication.isServerDown,
     initialTagsAdded: state.tagManagement.initialTagsAdded,
-    userRole: state.authentication.userRole
+    userRole: state.authentication.userRole,
   };
 };
 
-const mapDispatchToProps = dispatch => {
+const mapDispatchToProps = (dispatch) => {
   return {
-    setTagTemplates: tagTemplates => dispatch(actions.setTagTemplates(tagTemplates)),
-    setAlertMessage: newValue => dispatch(actions.setAlertMessage(newValue)),
-    setInitialTagsAdded: initialTagsAdded => dispatch(actions.setInitialTagsAdded(initialTagsAdded))
+    setTagTemplates: (tagTemplates) => dispatch(actions.setTagTemplates(tagTemplates)),
+    setAlertMessage: (newValue) => dispatch(actions.setAlertMessage(newValue)),
+    setInitialTagsAdded: (initialTagsAdded) => dispatch(actions.setInitialTagsAdded(initialTagsAdded)),
   };
 };
 

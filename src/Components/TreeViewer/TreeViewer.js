@@ -1911,7 +1911,7 @@ class TreeViewer extends Component {
 
   // Renders the tree
   render() {
-    return <div id={"tree"} className={this.treeClass} style={{ overflowY: "hidden" }} />;
+    return <div className={this.treeClass} style={{ overflowY: "hidden" }} />;
   }
 }
 

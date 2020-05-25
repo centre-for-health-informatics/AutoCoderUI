@@ -272,13 +272,6 @@ class CustomAnnotator extends Component {
     this.setState({ anchorEl: null });
   };
 
-  // Refreshes editor to remove confirm button after it is clicked
-  refreshEditor = () => {
-    const annotationsToEditCopy = Array.from(this.props.annotationsToEdit);
-    this.props.setAnnotationsToEdit([]);
-    this.props.setAnnotationsToEdit(annotationsToEditCopy);
-  };
-
   /**
    * Called upon to remove annotations
    */
@@ -389,10 +382,11 @@ class CustomAnnotator extends Component {
           }}
         >
           <AnnotationEditor
-            refresh={this.refreshEditor}
             itemsToEdit={this.props.annotationsToEdit}
             removeAnnotation={this.removeAnnotation}
             docTreeHeight={this.props.docTreeHeight}
+            setModalOpen={this.props.setModalOpen}
+            confirmAnnotation={this.props.confirmAnnotation}
           />
         </Popover>
         <svg style={{ zIndex: -1 }} height={this.props.intervalDivHeight} width={this.props.intervalDivWidth}>
