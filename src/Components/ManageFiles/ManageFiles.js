@@ -308,21 +308,17 @@ const ManageFiles = (props) => {
 
 const mapStateToProps = (state) => {
   return {
-    sentences: state.fileViewer.sentences,
-    entities: state.fileViewer.entities,
     jsonList: state.fileViewer.jsonList,
     txtList: state.fileViewer.txtList,
     annotationsList: state.fileViewer.annotationsList,
     fileIndex: state.fileViewer.fileIndex,
     tagTemplates: state.fileViewer.tagTemplates,
     sessionId: state.fileViewer.sessionId,
-    isSpacyLoading: state.fileViewer.isSpacyLoading,
     versionIndex: state.fileViewer.versionIndex,
     annotationFocus: state.fileViewer.annotationFocus,
     currentEntities: state.fileViewer.currentEntities,
     currentSentences: state.fileViewer.currentSentences,
     versions: state.fileViewer.versions,
-    versionIndex: state.fileViewer.versionIndex,
   };
 };
 
@@ -331,7 +327,6 @@ const mapDispatchToProps = (dispatch) => {
     setAnnotations: (annotations) => dispatch(actions.setAnnotations(annotations)),
     setSentences: (sentences) => dispatch(actions.setSentences(sentences)),
     setEntities: (entities) => dispatch(actions.setEntities(entities)),
-    setAnnotationFocus: (annotationFocus) => dispatch(actions.setAnnotationFocus(annotationFocus)),
     setSpacyLoading: (isSpacyLoading) => dispatch(actions.setSpacyLoading(isSpacyLoading)),
     updateAnnotationsAfterLoadingSpacy: (data, index) =>
       dispatch(actions.updateAnnotationsAfterLoadingSpacy(data, index)),

@@ -11,13 +11,13 @@ import PaginationHeader from "../Pagination/PaginationHeader";
 
 const useStyles = makeStyles({
   root: {
-    width: "100%"
+    width: "100%",
   },
   table: {
-    minWidth: 500
+    minWidth: 500,
   },
   tableWrapper: {
-    overflowX: "auto"
+    overflowX: "auto",
   },
   visuallyHidden: {
     border: 0,
@@ -28,8 +28,8 @@ const useStyles = makeStyles({
     padding: 0,
     position: "absolute",
     top: 20,
-    width: 1
-  }
+    width: 1,
+  },
 });
 
 // the id fields must match the model field references in backend for sorting to work
@@ -38,17 +38,17 @@ const tableHeadersAdmin = [
   { id: "user", align: "left", disablePadding: false, label: "User", sortable: true },
   { id: "filename", align: "left", disablePadding: false, label: "Filename", sortable: true },
   { id: "updated", align: "left", disablePadding: false, label: "Time", sortable: true },
-  { id: "download", align: "left", disablePadding: false, label: "Download", sortable: false }
+  { id: "download", align: "left", disablePadding: false, label: "Download", sortable: false },
 ];
 
 const tableHeadersCurrent = [
   { id: "id", align: "left", disablePadding: false, label: "Id", sortable: true },
   { id: "filename", align: "left", disablePadding: false, label: "Filename", sortable: true },
   { id: "updated", align: "left", disablePadding: false, label: "Time", sortable: true },
-  { id: "download", align: "left", disablePadding: false, label: "Download", sortable: false }
+  { id: "download", align: "left", disablePadding: false, label: "Download", sortable: false },
 ];
 
-const UserAnnotations = props => {
+const UserAnnotations = (props) => {
   const classes = useStyles();
   const [data, setData] = useState([]);
   const [order, setOrder] = React.useState("desc");
@@ -60,7 +60,7 @@ const UserAnnotations = props => {
     totalPage: 0,
     total: 0,
     next: null,
-    previous: null
+    previous: null,
   });
 
   const emptyRows = Math.max(paginationSettings.pageSize - data.length, 0);
@@ -97,7 +97,7 @@ const UserAnnotations = props => {
   /**
    * Called on to change rows per page
    */
-  const handleChangeRowsPerPage = pageSize => {
+  const handleChangeRowsPerPage = (pageSize) => {
     getAnnotations({ pageSize });
   };
 
@@ -115,7 +115,7 @@ const UserAnnotations = props => {
   /**
    * Receives a dictionary with key-value for parameters, returns a string to be attached to API URL
    */
-  const makeRequestParams = options => {
+  const makeRequestParams = (options) => {
     let page = paginationSettings.page;
     let pageSize = paginationSettings.pageSize;
     let sortOrder = order;
@@ -142,26 +142,26 @@ const UserAnnotations = props => {
   /**
    * Called on to request table data
    */
-  const getAnnotations = params => {
+  const getAnnotations = (params) => {
     const paramString = makeRequestParams(params);
     if (props.user === "current") {
       APIUtility.API.makeAPICall(APIUtility.GET_ALL_ANNOTE_BY_CURRENT_USER, paramString)
-        .then(response => response.json())
-        .then(result => handleApiResults(result))
-        .catch(error => {
+        .then((response) => response.json())
+        .then((result) => handleApiResults(result))
+        .catch((error) => {
           console.log("ERROR: ", error);
         });
     } else if (props.user === "admin") {
       APIUtility.API.makeAPICall(APIUtility.GET_ALL_ANNOTE, paramString)
-        .then(response => response.json())
-        .then(result => handleApiResults(result))
-        .catch(error => {
+        .then((response) => response.json())
+        .then((result) => handleApiResults(result))
+        .catch((error) => {
           console.log("ERROR: ", error);
         });
     }
   };
 
-  const handleApiResults = result => {
+  const handleApiResults = (result) => {
     setData(result.data);
     setPaginationSettings({
       page: result.page,
@@ -169,14 +169,14 @@ const UserAnnotations = props => {
       totalPage: result.total_pages,
       total: result.total,
       next: result.next,
-      previous: result.previous
+      previous: result.previous,
     });
   };
 
-  const downloadAnnotations = index => {
+  const downloadAnnotations = (index) => {
     APIUtility.API.makeAPICall(APIUtility.DOWNLOAD_ANNOTATIONS_BY_ID, data[index].id)
-      .then(response => response.json())
-      .then(annotation => {
+      .then((response) => response.json())
+      .then((annotation) => {
         let text = JSON.stringify(annotation[0]);
 
         downloader(annotation[0].name + "_Annotations.json", text);
@@ -252,17 +252,15 @@ const UserAnnotations = props => {
   );
 };
 
-const mapStateToProps = state => {
+const mapStateToProps = (state) => {
   return {
-    tagTemplates: state.fileViewer.tagTemplates,
-    entities: state.fileViewer.entities
+    //
   };
 };
 
-const mapDispatchToProps = dispatch => {
+const mapDispatchToProps = (dispatch) => {
   return {
-    setEntities: entities => dispatch(actions.setEntities(entities)),
-    setAlertMessage: newValue => dispatch(actions.setAlertMessage(newValue))
+    //
   };
 };
 

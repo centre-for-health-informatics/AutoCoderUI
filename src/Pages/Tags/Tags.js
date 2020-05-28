@@ -71,10 +71,6 @@ const Tags = (props) => {
     return <Loading />;
   }
 
-  // if (props.isServerDown) {
-  //   return <Redirect to="/server-down" />;
-  // }
-
   if (!props.isAuthorized) {
     return <Redirect to="/sign-in" />;
   }
@@ -117,7 +113,6 @@ const mapStateToProps = (state) => {
     tagTemplates: state.fileViewer.tagTemplates,
     alertMessage: state.alert.alertMessage,
     isAuthorized: state.authentication.isAuthorized,
-    isServerDown: state.authentication.isServerDown,
     initialTagsAdded: state.tagManagement.initialTagsAdded,
     userRole: state.authentication.userRole,
   };

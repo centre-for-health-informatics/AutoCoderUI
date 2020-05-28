@@ -14,20 +14,20 @@ import { connect } from "react-redux";
 import * as actions from "../../Store/Actions/index";
 import * as APIUtility from "../../Util/API";
 
-const useStyles = makeStyles(theme => ({
+const useStyles = makeStyles((theme) => ({
   root: {
-    flexGrow: 1
+    flexGrow: 1,
   },
   menuButton: {
-    marginRight: theme.spacing(2)
+    marginRight: theme.spacing(2),
   },
   title: {
-    flexGrow: 1
+    flexGrow: 1,
   },
   menuBar: {
     backgroundColor: "#3949ab", //set the color of the Main menu bar
-    color: "white"
-  }
+    color: "white",
+  },
 }));
 
 function ButtonAppBar(props) {
@@ -153,9 +153,9 @@ function ButtonAppBar(props) {
   );
 }
 
-const mapDispatchToProps = dispatch => {
+const mapDispatchToProps = (dispatch) => {
   return {
-    setIsAuthorized: authBool => dispatch(actions.setIsAuthorized(authBool))
+    //
   };
 };
 

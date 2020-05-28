@@ -15,29 +15,29 @@ import * as actions from "../../Store/Actions/index";
 import { connect } from "react-redux";
 import { useAlert, positions } from "react-alert";
 
-const useStyles = makeStyles(theme => ({
+const useStyles = makeStyles((theme) => ({
   "@global": {
     body: {
-      backgroundColor: theme.palette.common.white
-    }
+      backgroundColor: theme.palette.common.white,
+    },
   },
   paper: {
     marginTop: theme.spacing(8),
     display: "flex",
     flexDirection: "column",
-    alignItems: "center"
+    alignItems: "center",
   },
   avatar: {
     margin: theme.spacing(1),
-    backgroundColor: theme.palette.secondary.main
+    backgroundColor: theme.palette.secondary.main,
   },
   form: {
     width: "100%", // Fix IE 11 issue.
-    marginTop: theme.spacing(1)
+    marginTop: theme.spacing(1),
   },
   submit: {
-    margin: theme.spacing(3, 0, 2)
-  }
+    margin: theme.spacing(3, 0, 2),
+  },
 }));
 
 function SignIn(props) {
@@ -54,7 +54,7 @@ function SignIn(props) {
         type: props.alertMessage.messageType,
         onClose: () => {
           props.setAlertMessage(null);
-        }
+        },
       });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -68,7 +68,7 @@ function SignIn(props) {
     APIUtility.API.getTokenFromAPI(username, password);
   };
 
-  const onKeyPress = e => {
+  const onKeyPress = (e) => {
     if (e.which === 13) {
       getToken();
     }
@@ -134,17 +134,16 @@ function SignIn(props) {
   );
 }
 
-const mapStateToProps = state => {
+const mapStateToProps = (state) => {
   return {
     isAuthorized: state.authentication.isAuthorized,
-    alertMessage: state.alert.alertMessage
+    alertMessage: state.alert.alertMessage,
   };
 };
 
-const mapDispatchToProps = dispatch => {
+const mapDispatchToProps = (dispatch) => {
   return {
-    setIsAuthorized: authBool => dispatch(actions.setIsAuthorized(authBool)),
-    setAlertMessage: newValue => dispatch(actions.setAlertMessage(newValue))
+    setAlertMessage: (newValue) => dispatch(actions.setAlertMessage(newValue)),
   };
 };
 

@@ -410,7 +410,6 @@ const mapStateToProps = (state) => {
     intervalDivWidth: state.fileViewer.intervalDivWidth,
     snapToWord: state.fileViewer.snapToWord,
     spansRendered: state.fileViewer.spansRendered,
-    fileIndex: state.fileViewer.fileIndex,
     tagTemplates: state.fileViewer.tagTemplates,
     currentEntities: state.fileViewer.currentEntities,
     currentSentences: state.fileViewer.currentSentences,

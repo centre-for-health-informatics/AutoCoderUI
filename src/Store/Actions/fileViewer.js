@@ -91,13 +91,6 @@ export const setSnapToWord = (snapToWord) => {
   };
 };
 
-export const setAddingCustomTag = (addingCustomTag) => {
-  return {
-    type: actionTypes.SET_ADDING_CUSTOM_TAG,
-    addingCustomTag,
-  };
-};
-
 export const setSpansRendered = (spansRendered) => {
   return {
     type: actionTypes.SET_SPANS_RENDERED,

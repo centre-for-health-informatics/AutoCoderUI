@@ -14,7 +14,6 @@ export {
   setIntervalDivWidth,
   setAnnotationsToEdit,
   setSnapToWord,
-  setAddingCustomTag,
   setSpansRendered,
   setTxtList,
   setJsonList,
@@ -29,21 +28,11 @@ export {
   setModifyingAnnotation,
   setFilterICD,
 } from "./fileViewer";
-export {
-  setUploadedTags,
-  enableTagByIndex,
-  disableTagByIndex,
-  enableAllTags,
-  disableAllTags,
-  setAddingTags,
-  setInitialTagsAdded,
-} from "./tagManagement";
+export { setAddingTags, setInitialTagsAdded } from "./tagManagement";
 export {
   updateAnnotationsAfterLoadingSpacy,
   setTagTemplatesWithCallback,
   setCurrentEntitiesWithCallback,
   setCurrentSentencesWithCallback,
-  setFileIndexWithCallback,
 } from "./asyncActions";
-export { appendToCache } from "./cached";
 export { setSelectedCode } from "./tree";

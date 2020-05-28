@@ -124,7 +124,6 @@ const mapStateToProps = (state) => {
     annotationFocus: state.fileViewer.annotationFocus,
     addingTags: state.tagManagement.addingTags,
     tagTemplates: state.fileViewer.tagTemplates,
-    annotationsToEdit: state.fileViewer.annotationsToEdit,
     filterICD: state.fileViewer.filterICD,
     entities: state.fileViewer.entities,
   };

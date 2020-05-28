@@ -261,7 +261,6 @@ const mapStateToProps = (state) => {
     fileViewerText: state.fileViewer.fileViewerText,
     tagTemplates: state.fileViewer.tagTemplates,
     annotationFocus: state.fileViewer.annotationFocus, // the currently active type
-    addingTags: state.tagManagement.addingTags, // the currently active tag
     sentences: state.fileViewer.sentences,
     modifyingAnnotation: state.fileViewer.modifyingAnnotation,
   };
@@ -269,8 +268,6 @@ const mapStateToProps = (state) => {
 
 const mapDispatchToProps = (dispatch) => {
   return {
-    setAnnotationFocus: (focus) => dispatch(actions.setAnnotationFocus(focus)),
-    setTagTemplates: (tags) => dispatch(actions.setTagTemplatesWithCallback(tags)),
     setModifyingAnnotation: (modifyingAnnotation) => dispatch(actions.setModifyingAnnotation(modifyingAnnotation)),
   };
 };

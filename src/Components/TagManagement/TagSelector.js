@@ -155,21 +155,17 @@ const mapStateToProps = (state) => {
     sentences: state.fileViewer.sentences,
     tokens: state.fileViewer.tokens,
     entities: state.fileViewer.entities,
-    entityTagsList: state.tagManagement.uploadedTags, // a selection of tags for labelling entities
     areSentencesAvailable: state.fileViewer.sentencesAvailable,
   };
 };
 
 const mapDispatchToProps = (dispatch) => {
   return {
-    setTagTemplates: (tags) => dispatch(actions.setTagTemplatesWithCallback(tags)),
+    setAddingTags: (addingTags) => dispatch(actions.setAddingTags(addingTags)),
     setFilterICD: (filterICD) => dispatch(actions.setFilterICD(filterICD)),
-    appendToCache: (codeObjArray) => dispatch(actions.appendToCache(codeObjArray)),
-    setAddingTags: (tags) => dispatch(actions.setAddingTags(tags)),
     setAnnotationFocus: (annotationFocus) => dispatch(actions.setAnnotationFocus(annotationFocus)),
     setAnnotations: (annotations) => dispatch(actions.setAnnotations(annotations)),
     setSpansRendered: (spansRendered) => dispatch(actions.setSpansRendered(spansRendered)),
-    setSelectedCode: (selectedCode) => dispatch(actions.setSelectedCode(selectedCode)),
   };
 };
 

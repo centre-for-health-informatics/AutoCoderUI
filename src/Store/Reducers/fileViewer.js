@@ -15,7 +15,6 @@ const initialState = {
   intervalDivWidth: 0,
   annotationsToEdit: [],
   snapToWord: true,
-  addingCustomTag: false,
   spansRendered: false,
   txtList: [],
   jsonList: [],
@@ -61,8 +60,6 @@ const reducer = (state = initialState, action) => {
       return { ...state, annotationsToEdit: action.annotationsToEdit };
     case actionTypes.SET_SNAP_TO_WORD:
       return { ...state, snapToWord: action.snapToWord };
-    case actionTypes.SET_ADDING_CUSTOM_TAG:
-      return { ...state, addingCustomTag: action.addingCustomTag };
     case actionTypes.SET_SPANS_RENDERED:
       return { ...state, spansRendered: action.spansRendered };
     case actionTypes.SET_TXT_LIST:

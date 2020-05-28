@@ -25,20 +25,20 @@ export class MTableToolbar extends React.Component {
       columnsButtonAnchorEl: null,
       exportButtonAnchorEl: null,
       loadDefaultButtonAnchorEl: null,
-      removeAllTagsButtonAnchorEl: null
+      removeAllTagsButtonAnchorEl: null,
     };
     this.fileInputRef = React.createRef();
   }
 
   defaultExportCsv = () => {
     const columns = this.props.columns
-      .filter(columnDef => {
+      .filter((columnDef) => {
         return !columnDef.hidden && columnDef.field && columnDef.export !== false;
       })
       .sort((a, b) => (a.tableData.columnOrder > b.tableData.columnOrder ? 1 : -1));
     const dataToExport = this.props.exportAllData ? this.props.data : this.props.renderData;
-    const data = dataToExport.map(rowData =>
-      columns.map(columnDef => {
+    const data = dataToExport.map((rowData) =>
+      columns.map((columnDef) => {
         return this.props.getFieldValue(rowData, columnDef);
       })
     );
@@ -46,7 +46,7 @@ export class MTableToolbar extends React.Component {
     const builder = new CsvBuilder((this.props.exportFileName || this.props.title || "data") + ".csv");
     builder
       .setDelimeter(this.props.exportDelimiter)
-      .setColumns(columns.map(columnDef => columnDef.title))
+      .setColumns(columns.map((columnDef) => columnDef.title))
       .addRows(data)
       .exportFile();
   };
@@ -59,10 +59,10 @@ export class MTableToolbar extends React.Component {
     this.fileInputRef.current.click();
   };
 
-  readFile = files => {
+  readFile = (files) => {
     if (files[0]) {
       let fileReader = new FileReader();
-      fileReader.onload = e => {
+      fileReader.onload = (e) => {
         let lines = e.target.result.replace(/\r\n/g, "\n").split("\n");
         let tags = this.readTagsFromStrings(lines);
         this.props.setTagTemplates(tags);
@@ -72,7 +72,7 @@ export class MTableToolbar extends React.Component {
     }
   };
 
-  readTagsFromStrings = lines => {
+  readTagsFromStrings = (lines) => {
     const oldTags = Array.from(this.props.tagTemplates);
     const newTags = [];
     const descriptionUpdated = [];
@@ -99,7 +99,7 @@ export class MTableToolbar extends React.Component {
       if (id !== "") {
         // line is not empty
 
-        let duplicateTag = oldTags.find(tag => tag.id === id && tag.type === type);
+        let duplicateTag = oldTags.find((tag) => tag.id === id && tag.type === type);
 
         if (duplicateTag !== undefined) {
           // tag id already exist in oldTags
@@ -140,28 +140,28 @@ export class MTableToolbar extends React.Component {
     if (newTags.length > 0) {
       this.props.setAlertMessage({
         message: newTags.length + " new tags have been created. ",
-        messageType: "success"
+        messageType: "success",
       });
     }
 
     if (descriptionUpdated.length > 0) {
       this.props.setAlertMessage({
         message: descriptionUpdated.length + " tags have updated descriptions. ",
-        messageType: "success"
+        messageType: "success",
       });
     }
 
     if (colorUpdated.length > 0) {
       this.props.setAlertMessage({
         message: colorUpdated.length + " tags have updated colors. ",
-        messageType: "success"
+        messageType: "success",
       });
     }
 
     if (typeUpdated.length > 0) {
       this.props.setAlertMessage({
         message: typeUpdated.length + " tags have updated types. ",
-        messageType: "success"
+        messageType: "success",
       });
     }
   };
@@ -186,7 +186,7 @@ export class MTableToolbar extends React.Component {
               : this.props.classes.searchField
           }
           value={this.props.searchText}
-          onChange={event => this.props.onSearchChanged(event.target.value)}
+          onChange={(event) => this.props.onSearchChanged(event.target.value)}
           placeholder={localization.searchPlaceholder}
           InputProps={{
             startAdornment: (
@@ -203,7 +203,7 @@ export class MTableToolbar extends React.Component {
                 </IconButton>
               </InputAdornment>
             ),
-            style: this.props.searchFieldStyle
+            style: this.props.searchFieldStyle,
           }}
         />
       );
@@ -223,7 +223,7 @@ export class MTableToolbar extends React.Component {
             <Tooltip title={localization.showColumnsTitle}>
               <IconButton
                 color="inherit"
-                onClick={event => this.setState({ columnsButtonAnchorEl: event.currentTarget })}
+                onClick={(event) => this.setState({ columnsButtonAnchorEl: event.currentTarget })}
                 aria-label={localization.showColumnsAriaLabel}
               >
                 <this.props.icons.ViewColumn />
@@ -237,7 +237,7 @@ export class MTableToolbar extends React.Component {
               <MenuItem key={"text"} disabled style={{ opacity: 1, fontWeight: 600, fontSize: 12 }}>
                 {localization.addRemoveColumns}
               </MenuItem>
-              {this.props.columns.map(col => {
+              {this.props.columns.map((col) => {
                 return (
                   <li key={col.tableData.id}>
                     <MenuItem
@@ -264,7 +264,7 @@ export class MTableToolbar extends React.Component {
             <Tooltip title={localization.exportTitle}>
               <IconButton
                 color="inherit"
-                onClick={event => this.setState({ exportButtonAnchorEl: event.currentTarget })}
+                onClick={(event) => this.setState({ exportButtonAnchorEl: event.currentTarget })}
                 aria-label={localization.exportAriaLabel}
               >
                 <this.props.icons.Export />
@@ -283,7 +283,7 @@ export class MTableToolbar extends React.Component {
         )}
         <span>
           <this.props.components.Actions
-            actions={this.props.actions && this.props.actions.filter(a => a.position === "toolbar")}
+            actions={this.props.actions && this.props.actions.filter((a) => a.position === "toolbar")}
             components={this.props.components}
           />
         </span>
@@ -295,7 +295,7 @@ export class MTableToolbar extends React.Component {
     return (
       <React.Fragment>
         <this.props.components.Actions
-          actions={this.props.actions.filter(a => a.position === "toolbarOnSelect")}
+          actions={this.props.actions.filter((a) => a.position === "toolbarOnSelect")}
           data={this.props.selectedRows}
           components={this.props.components}
         />
@@ -317,7 +317,7 @@ export class MTableToolbar extends React.Component {
     );
   };
 
-  renderToolbarTitle = title => {
+  renderToolbarTitle = (title) => {
     const { classes } = this.props;
     const toolBarTitle = typeof title === "string" ? <Typography variant="h6">{title}</Typography> : title;
 
@@ -335,7 +335,7 @@ export class MTableToolbar extends React.Component {
             ref={this.fileInputRef}
             style={{ display: "none" }}
             type="file"
-            onChange={e => this.readFile(e.target.files)}
+            onChange={(e) => this.readFile(e.target.files)}
           />
         </div>
       </Tooltip>
@@ -362,7 +362,7 @@ export class MTableToolbar extends React.Component {
         <Tooltip title={"Load default tags"}>
           <IconButton
             color="inherit"
-            onClick={event => this.setState({ loadDefaultButtonAnchorEl: event.currentTarget })}
+            onClick={(event) => this.setState({ loadDefaultButtonAnchorEl: event.currentTarget })}
             aria-label={"Load default tags"}
           >
             <this.props.icons.LoadDefaults />
@@ -391,7 +391,7 @@ export class MTableToolbar extends React.Component {
         <Tooltip title={"Remove all tags"}>
           <IconButton
             color="inherit"
-            onClick={event => this.setState({ removeAllTagsButtonAnchorEl: event.currentTarget })}
+            onClick={(event) => this.setState({ removeAllTagsButtonAnchorEl: event.currentTarget })}
             aria-label={"Remove all tags"}
           >
             <this.props.icons.DeleteAll />
@@ -428,7 +428,7 @@ export class MTableToolbar extends React.Component {
       <Toolbar
         className={classNames(classes.root, {
           [classes.highlight]:
-            this.props.showTextRowsSelected && this.props.selectedRows && this.props.selectedRows.length > 0
+            this.props.showTextRowsSelected && this.props.selectedRows && this.props.selectedRows.length > 0,
         })}
       >
         {title && this.renderToolbarTitle(title)}
@@ -459,7 +459,7 @@ MTableToolbar.defaultProps = {
     exportAriaLabel: "Export",
     exportName: "Export as CSV",
     searchTooltip: "Search",
-    searchPlaceholder: "Search"
+    searchPlaceholder: "Search",
   },
   search: true,
   showTitle: true,
@@ -468,7 +468,7 @@ MTableToolbar.defaultProps = {
   searchFieldAlignment: "right",
   searchText: "",
   selectedRows: [],
-  title: "No Title!"
+  title: "No Title!",
 };
 
 MTableToolbar.propTypes = {
@@ -496,53 +496,52 @@ MTableToolbar.propTypes = {
   exportDelimiter: PropTypes.string,
   exportFileName: PropTypes.string,
   exportCsv: PropTypes.func,
-  classes: PropTypes.object
+  classes: PropTypes.object,
 };
 
-export const styles = theme => ({
+export const styles = (theme) => ({
   root: {
-    paddingRight: theme.spacing(1)
+    paddingRight: theme.spacing(1),
   },
   highlight:
     theme.palette.type === "light"
       ? {
           color: theme.palette.secondary.main,
-          backgroundColor: lighten(theme.palette.secondary.light, 0.85)
+          backgroundColor: lighten(theme.palette.secondary.light, 0.85),
         }
       : {
           color: theme.palette.text.primary,
-          backgroundColor: theme.palette.secondary.dark
+          backgroundColor: theme.palette.secondary.dark,
         },
   spacer: {
-    flex: "1 1 10%"
+    flex: "1 1 10%",
   },
   actions: {
-    color: theme.palette.text.secondary
+    color: theme.palette.text.secondary,
   },
   title: {
-    flex: "0 0 auto"
+    flex: "0 0 auto",
   },
   searchField: {
-    paddingLeft: theme.spacing(2)
+    paddingLeft: theme.spacing(2),
   },
   formControlLabel: {
     paddingLeft: theme.spacing(1),
-    paddingRight: theme.spacing(1)
-  }
+    paddingRight: theme.spacing(1),
+  },
 });
 
-const mapStateToProps = state => {
+const mapStateToProps = (state) => {
   return {
-    tagTemplates: state.fileViewer.tagTemplates
+    tagTemplates: state.fileViewer.tagTemplates,
   };
 };
 
-const mapDispatchToProps = dispatch => {
+const mapDispatchToProps = (dispatch) => {
   return {
-    setTagTemplates: tags => dispatch(actions.setTagTemplatesWithCallback(tags)),
-    setAlertMessage: newValue => dispatch(actions.setAlertMessage(newValue)),
-    setAnnotations: annotations => dispatch(actions.setAnnotations(annotations)),
-    setEntities: entities => dispatch(actions.setEntities(entities))
+    setTagTemplates: (tags) => dispatch(actions.setTagTemplatesWithCallback(tags)),
+    setAlertMessage: (newValue) => dispatch(actions.setAlertMessage(newValue)),
+    setEntities: (entities) => dispatch(actions.setEntities(entities)),
   };
 };
 

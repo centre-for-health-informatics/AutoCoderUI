@@ -113,7 +113,6 @@ const mapStateToProps = (state) => {
 const mapDispatchToProps = (dispatch) => {
   return {
     setAddingTags: (tags) => dispatch(actions.setAddingTags(tags)),
-    setSelectedCode: (selectedCode) => dispatch(actions.setSelectedCode(selectedCode)),
   };
 };
 
