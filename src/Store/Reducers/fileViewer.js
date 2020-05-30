@@ -28,6 +28,7 @@ const initialState = {
   sentencesAvailable: false,
   modifyingAnnotation: null,
   filterICD: false,
+  unnamedCounter: 1,
 };
 
 const reducer = (state = initialState, action) => {
@@ -86,6 +87,8 @@ const reducer = (state = initialState, action) => {
       return { ...state, modifyingAnnotation: action.modifyingAnnotation };
     case actionTypes.SET_FILTER_ICD:
       return { ...state, filterICD: action.filterICD };
+    case actionTypes.SET_UNNAMED_FILE_COUNTER:
+      return { ...state, unnamedCounter: action.unnamedCounter };
     default:
       return state;
   }

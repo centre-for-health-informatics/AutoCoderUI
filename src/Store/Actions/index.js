@@ -27,6 +27,7 @@ export {
   setSentencesAvailable,
   setModifyingAnnotation,
   setFilterICD,
+  setUnnamedCounter,
 } from "./fileViewer";
 export { setAddingTags, setInitialTagsAdded } from "./tagManagement";
 export {

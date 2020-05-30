@@ -3,9 +3,11 @@ import { connect } from "react-redux";
 import * as APIUtility from "../../Util/API";
 import * as actions from "../../Store/Actions/index";
 import * as tagTypes from "../TagManagement/tagTypes";
-import { List, Button, makeStyles, ListSubheader } from "@material-ui/core";
+import { List, Button, makeStyles, ListSubheader, Modal, Backdrop, TextField, Fade } from "@material-ui/core";
 import { saveAs } from "file-saver";
 import FileHistory from "../FileHistory/FileHistory";
+import useWindowResize from "../../Util/resizer";
+import { getModalWidth } from "../../Util/utility";
 
 var JSZip = require("jszip");
 
@@ -19,11 +21,26 @@ const useStyles = makeStyles((theme) => ({
   nested: {
     paddingLeft: theme.spacing(5),
   },
+  modal: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  paper: {
+    backgroundColor: theme.palette.background.paper,
+    border: "2px solid #000",
+    boxShadow: theme.shadows[5],
+    padding: theme.spacing(2, 4, 3),
+  },
 }));
 
 const ManageFiles = (props) => {
+  const [modalOpen, setModalOpen] = React.useState(false);
+  const [pastedText, setPastedText] = React.useState("");
+
   const classes = useStyles();
   const fileInputRefBrowse = React.createRef();
+  const windowWidth = useWindowResize()[0];
 
   // opens file explorer
   const openExplorerBrowse = () => {
@@ -263,11 +280,28 @@ const ManageFiles = (props) => {
     }
   };
 
+  const handlePasteTextClick = () => {
+    setModalOpen(true);
+  };
+
+  const submitPasteText = () => {
+    const file = new Blob([pastedText], { type: "text/plain" });
+    file.name = "unnamed_file_" + props.unnamedCounter + ".txt";
+    openFiles([file]);
+    props.setUnnamedCounter(props.unnamedCounter + 1);
+    setModalOpen(false);
+  };
+
+  const handleTextFieldChange = (e) => {
+    setPastedText(e.target.value);
+  };
+
   return (
     <div className={classes.root}>
       <Button onClick={openExplorerBrowse} variant="contained" color="primary" className={classes.button}>
         Browse for Files
       </Button>
+      <br />
       <input
         ref={fileInputRefBrowse}
         style={{ display: "none" }}
@@ -277,6 +311,10 @@ const ManageFiles = (props) => {
       />
       <Button onClick={exportAnnotations} variant="contained" color="primary" className={classes.button}>
         Export Annotations
+      </Button>
+      <br />
+      <Button onClick={handlePasteTextClick} variant="contained" color="primary" className={classes.button}>
+        Paste Text
       </Button>
       <List
         dense
@@ -302,6 +340,36 @@ const ManageFiles = (props) => {
           />
         ))}
       </List>
+      <Modal
+        className={classes.modal}
+        open={modalOpen}
+        onClose={() => {
+          setModalOpen(false);
+        }}
+        closeAfterTransition
+        BackdropComponent={Backdrop}
+        BackdropProps={{
+          timeout: 500,
+        }}
+      >
+        <Fade in={modalOpen}>
+          <div style={{ width: getModalWidth(windowWidth) }} className={classes.paper}>
+            <TextField
+              id="pasteText"
+              label="Discharge Summary Text"
+              multiline
+              rows={20}
+              defaultValue=""
+              variant="outlined"
+              fullWidth
+              onChange={handleTextFieldChange}
+            />
+            <Button onClick={submitPasteText} variant="contained" color="primary" className={classes.button}>
+              Submit
+            </Button>
+          </div>
+        </Fade>
+      </Modal>
     </div>
   );
 };
@@ -319,6 +387,7 @@ const mapStateToProps = (state) => {
     currentEntities: state.fileViewer.currentEntities,
     currentSentences: state.fileViewer.currentSentences,
     versions: state.fileViewer.versions,
+    unnamedCounter: state.fileViewer.unnamedCounter,
   };
 };
 
@@ -336,6 +405,7 @@ const mapDispatchToProps = (dispatch) => {
     setTagTemplates: (tagTemplates) => dispatch(actions.setTagTemplatesWithCallback(tagTemplates)),
     setCurrentEntities: (currentEntities) => dispatch(actions.setCurrentEntities(currentEntities)),
     setCurrentSentences: (currentSentences) => dispatch(actions.setCurrentSentences(currentSentences)),
+    setUnnamedCounter: (unnamedCounter) => dispatch(actions.setUnnamedCounter(unnamedCounter)),
   };
 };
 

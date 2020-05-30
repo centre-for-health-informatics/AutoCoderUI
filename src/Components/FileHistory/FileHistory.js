@@ -7,26 +7,26 @@ import * as utility from "../../Util/utility";
 import { List, ListItem, makeStyles, Collapse, IconButton, Button } from "@material-ui/core";
 import { AddCircleOutline, RemoveCircleOutline } from "@material-ui/icons";
 
-const useStyles = makeStyles(theme => ({
+const useStyles = makeStyles((theme) => ({
   button: {
-    margin: theme.spacing(1)
+    margin: theme.spacing(1),
   },
   root: {
-    padding: theme.spacing(0.5)
+    padding: theme.spacing(0.5),
   },
   nested: {
-    paddingLeft: theme.spacing(5)
-  }
+    paddingLeft: theme.spacing(5),
+  },
 }));
 
-const FileHistory = props => {
+const FileHistory = (props) => {
   const classes = useStyles();
   const [isExpanded, setExpanded] = React.useState(false);
   const [fileInfo, setFileInfo] = React.useState({});
   const showAPIButton = process.env.REACT_APP_USE_SPACY_API.toLowerCase() === "true";
 
   // returns bold for the currently selected file, normal otherwise
-  const getFontWeightFile = index => {
+  const getFontWeightFile = (index) => {
     if (index === props.fileIndex) {
       return "bold";
     }
@@ -34,7 +34,7 @@ const FileHistory = props => {
   };
 
   // returns bold for the currently selected version, normal otherwise
-  const getFontWeightVersion = index => {
+  const getFontWeightVersion = (index) => {
     if (index === props.versionIndex) {
       return "bold";
     }
@@ -42,7 +42,7 @@ const FileHistory = props => {
   };
 
   // adds tags to tagTemplates when loading versions from database
-  const addNewTags = data => {
+  const addNewTags = (data) => {
     const newTags = [];
     for (let version of data) {
       const tagTemplates = Array.from(version.data.tagTemplates);
@@ -57,7 +57,7 @@ const FileHistory = props => {
   const getAnnotationsForFile = () => {
     return new Promise((resolve, reject) => {
       const options = {
-        method: "GET"
+        method: "GET",
       };
       // API call to get back all annotations for a specific file for a specific user
       APIUtility.API.makeAPICall(
@@ -65,8 +65,8 @@ const FileHistory = props => {
         props.annotationsList[props.index].name,
         options
       )
-        .then(response => response.json())
-        .then(data => {
+        .then((response) => response.json())
+        .then((data) => {
           // adding tags from all versions
           addNewTags(data);
           let dataVersions = [];
@@ -91,7 +91,7 @@ const FileHistory = props => {
                 props.setAnnotations(version.data[tagTypes.SENTENCES]);
               } else {
                 props.setAnnotations([
-                  ...version.data[tagTypes.ENTITIES].filter(annotation => annotation.type === props.annotationFocus)
+                  ...version.data[tagTypes.ENTITIES].filter((annotation) => annotation.type === props.annotationFocus),
                 ]);
               }
             }
@@ -111,7 +111,7 @@ const FileHistory = props => {
           // resolving the promise in order to continue with next steps (check for matching json, in ManageFiles.js)
           resolve(isThereCurrent);
         })
-        .catch(error => {
+        .catch((error) => {
           console.log("ERROR:", error);
         });
     });
@@ -131,7 +131,7 @@ const FileHistory = props => {
       props.setAnnotations(version.data[props.annotationFocus]);
       if (props.annotationFocus !== tagTypes.ENTITIES) {
         props.setAnnotations(
-          version.data[tagTypes.ENTITIES].filter(annotation => annotation.type === props.annotationFocus)
+          version.data[tagTypes.ENTITIES].filter((annotation) => annotation.type === props.annotationFocus)
         );
       }
       // switching to current
@@ -143,7 +143,7 @@ const FileHistory = props => {
         props.setAnnotations(props.currentSentences);
       } else {
         props.setAnnotations([
-          ...props.currentEntities.filter(annotation => annotation.type === props.annotationFocus)
+          ...props.currentEntities.filter((annotation) => annotation.type === props.annotationFocus),
         ]);
       }
     }
@@ -155,7 +155,7 @@ const FileHistory = props => {
     if (window.confirm("Are you sure? This will overwrite your current annotations.")) {
       // set current annotations and then save
       props.setCurrentEntities(props.entities).then(() => {
-        props.setCurrentSentences(props.sentences).then(state => {
+        props.setCurrentSentences(props.sentences).then((state) => {
           props.saveAnnotations(state);
         });
       });
@@ -251,7 +251,7 @@ const FileHistory = props => {
             // else, change to that file and get annotations (from database or from uploaded json)
             props.setFileIndex(props.index);
             props.setSpacyLoading(false);
-            getAnnotationsForFile().then(isThereCurrent => {
+            getAnnotationsForFile().then((isThereCurrent) => {
               switchFile(props.index, isThereCurrent);
             });
             setExpanded(false);
@@ -308,7 +308,7 @@ const FileHistory = props => {
   );
 };
 
-const mapStateToProps = state => {
+const mapStateToProps = (state) => {
   return {
     fileIndex: state.fileViewer.fileIndex,
     annotationsList: state.fileViewer.annotationsList,
@@ -322,23 +322,23 @@ const mapStateToProps = state => {
     versionIndex: state.fileViewer.versionIndex,
     annotationFocus: state.fileViewer.annotationFocus,
     txtList: state.fileViewer.txtList,
-    jsonList: state.fileViewer.jsonList
+    jsonList: state.fileViewer.jsonList,
   };
 };
 
-const mapDispatchToProps = dispatch => {
+const mapDispatchToProps = (dispatch) => {
   return {
-    setAnnotations: annotations => dispatch(actions.setAnnotations(annotations)),
-    setSentences: sentences => dispatch(actions.setSentences(sentences)),
-    setEntities: entities => dispatch(actions.setEntities(entities)),
-    setCurrentEntities: currentEntities => dispatch(actions.setCurrentEntitiesWithCallback(currentEntities)),
-    setSpansRendered: spansRendered => dispatch(actions.setSpansRendered(spansRendered)),
-    setCurrentSentences: currentSentences => dispatch(actions.setCurrentSentencesWithCallback(currentSentences)),
-    setVersions: versions => dispatch(actions.setVersions(versions)),
-    setVersionIndex: versionIndex => dispatch(actions.setVersionIndex(versionIndex)),
-    setFileIndex: fileIndex => dispatch(actions.setFileIndex(fileIndex)),
-    setFileText: fileText => dispatch(actions.setFileText(fileText)),
-    setSpacyLoading: isSpacyLoading => dispatch(actions.setSpacyLoading(isSpacyLoading))
+    setAnnotations: (annotations) => dispatch(actions.setAnnotations(annotations)),
+    setSentences: (sentences) => dispatch(actions.setSentences(sentences)),
+    setEntities: (entities) => dispatch(actions.setEntities(entities)),
+    setCurrentEntities: (currentEntities) => dispatch(actions.setCurrentEntitiesWithCallback(currentEntities)),
+    setSpansRendered: (spansRendered) => dispatch(actions.setSpansRendered(spansRendered)),
+    setCurrentSentences: (currentSentences) => dispatch(actions.setCurrentSentencesWithCallback(currentSentences)),
+    setVersions: (versions) => dispatch(actions.setVersions(versions)),
+    setVersionIndex: (versionIndex) => dispatch(actions.setVersionIndex(versionIndex)),
+    setFileIndex: (fileIndex) => dispatch(actions.setFileIndex(fileIndex)),
+    setFileText: (fileText) => dispatch(actions.setFileText(fileText)),
+    setSpacyLoading: (isSpacyLoading) => dispatch(actions.setSpacyLoading(isSpacyLoading)),
   };
 };
 

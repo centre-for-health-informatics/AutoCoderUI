@@ -181,3 +181,10 @@ export const setFilterICD = (filterICD) => {
     filterICD,
   };
 };
+
+export const setUnnamedCounter = (unnamedCounter) => {
+  return {
+    type: actionTypes.SET_UNNAMED_FILE_COUNTER,
+    unnamedCounter,
+  };
+};

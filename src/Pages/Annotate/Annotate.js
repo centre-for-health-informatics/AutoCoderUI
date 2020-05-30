@@ -23,8 +23,8 @@ import CustomAnnotator from "../../Components/CustomAnnotator/CustomAnnotator";
 import TreeViewer from "../../Components/TreeViewer/TreeViewer";
 import SearchBox from "../../Components/TagManagement/SearchBox";
 import { makeStyles } from "@material-ui/core/styles";
-import { getWindowSize } from "../../Util/windowSizeBracket";
 import useWindowResize from "../../Util/resizer";
+import { getModalWidth } from "../../Util/utility";
 
 const ResponsiveReactGridLayout = WidthProvider(Responsive);
 const originalLayouts = getFromLS("annotateLayouts", "layouts") || defaultLayouts;
@@ -57,27 +57,6 @@ const Annotate = (props) => {
   const classes = useStyles();
 
   const windowWidth = useWindowResize()[0];
-
-  const modalWidth = { xs: "95%", sm: "60%", md: "70%", lg: "70%", xl: "70%" };
-
-  const getModalWidth = () => {
-    const size = getWindowSize(windowWidth);
-
-    switch (size) {
-      case "xs":
-        return modalWidth.xs;
-      case "sm":
-        return modalWidth.sm;
-      case "md":
-        return modalWidth.md;
-      case "lg":
-        return modalWidth.lg;
-      case "xl":
-        return modalWidth.xl;
-      default:
-        return "100%";
-    }
-  };
 
   const onLayoutChange = (layouts) => {
     setLayouts(layouts);
@@ -308,7 +287,7 @@ const Annotate = (props) => {
         }}
       >
         <Fade in={modalOpen}>
-          <div style={{ width: getModalWidth() }} className={classes.paper}>
+          <div style={{ width: getModalWidth(windowWidth) }} className={classes.paper}>
             <div style={{ display: "flex", flexDirection: "row" }}>
               <SearchBox />
               {props.modifyingAnnotation && (
@@ -325,7 +304,7 @@ const Annotate = (props) => {
               )}
             </div>
             {props.annotationFocus === tagTypes.ICD ? (
-              <div style={{ width: "100%", height: docTreeHeight }}>
+              <div style={{ width: "90%", height: docTreeHeight ? docTreeHeight : 500 }}>
                 <TreeViewer ref={treeViewDivModal} className="modalTree" />
               </div>
             ) : null}
